@@ -12,8 +12,27 @@ Features
 * wxPython's GLCanvas widget
 * pyQt4's qgl widget
 
-Usage
-=====
+Controller convention
+=====================
+you should inherit glglue.BaseController and implement follow methods.
+
+* onUpdate
+* onLeftDown
+* onLeftUp
+* onMiddleDown
+* onMiddleUp
+* onRightDown
+* onRightUp
+* onMotion
+* onResize
+* onWheel
+* onKeyDown
+* draw
+
+see SampleController in glglue/sample/__init__.py
+
+Samples
+=======
 
 glut
 ----
@@ -30,6 +49,7 @@ tkinter
 -------
 ::
 
+    import sys
     import Tkinter as tkinter
     import glglue.togl
     import glglue.sample
@@ -66,6 +86,7 @@ wxPython
 --------
 ::
 
+    import wx
     import glglue.sample
     import glglue.wxglcanvas
     class Frame(wx.Frame):
