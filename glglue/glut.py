@@ -8,47 +8,47 @@ from OpenGL.GLUT import *
 
 # OpenGL処理用のglobal変数
 # glutのコールバック関数に来たイベントをここに丸投げする
-g_engine=None
+g_controller=None
 
 
 def resize(w, h):
-    global g_engine
-    g_engine.onResize(w, h)
+    global g_controller
+    g_controller.onResize(w, h)
 
 
 def mouse(button, state, x, y):
-    global g_engine
+    global g_controller
 
     # マウスイベントの振り分けはここでしてしまう
-    # g_engineのメソッドからTrueが返ったら再描画する
+    # g_controllerのメソッドからTrueが返ったら再描画する
     if button==GLUT_LEFT_BUTTON:
         if state==GLUT_DOWN:
-            if g_engine.onLeftDown(x, y):
+            if g_controller.onLeftDown(x, y):
                 glutPostRedisplay()
         else:
-            if g_engine.onLeftUp(x, y):
+            if g_controller.onLeftUp(x, y):
                 glutPostRedisplay()
     elif button==GLUT_MIDDLE_BUTTON:
         if state==GLUT_DOWN:
-            if g_engine.onMiddleDown(x, y):
+            if g_controller.onMiddleDown(x, y):
                 glutPostRedisplay()
         else:
-            if g_engine.onMiddleUp(x, y):
+            if g_controller.onMiddleUp(x, y):
                 glutPostRedisplay()
     elif button==GLUT_RIGHT_BUTTON:
         if state==GLUT_DOWN:
-            if g_engine.onRightDown(x, y):
+            if g_controller.onRightDown(x, y):
                 glutPostRedisplay()
         else:
-            if g_engine.onRightUp(x, y):
+            if g_controller.onRightUp(x, y):
                 glutPostRedisplay()
 
     elif button==3:
-        if g_engine.onWheel(-1):
+        if g_controller.onWheel(-1):
             glutPostRedisplay()
 
     elif button==4:
-        if g_engine.onWheel(1):
+        if g_controller.onWheel(1):
             glutPostRedisplay()
 
     else:
@@ -56,8 +56,8 @@ def mouse(button, state, x, y):
 
 
 def motion(x, y):
-    global g_engine
-    if g_engine.onMotion(x, y):
+    global g_controller
+    if g_controller.onMotion(x, y):
         glutPostRedisplay()
 
 
@@ -73,14 +73,14 @@ def keyboard(key, x, y):
 
 
 def draw():
-    global g_engine
-    g_engine.draw()
+    global g_controller
+    g_controller.draw()
     glutSwapBuffers()
 
 
-def mainloop(engine):
-    global g_engine
-    g_engine=engine
+def mainloop(controller):
+    global g_controller
+    g_controller=controller
 
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
