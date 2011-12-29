@@ -185,6 +185,15 @@ require pyOpenGL(experimental...)
 
     import glglue.sample
     import glglue.wgl
+
+    if __name__=="__main__":
+        controller=glglue.sample.SampleController()
+        glglue.wgl.mainloop(controller)
+
+::
+
+    import glglue.sample
+    import glglue.wgl
     
     if __name__=="__main__":
         factory=glglue.wgl.WindowFactory()
@@ -197,6 +206,7 @@ require pyOpenGL(experimental...)
 
 History
 =======
+* 20111230 0.0.5 add wgl.mainloop
 * 20111230 0.0.4 fix SetWindowLongPtr
 * 20111229 0.0.3 include glglue.sample. add wgl
 
