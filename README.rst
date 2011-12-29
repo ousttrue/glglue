@@ -1,6 +1,9 @@
 `glglue` provide boilerplate codes that glue OpenGL with some GUI.
 it is handling mouse event, keyboard event, window resize event and draw event. 
 
+* http://pypi.python.org/pypi/glglue/
+* https://github.com/ousttrue/glglue
+
 Requirements
 ============
 * Python 2.7
@@ -36,6 +39,8 @@ Samples
 
 glut
 ----
+requrie pyOpenGL
+
 ::
 
     import glglue.sample
@@ -47,6 +52,8 @@ glut
 
 tkinter
 -------
+requrie pyOpenGL + togl install
+
 ::
 
     import sys
@@ -84,6 +91,8 @@ tkinter
 
 wxPython
 --------
+require pyOpenGL + wxPython
+
 ::
 
     import wx
@@ -107,6 +116,8 @@ wxPython
 
 pyQt4
 -----
+require pyOpenGL + pyQt4
+
 ::
 
     from PyQt4 import Qt
@@ -131,6 +142,8 @@ pyQt4
 
 pyGame
 ------
+require pyOpenGL + pyGame
+
 ::
 
     import pygame
@@ -162,4 +175,25 @@ pyGame
             # Show the screen
             controller.draw()
             pygame.display.flip()
+
+win32api
+--------
+require pyOpenGL
+
+::
+    import glglue.wgl
+    import glglue.sample
+
+    factory=glglue.wgl.WindowFactory()
+    window=factory.create(glglue.wgl.Window, "Python Window")
+    window.createGLContext(16)
+    window.controller=glglue.sample.SampleController()
+    window.show()
+    import sys
+    sys.exit(factory.loop())
+
+
+History
+=======
+* 20111229 0.0.3 add wgl
 

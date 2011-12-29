@@ -7,7 +7,7 @@ import os
 import shutil
 
 name='glglue'
-version='0.0.2'
+version='0.0.3'
 short_description='The glue code which mediates between OpenGL and some GUI'
 long_description=open('README.rst').read()
 
