@@ -14,6 +14,7 @@ Features
 * tkinter's togl widget
 * wxPython's GLCanvas widget
 * pyQt4's qgl widget
+* win32api wgl
 
 Controller convention
 =====================
