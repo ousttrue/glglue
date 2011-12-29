@@ -27,7 +27,7 @@ setup(
         author='ousttrue',
         author_email='ousttrue@gmail.com',
         license='zlib',
-        packages=['glglue'],
+        packages=['glglue', 'glglue.sample',],
         test_suite='nose.collector',
         tests_require=['Nose'],
         zip_safe = (sys.version>="2.5"),   # <2.5 needs unzipped for -m to work

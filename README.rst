@@ -179,23 +179,23 @@ require pyOpenGL + pyGame
 
 win32api
 --------
-require pyOpenGL
+require pyOpenGL(experimental...)
 
 ::
 
-    import glglue.wgl
     import glglue.sample
+    import glglue.wgl
     
-    factory=glglue.wgl.WindowFactory()
-    window=factory.create(glglue.wgl.Window, "Python Window")
-    window.createGLContext(16)
-    window.controller=glglue.sample.SampleController()
-    window.show()
-    import sys
-    sys.exit(factory.loop())
-
+    if __name__=="__main__":
+        factory=glglue.wgl.WindowFactory()
+        window=factory.create(glglue.wgl.Window, "Python Window")
+        window.createGLContext(16)
+        window.controller=glglue.sample.SampleController()
+        window.show()
+        import sys
+        sys.exit(factory.loop())
 
 History
 =======
-* 20111229 0.0.3 add wgl
+* 20111229 0.0.3 include glglue.sample. add wgl
 
