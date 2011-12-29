@@ -182,9 +182,10 @@ win32api
 require pyOpenGL
 
 ::
+
     import glglue.wgl
     import glglue.sample
-
+    
     factory=glglue.wgl.WindowFactory()
     window=factory.create(glglue.wgl.Window, "Python Window")
     window.createGLContext(16)
