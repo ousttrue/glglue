@@ -372,18 +372,21 @@ class WindowFactory(object):
                 c_int(hwnd), c_int(message), c_int(wParam), c_int(lParam))
 
 
-if __name__=="__main__":
-    import os
-    import glglue.sample
-    if os.name!='nt':
-        print "this script is windows only: "+os.name
-        sys.exit()
-
+def mainloop(controller):
     factory=WindowFactory()
     window=factory.create(Window, "Python Window")
     window.createGLContext(16)
-    window.controller=glglue.sample.SampleController()
+    window.controller=controller
     window.show()
     import sys
     sys.exit(factory.loop())
+
+
+if __name__=="__main__":
+    import os
+    if os.name!='nt':
+        print "this script is windows only: "+os.name
+        sys.exit()
+    import glglue.sample
+    mainloop(glglue.sample.SampleController())
 
