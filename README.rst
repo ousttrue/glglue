@@ -197,5 +197,6 @@ require pyOpenGL(experimental...)
 
 History
 =======
+* 20111230 0.0.4 fix SetWindowLongPtr
 * 20111229 0.0.3 include glglue.sample. add wgl
 
