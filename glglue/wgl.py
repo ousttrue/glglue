@@ -1,4 +1,5 @@
 import win32con
+import sys
 from ctypes import *
 from OpenGL.GL import *
 
@@ -189,6 +190,7 @@ class Window(object):
         self.hwnd=None
         self.hrc=None
         self.controller=None
+        self.ptrs={}
 
     def finalize(self):
         print 'finalize', self.__class__
@@ -198,15 +200,25 @@ class Window(object):
                 c_int(win32con.SW_SHOWNORMAL))
         windll.user32.UpdateWindow(c_int(self.hwnd))
 
+    def SetLongPtr(self, key, value):
+        self.ptrs[key]=value
+        SetWindowLongPtr(c_int(self.hwnd), key, value);
+
     def WndProc(self, hwnd, message, wParam, lParam):
+        #sys.stderr.write("Window::WndProc 0x%x\n" % message)
         if message == win32con.WM_PAINT:
+            #sys.stderr.write("WM_PAINT\n")
             if self.hrc and self.controller:
-                hDC = GetDC(hwnd)
+                #ps = PAINTSTRUCT()
+                #hdc = windll.user32.BeginPaint(c_int(hwnd), byref(ps))
+                hdc=GetDC(c_int(hwnd))
                 self.controller.draw()
-                SwapBuffers(hDC)
+                SwapBuffers(hdc)
+                #windll.user32.EndPaint(c_int(hwnd), byref(ps))
             return 0
 
         elif message == win32con.WM_SIZE:
+            #sys.stderr.write("WM_SIZE\n")
             if self.controller:
                 w=LOWORD(lParam)
                 h=HIWORD(lParam)
@@ -214,6 +226,7 @@ class Window(object):
             return 0
 
         elif message == win32con.WM_DESTROY:
+            #sys.stderr.write("WM_DESTROY\n")
             windll.user32.PostQuitMessage(0)
             return 0
 
@@ -263,6 +276,7 @@ class Window(object):
 
     @staticmethod
     def WndProcProxy(hwnd, message, wParam, lParam):
+        #sys.stderr.write("Window::WndProcProxy\n")
         p=GetWindowLongPtr(hwnd, win32con.GWL_USERDATA)
         window=cast(p, py_object)
         return window.value.WndProc(hwnd, message, wParam, lParam)
@@ -279,7 +293,7 @@ class WindowFactory(object):
 
     def finalize(self):
         for w in self.windows:
-            w.finalize()
+            w.value.finalize()
         print 'finalize', self.__class__
 
     def register_class(self, className):
@@ -323,8 +337,7 @@ class WindowFactory(object):
                               win32con.NULL,
                               wndclass.hInstance,
                               pywindow)
-        window.hwnd=hwnd
-        self.windows.append(window)
+        self.windows.append(pywindow)
         return window
 
     def loop(self):
@@ -339,15 +352,16 @@ class WindowFactory(object):
 
     @staticmethod
     def WndProc(hwnd, message, wParam, lParam):
+        #sys.stderr.write("WindowFactory::WndProc\n")
         if message == win32con.WM_CREATE:
-            print 'WndProc', message, 'WM_CREATE'
             lpcreatestruct=cast(lParam, POINTER(CREATESTRUCT))
             createstruct = lpcreatestruct.contents;
-            SetWindowLongPtr(c_int(hwnd), win32con.GWL_USERDATA,
-                    createstruct.lpCreateParams);
-            SetWindowLongPtr(c_int(hwnd), win32con.GWL_WNDPROC,
-                    cast(WNDPROC(Window.WndProcProxy), c_void_p));
             window=cast(createstruct.lpCreateParams, py_object).value
+            window.hwnd=hwnd
+            window.SetLongPtr(win32con.GWL_USERDATA, 
+                    createstruct.lpCreateParams)
+            window.SetLongPtr(win32con.GWL_WNDPROC,
+                    cast(WNDPROC(Window.WndProcProxy), c_void_p))
             return window.WndProc(hwnd, message, wParam, lParam)
 
         elif message == win32con.WM_DESTROY:
