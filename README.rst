@@ -185,28 +185,30 @@ require pyOpenGL(experimental...)
 
     import glglue.sample
     import glglue.wgl
-
-    if __name__=="__main__":
-        controller=glglue.sample.SampleController()
-        glglue.wgl.mainloop(controller)
-
-::
-
-    import glglue.sample
-    import glglue.wgl
     
     if __name__=="__main__":
         factory=glglue.wgl.WindowFactory()
-        window=factory.create(glglue.wgl.Window, "Python Window")
+        window=factory.create(glglue.wgl.Window, title="sample")
         window.createGLContext(16)
         window.controller=glglue.sample.SampleController()
         window.show()
         import sys
         sys.exit(factory.loop())
 
+short smaple
+
+::
+
+    import glglue.sample
+    import glglue.wgl
+
+    if __name__=="__main__":
+        controller=glglue.sample.SampleController()
+        glglue.wgl.mainloop(controller, width=640, height=480, title="sample")
+
 History
 =======
-* 20111230 0.0.5 add wgl.mainloop
+* 20111230 0.0.6 add wgl.mainloop
 * 20111230 0.0.4 fix SetWindowLongPtr
 * 20111229 0.0.3 include glglue.sample. add wgl
 

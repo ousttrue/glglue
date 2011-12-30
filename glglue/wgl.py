@@ -181,6 +181,12 @@ wglMakeCurrent.argtypes=[
 ]
 wglMakeCurrent.restype=ErrorIfZero
 
+DefWindowProc=windll.user32.DefWindowProcA
+DefWindowProc.argtypes=[
+        c_int, c_int, c_int, c_int
+        ]
+DefWindowProc.restype=c_int
+
 
 ##############################################################################
 # api class
@@ -191,11 +197,16 @@ class Window(object):
         self.hrc=None
         self.controller=None
         self.ptrs={}
+        self.callbacks={
+                win32con.WM_PAINT: self.onPaint,
+                win32con.WM_SIZE: self.onSize,
+                win32con.WM_DESTROY: self.onDestroy,
+                }
 
     def finalize(self):
         print 'finalize', self.__class__
 
-    def show(self):
+    def Show(self):
         windll.user32.ShowWindow(c_int(self.hwnd), 
                 c_int(win32con.SW_SHOWNORMAL))
         windll.user32.UpdateWindow(c_int(self.hwnd))
@@ -204,35 +215,36 @@ class Window(object):
         self.ptrs[key]=value
         SetWindowLongPtr(c_int(self.hwnd), key, value);
 
-    def WndProc(self, hwnd, message, wParam, lParam):
-        #sys.stderr.write("Window::WndProc 0x%x\n" % message)
-        if message == win32con.WM_PAINT:
-            #sys.stderr.write("WM_PAINT\n")
-            if self.hrc and self.controller:
-                #ps = PAINTSTRUCT()
-                #hdc = windll.user32.BeginPaint(c_int(hwnd), byref(ps))
-                hdc=GetDC(c_int(hwnd))
-                self.controller.draw()
-                SwapBuffers(hdc)
-                #windll.user32.EndPaint(c_int(hwnd), byref(ps))
-            return 0
+    def onPaint(self, hwnd, message, wParam, lParam):
+        #sys.stderr.write("WM_PAINT\n")
+        if self.hrc and self.controller:
+            #ps = PAINTSTRUCT()
+            #hdc = windll.user32.BeginPaint(c_int(hwnd), byref(ps))
+            hdc=GetDC(c_int(hwnd))
+            self.controller.draw()
+            SwapBuffers(hdc)
+            #windll.user32.EndPaint(c_int(hwnd), byref(ps))
+        return 0
 
-        elif message == win32con.WM_SIZE:
-            #sys.stderr.write("WM_SIZE\n")
-            if self.controller:
-                w=LOWORD(lParam)
-                h=HIWORD(lParam)
-                self.controller.onResize(w, h)
-            return 0
+    def onSize(self, hwnd, message, wParam, lParam):
+        #sys.stderr.write("WM_SIZE\n")
+        if self.controller:
+            w=LOWORD(lParam)
+            h=HIWORD(lParam)
+            self.controller.onResize(w, h)
+        return 0
 
-        elif message == win32con.WM_DESTROY:
+    def onDestroy(self, hwnd, message, wParam, lParam):
             #sys.stderr.write("WM_DESTROY\n")
             windll.user32.PostQuitMessage(0)
             return 0
 
+    def WndProc(self, hwnd, message, wParam, lParam):
+        #sys.stderr.write("Window::WndProc 0x%x\n" % message)
+        if message in self.callbacks:
+            return self.callbacks[message](hwnd, message, wParam, lParam)
         else:
-            return windll.user32.DefWindowProcA(
-                    c_int(hwnd), c_int(message), c_int(wParam), c_int(lParam))
+            return DefWindowProc(hwnd, message, wParam, lParam)
 
     def createGLContext(self, bits):
         hdc=GetDC(self.hwnd)
@@ -372,8 +384,7 @@ class WindowFactory(object):
             windll.user32.PostQuitMessage(0)
             return 0
         
-        return windll.user32.DefWindowProcA(
-                c_int(hwnd), c_int(message), c_int(wParam), c_int(lParam))
+        return DefWindowProc(hwnd, message, wParam, lParam)
 
 
 def mainloop(controller, **kw):
@@ -381,7 +392,7 @@ def mainloop(controller, **kw):
     window=factory.create(Window, **kw)
     window.createGLContext(16)
     window.controller=controller
-    window.show()
+    window.Show()
     import sys
     sys.exit(factory.loop())
 
