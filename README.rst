@@ -208,7 +208,7 @@ short smaple
 
 History
 =======
-* 20111230 0.0.6 add wgl.mainloop
+* 20111230 0.0.7 add wgl.mainloop, implement wgl mouse callback
 * 20111230 0.0.4 fix SetWindowLongPtr
 * 20111229 0.0.3 include glglue.sample. add wgl
 

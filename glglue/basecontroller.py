@@ -17,63 +17,63 @@ class BaseController(object):
         pass
 
     @abc.abstractmethod
-    def onLeftDown(*args):
+    def onLeftDown(self, x, y):
         """
         mouse event
         """
         pass
 
     @abc.abstractmethod
-    def onLeftUp(*args):
+    def onLeftUp(self, x, y):
         """
         mouse event
         """
         pass
 
     @abc.abstractmethod
-    def onMiddleDown(*args):
+    def onMiddleDown(self, x, y):
         """
         mouse event
         """
         pass
 
     @abc.abstractmethod
-    def onMiddleUp(*args):
+    def onMiddleUp(self, x, y):
         """
         mouse event
         """
         pass
 
     @abc.abstractmethod
-    def onRightDown(*args):
+    def onRightDown(self, x, y):
         """
         mouse event
         """
         pass
 
     @abc.abstractmethod
-    def onRightUp(*args):
+    def onRightUp(self, x, y):
         """
         mouse event
         """
         pass
 
     @abc.abstractmethod
-    def onMotion(*args):
+    def onMotion(self, x, y):
         """
         mouse event
         """
         pass
 
     @abc.abstractmethod
-    def onResize(*args):
+    def onResize(self, w, h):
         """
         gui event
         """
         pass
 
     @abc.abstractmethod
-    def onWheel(*args):
+    def onWheel(self, d):
         """
         mouse event
         """

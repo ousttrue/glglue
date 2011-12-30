@@ -201,6 +201,15 @@ class Window(object):
                 win32con.WM_PAINT: self.onPaint,
                 win32con.WM_SIZE: self.onSize,
                 win32con.WM_DESTROY: self.onDestroy,
+                win32con.WM_LBUTTONDOWN: self.onLeftDown,
+                win32con.WM_LBUTTONUP: self.onLeftUp,
+                win32con.WM_MBUTTONDOWN: self.onMiddleDown,
+                win32con.WM_MBUTTONUP: self.onMiddleUp,
+                win32con.WM_RBUTTONDOWN: self.onRightDown,
+                win32con.WM_RBUTTONUP: self.onRightUp,
+                win32con.WM_MOUSEMOVE: self.onMouseMove,
+                win32con.WM_MOUSEWHEEL: self.onMouseWheel,
+                win32con.WM_KEYDOWN: self.onKeyDown,
                 }
 
     def finalize(self):
@@ -218,12 +227,11 @@ class Window(object):
     def onPaint(self, hwnd, message, wParam, lParam):
         #sys.stderr.write("WM_PAINT\n")
         if self.hrc and self.controller:
-            #ps = PAINTSTRUCT()
-            #hdc = windll.user32.BeginPaint(c_int(hwnd), byref(ps))
-            hdc=GetDC(c_int(hwnd))
+            ps = PAINTSTRUCT()
+            hdc = windll.user32.BeginPaint(c_int(hwnd), byref(ps))
             self.controller.draw()
             SwapBuffers(hdc)
-            #windll.user32.EndPaint(c_int(hwnd), byref(ps))
+            windll.user32.EndPaint(c_int(hwnd), byref(ps))
         return 0
 
     def onSize(self, hwnd, message, wParam, lParam):
@@ -239,8 +247,67 @@ class Window(object):
             windll.user32.PostQuitMessage(0)
             return 0
 
+    def onKeyDown(self, hwnd, message, wParam, lParam):
+        if self.controller:
+            self.controller.onKeyDown(wParam)
+        return 0
+
+    def onMouseMove(self, hwnd, message, wParam, lParam):
+        if self.controller:
+            x=LOWORD(lParam);
+            y=HIWORD(lParam);
+            self.controller.onMotion(x, y)
+        return 0
+
+    def onMouseWheel(self, hwnd, message, wParam, lParam):
+        if self.controller:
+            d=HIWORD(wParam);
+            self.controller.onWheel(d>32767 and d-65536 or d)
+        return 0
+
+    def onLeftUp(self, hwnd, message, wParam, lParam):
+        if self.controller:
+            x=LOWORD(lParam);
+            y=HIWORD(lParam);
+            self.controller.onLeftUp(x, y)
+        return 0
+
+    def onLeftDown(self, hwnd, message, wParam, lParam):
+        if self.controller:
+            x=LOWORD(lParam);
+            y=HIWORD(lParam);
+            self.controller.onLeftDown(x, y)
+        return 0
+
+    def onMiddleUp(self, hwnd, message, wParam, lParam):
+        if self.controller:
+            x=LOWORD(lParam);
+            y=HIWORD(lParam);
+            self.controller.onMiddleUp(x, y)
+        return 0
+
+    def onMiddleDown(self, hwnd, message, wParam, lParam):
+        if self.controller:
+            x=LOWORD(lParam);
+            y=HIWORD(lParam);
+            self.controller.onMiddleDown(x, y)
+        return 0
+
+    def onRightUp(self, hwnd, message, wParam, lParam):
+        if self.controller:
+            x=LOWORD(lParam);
+            y=HIWORD(lParam);
+            self.controller.onRightUp(x, y)
+        return 0
+
+    def onRightDown(self, hwnd, message, wParam, lParam):
+        if self.controller:
+            x=LOWORD(lParam);
+            y=HIWORD(lParam);
+            self.controller.onRightDown(x, y)
+        return 0
+
     def WndProc(self, hwnd, message, wParam, lParam):
-        #sys.stderr.write("Window::WndProc 0x%x\n" % message)
         if message in self.callbacks:
             return self.callbacks[message](hwnd, message, wParam, lParam)
         else:
