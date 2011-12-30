@@ -215,6 +215,9 @@ class Window(object):
     def finalize(self):
         print 'finalize', self.__class__
 
+    def Redraw(self):
+        windll.user32.InvalidateRect(c_int(self.hwnd), c_int(0), c_int(0))
+
     def Show(self):
         windll.user32.ShowWindow(c_int(self.hwnd), 
                 c_int(win32con.SW_SHOWNORMAL))
@@ -249,62 +252,71 @@ class Window(object):
 
     def onKeyDown(self, hwnd, message, wParam, lParam):
         if self.controller:
-            self.controller.onKeyDown(wParam)
+            if self.controller.onKeyDown(wParam):
+                self.Redraw()
         return 0
 
     def onMouseMove(self, hwnd, message, wParam, lParam):
         if self.controller:
             x=LOWORD(lParam);
             y=HIWORD(lParam);
-            self.controller.onMotion(x, y)
+            if self.controller.onMotion(x, y):
+                self.Redraw()
         return 0
 
     def onMouseWheel(self, hwnd, message, wParam, lParam):
         if self.controller:
             d=HIWORD(wParam);
-            self.controller.onWheel(d>32767 and d-65536 or d)
+            if self.controller.onWheel(d>32767 and 65536-d or -d):
+                self.Redraw()
         return 0
 
     def onLeftUp(self, hwnd, message, wParam, lParam):
         if self.controller:
             x=LOWORD(lParam);
             y=HIWORD(lParam);
-            self.controller.onLeftUp(x, y)
+            if self.controller.onLeftUp(x, y):
+                self.Redraw()
         return 0
 
     def onLeftDown(self, hwnd, message, wParam, lParam):
         if self.controller:
             x=LOWORD(lParam);
             y=HIWORD(lParam);
-            self.controller.onLeftDown(x, y)
+            if self.controller.onLeftDown(x, y):
+                self.Redraw()
         return 0
 
     def onMiddleUp(self, hwnd, message, wParam, lParam):
         if self.controller:
             x=LOWORD(lParam);
             y=HIWORD(lParam);
-            self.controller.onMiddleUp(x, y)
+            if self.controller.onMiddleUp(x, y):
+                self.Redraw()
         return 0
 
     def onMiddleDown(self, hwnd, message, wParam, lParam):
         if self.controller:
             x=LOWORD(lParam);
             y=HIWORD(lParam);
-            self.controller.onMiddleDown(x, y)
+            if self.controller.onMiddleDown(x, y):
+                self.Redraw()
         return 0
 
     def onRightUp(self, hwnd, message, wParam, lParam):
         if self.controller:
             x=LOWORD(lParam);
             y=HIWORD(lParam);
-            self.controller.onRightUp(x, y)
+            if self.controller.onRightUp(x, y):
+                self.Redraw()
         return 0
 
     def onRightDown(self, hwnd, message, wParam, lParam):
         if self.controller:
             x=LOWORD(lParam);
             y=HIWORD(lParam);
-            self.controller.onRightDown(x, y)
+            if self.controller.onRightDown(x, y):
+                self.Redraw()
         return 0
 
     def WndProc(self, hwnd, message, wParam, lParam):
