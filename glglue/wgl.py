@@ -321,8 +321,12 @@ class WindowFactory(object):
         self.classes.append(wndclass)
         return wndclass
 
-    def create(self, klass, title, wndclass=None):
-        wndclass=wndclass or self.wndclass
+    def create(self, klass, **kw):
+        width='width' in kw and kw['width'] or win32con.CW_USEDEFAULT
+        height='height' in kw and kw['height'] or win32con.CW_USEDEFAULT
+        wndclass='wndclass' in kw and kw['wndclass'] or self.wndclass
+        title='title' in kw and kw['title'] or "glglue.wgl"
+
         window=klass()
         pywindow=py_object(window)
         hwnd=CreateWindowEx(0,
@@ -331,8 +335,8 @@ class WindowFactory(object):
                               win32con.WS_OVERLAPPEDWINDOW,
                               win32con.CW_USEDEFAULT,
                               win32con.CW_USEDEFAULT,
-                              win32con.CW_USEDEFAULT,
-                              win32con.CW_USEDEFAULT,
+                              width,
+                              height,
                               win32con.NULL,
                               win32con.NULL,
                               wndclass.hInstance,
@@ -372,9 +376,9 @@ class WindowFactory(object):
                 c_int(hwnd), c_int(message), c_int(wParam), c_int(lParam))
 
 
-def mainloop(controller):
+def mainloop(controller, **kw):
     factory=WindowFactory()
-    window=factory.create(Window, "Python Window")
+    window=factory.create(Window, **kw)
     window.createGLContext(16)
     window.controller=controller
     window.show()
@@ -388,5 +392,5 @@ if __name__=="__main__":
         print "this script is windows only: "+os.name
         sys.exit()
     import glglue.sample
-    mainloop(glglue.sample.SampleController())
+    mainloop(glglue.sample.SampleController(), width=600, height=400)
 
