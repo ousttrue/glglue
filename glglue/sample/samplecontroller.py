@@ -47,7 +47,7 @@ class SampleController(BaseController):
     def onMotion(*args):
         pass
 
-    def onResize(*args):
+    def onResize(self, w, h):
         pass
 
     def onWheel(*args):
@@ -62,6 +62,7 @@ class SampleController(BaseController):
     def initilaize(self):
         self.view.onResize()
         glEnable(GL_DEPTH_TEST)
+        glClearColor(0.0, 0.0, 0.4, 0.0)
         # 初期化時の呼び出し
         self.onInitialize()
 

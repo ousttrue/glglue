@@ -15,10 +15,11 @@ class Widget(wx.glcanvas.GLCanvas):
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnResize)
         self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBG)
+        self.context = wx.glcanvas.GLContext(self)
 
     def OnPaint(self, event):
         dc = wx.PaintDC(self)
-        self.SetCurrent()
+        self.SetCurrent(self.context)
         self.controller.draw()
         self.SwapBuffers()
         event.Skip()
@@ -26,10 +27,8 @@ class Widget(wx.glcanvas.GLCanvas):
 
     def OnResize(self, event):
         self.size = self.GetClientSize()
-
-        if self.GetContext():
-            self.SetCurrent()
-            self.controller.onResize(self.size.width, self.size.height)
+        self.SetCurrent(self.context)
+        self.controller.onResize(self.size.width, self.size.height)
         self.Refresh()
         event.Skip()
 
