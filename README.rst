@@ -211,6 +211,7 @@ short smaple
 
 History
 =======
+* 20120114 0.1.0 implement wxglcanvas mouse event and keyboard event handling
 * 20120113 0.0.9 fix wxglcanvas
 * 20120112 0.0.8 fix lacking of README.rst
 * 20111230 0.0.7 add wgl.mainloop, implement wgl mouse callback
