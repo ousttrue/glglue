@@ -31,7 +31,7 @@ class Widget(wx.glcanvas.GLCanvas):
         self.Bind(wx.EVT_MOTION, 
                 lambda e: self.controller.onMotion(e.x, e.y) and self.Refresh())
         self.Bind(wx.EVT_MOUSEWHEEL, 
-                lambda e: self.controller.onWheel(e.WheelRotation) and self.Refresh())
+                lambda e: self.controller.onWheel(-e.WheelRotation) and self.Refresh())
         self.Bind(wx.EVT_KEY_DOWN,  
                 lambda e: self.controller.onKeyDown(e.KeyCode) and self.Refresh())
 
