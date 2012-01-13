@@ -21,6 +21,5 @@ setup(
         packages=find_packages(),
         test_suite='nose.collector',
         tests_require=['Nose'],
-        zip_safe = (sys.version>="2.5"),   # <2.5 needs unzipped for -m to work
         )
 
