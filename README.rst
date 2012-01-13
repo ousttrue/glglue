@@ -111,8 +111,8 @@ requrie pyOpenGL + togl install
 
 Togl install on Windows
 ~~~~~~~~~~~~~~~~~~~~~~~
-* download Togl2.0-8.4-Windows.zip
-* copy Togl2.0-8.4-Windows/lib/Togl2.0 to C:/PythonXX/tcl/Togl2.0
+1) download Togl2.0-8.4-Windows.zip
+2) copy Togl2.0-8.4-Windows/lib/Togl2.0 to C:/PythonXX/tcl/Togl2.0
 
 ::
 
@@ -267,6 +267,7 @@ short smaple
 
 History
 =======
+* 20120114 0.1.1 update README
 * 20120114 0.1.0 implement wxglcanvas mouse event and keyboard event handling
 * 20120113 0.0.9 fix wxglcanvas
 * 20120112 0.0.8 fix lacking of README.rst
