@@ -53,6 +53,11 @@ tkinter
 -------
 requrie pyOpenGL + togl install
 
+Togl install on Windows
+~~~~~~~~~~~~~~~~~~~~~~~
+* download Togl2.0-8.4-Windows.zip
+* copy Togl2.0-8.4-Windows/lib/Togl2.0 to C:/PythonXX/tcl/Togl2.0
+
 ::
 
     import sys
