@@ -1,5 +1,3 @@
-`glglue` provide boilerplate codes that glue OpenGL with some GUI.
-it is handling mouse event, keyboard event, window resize event and draw event. 
 
 * http://pypi.python.org/pypi/glglue/
 * https://github.com/ousttrue/glglue
@@ -208,7 +206,7 @@ short smaple
 
 History
 =======
-* 20120112 0.0.9 fix wxglcanvas
+* 20120113 0.0.9 fix wxglcanvas
 * 20120112 0.0.8 fix lacking of README.rst
 * 20111230 0.0.7 add wgl.mainloop, implement wgl mouse callback
 * 20111230 0.0.4 fix SetWindowLongPtr
