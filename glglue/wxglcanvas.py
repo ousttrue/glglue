@@ -19,18 +19,23 @@ class Widget(wx.glcanvas.GLCanvas):
 
     def OnPaint(self, event):
         dc = wx.PaintDC(self)
-        self.SetCurrent(self.context)
-        self.controller.draw()
-        self.SwapBuffers()
-        event.Skip()
-        return
+        try:
+            self.SetCurrent(self.context)
+            self.controller.draw()
+            self.SwapBuffers()
+            event.Skip()
+        except wx._core.PyAssertionError as e:
+            print 'OnPaint', e
 
     def OnResize(self, event):
         self.size = self.GetClientSize()
-        self.SetCurrent(self.context)
-        self.controller.onResize(self.size.width, self.size.height)
-        self.Refresh()
-        event.Skip()
+        try:
+            self.SetCurrent(self.context)
+            self.controller.onResize(self.size.width, self.size.height)
+            self.Refresh()
+            event.Skip()
+        except wx._core.PyAssertionError as e:
+            print 'OnResize', e
 
     def OnEraseBG(self, event):
         pass # Do nothing, to avoid flashing on MSWin
