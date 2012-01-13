@@ -16,7 +16,7 @@ Features
 
 Controller convention
 =====================
-you should inherit glglue.BaseController and implement follow methods.
+You should implement Controller class that has follow methods.
 
 * onUpdate
 * onLeftDown
@@ -238,7 +238,7 @@ require pyOpenGL + pyGame
 
 win32api
 --------
-require pyOpenGL(experimental...)
+require pyOpenGL
 
 ::
 
