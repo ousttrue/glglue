@@ -280,6 +280,7 @@ short smaple
 
 History
 =======
+* 20120115 0.1.2 update README. add MANIFEST.in
 * 20120114 0.1.1 update README
 * 20120114 0.1.0 implement wxglcanvas mouse event and keyboard event handling
 * 20120113 0.0.9 fix wxglcanvas
