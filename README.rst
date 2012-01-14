@@ -87,6 +87,14 @@ example
             glEnd()
     
             glFlush()
+    
+    
+    if __name__=="__main__":
+        controller=Controller()
+        import glglue.glut
+        glglue.glut.mainloop(controller)    
+        #import glglue.wgl
+        #glglue.wgl.mainloop(controller, width=640, height=480, title="sample")
 
 
 Samples
@@ -94,7 +102,12 @@ Samples
 
 glut
 ----
-requrie pyOpenGL
+requrie pyOpenGL + glut install
+
+glut install on Windows
+~~~~~~~~~~~~~~~~~~~~~~~
+1) download glut-3.7.6-bin.zip from http://user.xmission.com/~nate/glut.html
+2) copy glut32.dll C:/PythonXX/
 
 ::
 
@@ -111,7 +124,7 @@ requrie pyOpenGL + togl install
 
 Togl install on Windows
 ~~~~~~~~~~~~~~~~~~~~~~~
-1) download Togl2.0-8.4-Windows.zip
+1) download Togl2.0-8.4-Windows.zip from http://sourceforge.net/projects/togl/files/Togl/2.0/
 2) copy Togl2.0-8.4-Windows/lib/Togl2.0 to C:/PythonXX/tcl/Togl2.0
 
 ::
