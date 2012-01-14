@@ -107,7 +107,7 @@ requrie pyOpenGL + glut install
 glut install on Windows
 ~~~~~~~~~~~~~~~~~~~~~~~
 1) download glut-3.7.6-bin.zip from http://user.xmission.com/~nate/glut.html
-2) copy glut32.dll C:/PythonXX/
+2) copy glut32.dll to C:/PythonXX/
 
 ::
 
