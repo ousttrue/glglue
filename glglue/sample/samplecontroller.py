@@ -54,7 +54,7 @@ class SampleController(BaseController):
         pass
 
     def onKeyDown(self, key):
-        print "onKeyDown: %x" % key
+        print("onKeyDown: %x" % key)
 
     def onInitialize(*args):
         pass

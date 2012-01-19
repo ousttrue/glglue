@@ -213,7 +213,7 @@ class Window(object):
                 }
 
     def finalize(self):
-        print 'finalize', self.__class__
+        print('finalize', self.__class__)
 
     def Redraw(self):
         windll.user32.InvalidateRect(c_int(self.hwnd), c_int(0), c_int(0))
@@ -377,7 +377,7 @@ class WindowFactory(object):
     def __init__(self):
         self.classes=[]
         self.windows=[]
-        self.wndclass=self.register_class("MainWin")
+        self.wndclass=self.register_class(b"MainWin")
 
     def __del__(self):
         self.finalize()
@@ -385,7 +385,7 @@ class WindowFactory(object):
     def finalize(self):
         for w in self.windows:
             w.value.finalize()
-        print 'finalize', self.__class__
+        print('finalize', self.__class__)
 
     def register_class(self, className):
         """
@@ -416,7 +416,7 @@ class WindowFactory(object):
         width='width' in kw and kw['width'] or win32con.CW_USEDEFAULT
         height='height' in kw and kw['height'] or win32con.CW_USEDEFAULT
         wndclass='wndclass' in kw and kw['wndclass'] or self.wndclass
-        title='title' in kw and kw['title'] or "glglue.wgl"
+        title='title' in kw and kw['title'] or b"glglue.wgl"
 
         window=klass()
         pywindow=py_object(window)
@@ -479,7 +479,7 @@ def mainloop(controller, **kw):
 if __name__=="__main__":
     import os
     if os.name!='nt':
-        print "this script is windows only: "+os.name
+        print("this script is windows only: "+os.name)
         sys.exit()
     import glglue.sample
     mainloop(glglue.sample.SampleController(), width=600, height=400)

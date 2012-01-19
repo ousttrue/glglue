@@ -23,7 +23,7 @@ class BaseView(object):
     def onResize(self, w=None, h=None):
         self.w=w or self.w
         self.h=h or self.h
-        print "resize: %d, %d" % (self.w, self.h)
+        print("resize: %d, %d" % (self.w, self.h))
         glViewport(0, 0, self.w, self.h)
 
     def onLeftDown(self, x, y):
@@ -51,16 +51,16 @@ class BaseView(object):
         self.isRightDown=False
 
     def onMotion(self, x, y):
-        print "onMotion", x, y
+        print("onMotion", x, y)
         if self.isLeftDown:
-            print "left drag: %d, %d" % (x, y)
+            print("left drag: %d, %d" % (x, y))
         if self.isMiddleDown:
-            print "middle drag: %d, %d" % (x, y)
+            print("middle drag: %d, %d" % (x, y))
         if self.isRightDown:
-            print "right drag: %d, %d" % (x, y)
+            print("right drag: %d, %d" % (x, y))
 
     def onWheel(self, d):
-        print "onWheel", d
+        print("onWheel", d)
 
     def printMatrix(self, m):
         print(m[0][0], m[0][1], m[0][2], m[0][3])

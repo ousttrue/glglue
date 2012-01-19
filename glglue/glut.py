@@ -52,7 +52,7 @@ def mouse(button, state, x, y):
             glutPostRedisplay()
 
     else:
-        print "unknown mouse:", button, state, x, y
+        print("unknown mouse:", button, state, x, y)
 
 
 def motion(x, y):
@@ -85,7 +85,7 @@ def mainloop(controller):
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
     glutInitWindowSize(640, 480)
-    glutCreateWindow("glut sample")
+    glutCreateWindow(b"glut sample")
     # Windowのサイズが変わった時に呼ばれる関数を登録
     glutReshapeFunc(resize)
     # 描画時に呼ばれる関数を登録

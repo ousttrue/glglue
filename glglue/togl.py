@@ -34,7 +34,11 @@ class Widget(OpenGL.Tk.RawOpengl):
 
 
 if __name__=="__main__":
-    import Tkinter as tkinter
+    import sys
+    if sys.version_info[0]<3:
+        import Tkinter as tkinter
+    else:
+        import tkinter
     import glglue.sample
     class Frame(tkinter.Frame):
         def __init__(self, width, height, master=None, **kw):

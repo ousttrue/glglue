@@ -1,18 +1,22 @@
-
-* http://pypi.python.org/pypi/glglue/
-* https://github.com/ousttrue/glglue
+glglue is the glue code which mediates between OpenGL and some GUI
 
 Requirements
 ============
 * Python 2.7
+* Python 3.2
 
 Features
 ========
 * glut window
 * tkinter's togl widget
-* wxPython's GLCanvas widget
+* wxPython's GLCanvas widget(wxPython for python3 is not exist)
 * pyQt4's qgl widget
 * win32api wgl
+
+Site
+====
+* http://pypi.python.org/pypi/glglue/
+* https://github.com/ousttrue/glglue
 
 Controller convention
 =====================
@@ -251,7 +255,12 @@ require pyOpenGL + pyGame
 
 win32api
 --------
-require pyOpenGL
+require pyOpenGL + pywin32(win32con)
+
+pywin32(win32con) install on Windows
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1) download pywin32-*.exe from http://sourceforge.net/projects/pywin32/files/pywin32/
+2) execute installer
 
 ::
 
@@ -280,6 +289,7 @@ short smaple
 
 History
 =======
+* 20120119 0.2.0 python3 support
 * 20120119 0.1.3 add SetFocus when mouseDown on wxglcanvas
 * 20120115 0.1.2 update README. add MANIFEST.in
 * 20120114 0.1.1 update README
