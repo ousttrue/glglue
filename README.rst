@@ -259,7 +259,7 @@ require pyOpenGL + pywin32(win32con)
 
 pywin32(win32con) install on Windows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1) download pywin32-*.exe from http://sourceforge.net/projects/pywin32/files/pywin32/
+1) download pywin32-xxx.exe from http://sourceforge.net/projects/pywin32/files/pywin32/
 2) execute installer
 
 ::
