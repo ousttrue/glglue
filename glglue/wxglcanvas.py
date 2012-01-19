@@ -17,15 +17,15 @@ class Widget(wx.glcanvas.GLCanvas):
         self.Bind(wx.EVT_SIZE, self.OnResize)
         self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBG)
         self.Bind(wx.EVT_LEFT_DOWN, 
-                lambda e: self.controller.onLeftDown(e.x, e.y) and self.Refresh())
+                lambda e: self.SetFocus() or self.controller.onLeftDown(e.x, e.y) and self.Refresh())
         self.Bind(wx.EVT_LEFT_UP, 
                 lambda e: self.controller.onLeftUp(e.x, e.y) and self.Refresh())
         self.Bind(wx.EVT_RIGHT_DOWN, 
-                lambda e: self.controller.onRightDown(e.x, e.y) and self.Refresh())
+                lambda e: self.SetFocus() or self.controller.onRightDown(e.x, e.y) and self.Refresh())
         self.Bind(wx.EVT_RIGHT_UP, 
                 lambda e: self.controller.onRightUp(e.x, e.y) and self.Refresh())
         self.Bind(wx.EVT_MIDDLE_DOWN, 
-                lambda e: self.controller.onMiddleDown(e.x, e.y) and self.Refresh())
+                lambda e: self.SetFocus() or self.controller.onMiddleDown(e.x, e.y) and self.Refresh())
         self.Bind(wx.EVT_MIDDLE_UP, 
                 lambda e: self.controller.onMiddleUp(e.x, e.y) and self.Refresh())
         self.Bind(wx.EVT_MOTION, 
