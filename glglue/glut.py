@@ -78,14 +78,14 @@ def draw():
     glutSwapBuffers()
 
 
-def mainloop(controller):
+def mainloop(controller, width=640, height=480, title=b"glut sample"):
     global g_controller
     g_controller=controller
 
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-    glutInitWindowSize(640, 480)
-    glutCreateWindow(b"glut sample")
+    glutInitWindowSize(width, height)
+    glutCreateWindow(title)
     # Windowのサイズが変わった時に呼ばれる関数を登録
     glutReshapeFunc(resize)
     # 描画時に呼ばれる関数を登録
@@ -102,5 +102,5 @@ def mainloop(controller):
 
 if __name__=="__main__":
     import glglue.sample
-    mainloop(glglue.sample.SampleController())
+    mainloop(glglue.sample.SampleController(), width=480, height=480, title=b"glut")
 

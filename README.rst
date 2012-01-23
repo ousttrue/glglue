@@ -96,7 +96,7 @@ example
     if __name__=="__main__":
         controller=Controller()
         import glglue.glut
-        glglue.glut.mainloop(controller)    
+        glglue.glut.mainloop(controller, width=640, height=480, title="sample")    
         #import glglue.wgl
         #glglue.wgl.mainloop(controller, width=640, height=480, title="sample")
 
@@ -289,6 +289,7 @@ short smaple
 
 History
 =======
+* 20120119 0.2.2 add glut width, height prameter
 * 20120119 0.2.0 python3 support
 * 20120119 0.1.3 add SetFocus when mouseDown on wxglcanvas
 * 20120115 0.1.2 update README. add MANIFEST.in
