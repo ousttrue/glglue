@@ -77,7 +77,6 @@ def draw():
 
 
 def timer(_):
-    print 'timer'
     g_controller.onUpdate(MSPF)
     glutTimerFunc(MSPF, timer , 0);
     glutPostRedisplay();
