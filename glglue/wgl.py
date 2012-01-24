@@ -200,6 +200,7 @@ class Window(object):
         self.callbacks={
                 win32con.WM_PAINT: self.onPaint,
                 win32con.WM_SIZE: self.onSize,
+                win32con.WM_ERASEBKGND: self.onErasebkgnd,
                 win32con.WM_DESTROY: self.onDestroy,
                 win32con.WM_LBUTTONDOWN: self.onLeftDown,
                 win32con.WM_LBUTTONUP: self.onLeftUp,
@@ -243,6 +244,9 @@ class Window(object):
             w=LOWORD(lParam)
             h=HIWORD(lParam)
             self.controller.onResize(w, h)
+        return 0
+
+    def onErasebkgnd(self, hwnd, message ,wParam, lParam):
         return 0
 
     def onDestroy(self, hwnd, message, wParam, lParam):
