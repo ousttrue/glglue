@@ -6,6 +6,7 @@ from . import baseview
 from . import triangle
 
 DELEGATE_PATTERN=re.compile('^on[A-Z]')
+VELOCITY=0.3
 
 class SampleController(BaseController):
     def __init__(self, view=None, root=None):
@@ -16,6 +17,7 @@ class SampleController(BaseController):
         self.isInitialized=False
         self.delegate(view)
         self.delegate(root)
+        self.rot=0
 
     def delegate(self, to):
         for name in dir(to):  
@@ -23,8 +25,10 @@ class SampleController(BaseController):
                 method = getattr(to, name)  
                 setattr(self, name, method)
 
-    def onUpdate(*args):
-        pass
+    def onUpdate(self, delta):
+        self.rot+=delta * VELOCITY
+        while self.rot>360:
+            self.rot-=360
 
     def onLeftDown(*args):
         pass
@@ -81,6 +85,10 @@ class SampleController(BaseController):
         glLoadIdentity()
         # OpenGL描画
         self.view.updateView()
+        # 三角形回転
+        glRotate(self.rot, 0, 1, 0)
+        # 描画
         self.root.draw()
+
         glFlush()
 

@@ -289,7 +289,8 @@ short smaple
 
 History
 =======
-* 20120119 0.2.2 add glut width, height prameter
+* 20120124 0.2.3 add glut timer animation
+* 20120123 0.2.2 add glut width, height prameter
 * 20120119 0.2.0 python3 support
 * 20120119 0.1.3 add SetFocus when mouseDown on wxglcanvas
 * 20120115 0.1.2 update README. add MANIFEST.in

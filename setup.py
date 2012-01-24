@@ -6,7 +6,7 @@ import sys
 
 setup(
         name='glglue',
-        version='0.2.2',
+        version='0.2.3',
         description='The glue code which mediates between OpenGL and some GUI',
         long_description=open('README.rst').read(),
         classifiers=[

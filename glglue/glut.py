@@ -6,19 +6,19 @@ from OpenGL.GLUT import *
 # このソースではOpenGL操作をしない
 #from OpenGL.GL import *
 
+FPS=30
+MSPF=int(1000.0/FPS)
+
 # OpenGL処理用のglobal変数
 # glutのコールバック関数に来たイベントをここに丸投げする
 g_controller=None
 
 
 def resize(w, h):
-    global g_controller
     g_controller.onResize(w, h)
 
 
 def mouse(button, state, x, y):
-    global g_controller
-
     # マウスイベントの振り分けはここでしてしまう
     # g_controllerのメソッドからTrueが返ったら再描画する
     if button==GLUT_LEFT_BUTTON:
@@ -56,7 +56,6 @@ def mouse(button, state, x, y):
 
 
 def motion(x, y):
-    global g_controller
     if g_controller.onMotion(x, y):
         glutPostRedisplay()
 
@@ -73,9 +72,15 @@ def keyboard(key, x, y):
 
 
 def draw():
-    global g_controller
     g_controller.draw()
     glutSwapBuffers()
+
+
+def timer(_):
+    print 'timer'
+    g_controller.onUpdate(MSPF)
+    glutTimerFunc(MSPF, timer , 0);
+    glutPostRedisplay();
 
 
 def mainloop(controller, width=640, height=480, title=b"glut sample"):
@@ -96,6 +101,8 @@ def mainloop(controller, width=640, height=480, title=b"glut sample"):
     glutMotionFunc(motion)
     # キーボードが押された時に呼ばれる関数
     glutKeyboardFunc(keyboard)
+    # タイマー 
+    glutTimerFunc(MSPF, timer , 0);
 
     glutMainLoop()
 
