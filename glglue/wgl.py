@@ -187,6 +187,9 @@ DefWindowProc.argtypes=[
         ]
 DefWindowProc.restype=c_int
 
+timeGetTime=windll.winmm.timeGetTime
+timeGetTime.argtypes=[]
+timeGetTime.restype=c_ulong
 
 ##############################################################################
 # api class
@@ -439,15 +442,28 @@ class WindowFactory(object):
         self.windows.append(pywindow)
         return window
 
-    def loop(self):
+    def loop(self, window):
         msg = MSG()
         pMsg = pointer(msg)
         NULL = c_int(win32con.NULL)
-        while windll.user32.GetMessageA( pMsg, NULL, 0, 0) != 0:
-            windll.user32.TranslateMessage(pMsg)
-            windll.user32.DispatchMessageA(pMsg)
-
-        return msg.wParam
+        #while windll.user32.GetMessageA( pMsg, NULL, 0, 0) != 0:
+        #    windll.user32.TranslateMessage(pMsg)
+        #    windll.user32.DispatchMessageA(pMsg)
+        lastCount=timeGetTime()
+        while True:
+            if windll.user32.PeekMessageA(pMsg, NULL, 0, 0, win32con.PM_NOREMOVE) != 0:
+                if windll.user32.GetMessageA(pMsg, NULL, 0, 0)==0:
+                    return msg.wParam
+                windll.user32.TranslateMessage(pMsg)
+                windll.user32.DispatchMessageA(pMsg)
+            else:
+                count=timeGetTime()
+                d=count-lastCount
+                if d>0:
+                    #print d
+                    window.controller.onUpdate(d)
+                    window.Redraw()
+                    lastCount=count
 
     @staticmethod
     def WndProc(hwnd, message, wParam, lParam):
@@ -477,7 +493,7 @@ def mainloop(controller, **kw):
     window.controller=controller
     window.Show()
     import sys
-    sys.exit(factory.loop())
+    sys.exit(factory.loop(window))
 
 
 if __name__=="__main__":
