@@ -15,16 +15,22 @@ if __name__=="__main__":
     clock = pygame.time.Clock()    
     is_running=True
     while is_running:
+        #pressed = pygame.key.get_pressed()
+
         # event handling
         for event in pygame.event.get():
             if event.type == QUIT:
                 is_running=False
-            if event.type == KEYUP and event.key == K_ESCAPE:
-                is_running=False
-        pressed = pygame.key.get_pressed()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    is_running=False
+                else:
+                    controller.onKeyDown(event.key)
             
-        time_passed = clock.tick()
-        
-        # Show the screen
-        controller.draw()
-        pygame.display.flip()
+        # update
+        d = clock.tick()
+        if d>0:
+            controller.onUpdate(d)
+            controller.draw()
+            pygame.display.flip()
+
