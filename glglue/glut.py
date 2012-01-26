@@ -100,7 +100,7 @@ def mainloop(controller, width=640, height=480, title=b"glut sample"):
     g_controller=controller
 
     glutInit(sys.argv)
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL)
     glutInitWindowSize(width, height)
     glutCreateWindow(title)
     # Windowのサイズが変わった時に呼ばれる関数を登録

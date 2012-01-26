@@ -6,6 +6,7 @@ import glglue.sample
 if __name__=="__main__":   
     pygame.init()
     size=(640, 480)
+    pygame.display.gl_set_attribute(pygame.GL_STENCIL_SIZE, 2)
     screen = pygame.display.set_mode(size, 
             HWSURFACE | OPENGL | DOUBLEBUF)
 
