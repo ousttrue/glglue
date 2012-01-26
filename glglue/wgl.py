@@ -358,7 +358,7 @@ class Window(object):
         pfd.cAccumBlueBits=0
         pfd.cAccumAlphaBits=0
         pfd.cDepthBits=bits
-        pfd.cStencilBits=0
+        pfd.cStencilBits=2
         pfd.cAuxBuffers=0
         pfd.iLayerType=win32con.PFD_MAIN_PLANE
         pfd.bReserved=0
