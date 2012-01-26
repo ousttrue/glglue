@@ -289,6 +289,7 @@ short smaple
 
 History
 =======
+* 20120126 0.2.5 use glutIdleFunc for glut animation
 * 20120125 0.2.4 add wgl/sdl animation
 * 20120124 0.2.3 add glut animation
 * 20120123 0.2.2 add glut width, height prameter

@@ -2,6 +2,7 @@
 # coding: utf-8
 
 from OpenGL.GLUT import *
+import time
 
 # このソースではOpenGL操作をしない
 #from OpenGL.GL import *
@@ -82,6 +83,18 @@ def timer(_):
     glutPostRedisplay();
 
 
+def create_idle_func():
+    # nonlocal
+    lastclock=[0]
+    def idle():
+        clock=time.clock()
+        d=(clock-lastclock[0])*1000
+        g_controller.onUpdate(d)
+        glutPostRedisplay()
+        lastclock[0]=clock
+    return idle
+
+ 
 def mainloop(controller, width=640, height=480, title=b"glut sample"):
     global g_controller
     g_controller=controller
@@ -101,7 +114,9 @@ def mainloop(controller, width=640, height=480, title=b"glut sample"):
     # キーボードが押された時に呼ばれる関数
     glutKeyboardFunc(keyboard)
     # タイマー 
-    glutTimerFunc(MSPF, timer , 0);
+    #glutTimerFunc(MSPF, timer , 0);
+    # idle       
+    glutIdleFunc(create_idle_func())
 
     glutMainLoop()
 
