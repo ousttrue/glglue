@@ -295,6 +295,7 @@ short smaple
 
 History
 =======
+* 20120127 0.3.0 add mouse manupilation
 * 20120127 0.2.6 add stencil buffer for glut/wgl/sdl sample
 * 20120126 0.2.5 use glutIdleFunc for glut animation
 * 20120125 0.2.4 add wgl/sdl animation
