@@ -91,7 +91,12 @@ class TargetView(object):
         return isUpdated
 
     def onWheel(self, d):
-        print("onWheel", d)
+        if d>0:
+            self.distance*=1.1
+            return True
+        elif d<0:
+            self.distance*=0.9
+            return True
 
     def printMatrix(self, m):
         print(m[0][0], m[0][1], m[0][2], m[0][3])

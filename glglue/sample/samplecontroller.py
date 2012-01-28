@@ -59,10 +59,10 @@ class SampleController(object):
 
     def onKeyDown(self, key):
         #print("onKeyDown: %x" % key)
-        if key=='\033':
+        if key==ord('\033'):
             # Escape
             sys.exit()
-        if key=='q':
+        if key==ord('q'):
             # q
             sys.exit()
         else:

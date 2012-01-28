@@ -259,8 +259,13 @@ class Window(object):
 
     def onKeyDown(self, hwnd, message, wParam, lParam):
         if self.controller:
-            if self.controller.onKeyDown(wParam):
-                self.Redraw()
+            if wParam>=65 and wParam<=90:
+                # lower
+                if self.controller.onKeyDown(wParam+32):
+                    self.Redraw()
+            else:
+                if self.controller.onKeyDown(wParam):
+                    self.Redraw()
         return 0
 
     def onMouseMove(self, hwnd, message, wParam, lParam):

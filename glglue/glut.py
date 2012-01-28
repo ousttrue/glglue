@@ -62,7 +62,7 @@ def motion(x, y):
 
 
 def keyboard(key, x, y):
-    if g_controller.onKeyDown(key):
+    if g_controller.onKeyDown(ord(key)):
         glutPostRedisplay()
 
 
