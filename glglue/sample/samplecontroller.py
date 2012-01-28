@@ -4,7 +4,7 @@ import math
 from OpenGL.GL import *
 
 from ..basecontroller import BaseController
-from . import baseview
+from . import targetview
 from . import triangle
 from . import cube
 from . import coord
@@ -41,7 +41,7 @@ class Scene(object):
 
 class SampleController(object):
     def __init__(self, view=None, root=None):
-        view=view or baseview.BaseView()
+        view=view or targetview.TargetView()
         self.view=view
         self.root=root or Scene()
         self.isInitialized=False
@@ -74,7 +74,7 @@ class SampleController(object):
     def initilaize(self):
         self.view.onResize()
         glEnable(GL_DEPTH_TEST)
-        glClearColor(0.0, 0.0, 0.4, 0.0)
+        glClearColor(0.6, 0.6, 0.4, 0.0)
         # 初期化時の呼び出し
         self.onInitialize()
 
