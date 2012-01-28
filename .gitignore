@@ -2,3 +2,4 @@
 dist
 build
 glglue.egg-info
+*.swp

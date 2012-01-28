@@ -62,14 +62,8 @@ def motion(x, y):
 
 
 def keyboard(key, x, y):
-    if key=='\033':
-        # Escape
-        sys.exit()
-    if key=='q':
-        # q
-        sys.exit()
-    else:
-        print(key)
+    if g_controller.onKeyDown(key):
+        glutPostRedisplay()
 
 
 def draw():

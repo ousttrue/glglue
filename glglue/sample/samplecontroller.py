@@ -1,23 +1,52 @@
 import re
+import sys
+import math
 from OpenGL.GL import *
 
 from ..basecontroller import BaseController
 from . import baseview
 from . import triangle
+from . import cube
+from . import coord
 
 DELEGATE_PATTERN=re.compile('^on[A-Z]')
-VELOCITY=0.3
+VELOCITY=0.1
 
-class SampleController(BaseController):
+
+def to_radian(degree):
+    return degree/180.0*math.pi
+
+
+class Scene(object):
+    def __init__(self):
+        self.coord=coord.Coord(1.0)
+        self.cube=cube.Cube(0.3)
+        self.xrot=0
+        self.yrot=0
+
+    def onUpdate(self, ms):
+        self.yrot+=ms * VELOCITY
+        while self.yrot>360.0:
+            self.yrot-=360.0
+        self.xrot+=ms * VELOCITY * 0.5
+        while self.xrot>360.0:
+            self.xrot-=360.0
+
+    def draw(self):
+        self.coord.draw()
+        glRotate(math.sin(to_radian(self.yrot))*180, 0, 1, 0)
+        glRotate(math.sin(to_radian(self.xrot))*180, 1, 0, 0)
+        self.cube.draw()
+
+
+class SampleController(object):
     def __init__(self, view=None, root=None):
         view=view or baseview.BaseView()
-        root=root or triangle.Triangle(0.5)
         self.view=view
-        self.root=root
+        self.root=root or Scene()
         self.isInitialized=False
         self.delegate(view)
         self.delegate(root)
-        self.rot=0
 
     def delegate(self, to):
         for name in dir(to):  
@@ -25,40 +54,19 @@ class SampleController(BaseController):
                 method = getattr(to, name)  
                 setattr(self, name, method)
 
-    def onUpdate(self, delta):
-        self.rot+=delta * VELOCITY
-        while self.rot>360:
-            self.rot-=360
-
-    def onLeftDown(*args):
-        pass
-
-    def onLeftUp(*args):
-        pass
-
-    def onMiddleDown(*args):
-        pass
-
-    def onMiddleUp(*args):
-        pass
-
-    def onRightDown(*args):
-        pass
-
-    def onRightUp(*args):
-        pass
-
-    def onMotion(*args):
-        pass
-
-    def onResize(self, w, h):
-        pass
-
-    def onWheel(*args):
-        pass
+    def onUpdate(self, ms):
+        self.root.onUpdate(ms)
 
     def onKeyDown(self, key):
-        print("onKeyDown: %x" % key)
+        #print("onKeyDown: %x" % key)
+        if key=='\033':
+            # Escape
+            sys.exit()
+        if key=='q':
+            # q
+            sys.exit()
+        else:
+            print(key)
 
     def onInitialize(*args):
         pass
@@ -83,10 +91,7 @@ class SampleController(BaseController):
         # モデルビュー行列のクリア
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-        # OpenGL描画
         self.view.updateView()
-        # 三角形回転
-        glRotate(self.rot, 0, 1, 0)
         # 描画
         self.root.draw()
 
