@@ -148,7 +148,7 @@ Togl install on Windows
             self.glwidget.pack(fill=tkinter.BOTH, expand=True)
             # event binding(require focus)
             self.bind('<Key>', self.onKeyDown)
-            self.bind('<MouseWheel>', lambda e: self.glworld.onWheel(-e.delta) and self.glwidget.onDraw())
+            self.bind('<MouseWheel>', lambda e: self.controller.onWheel(-e.delta) and self.glwidget.onDraw())
 
         def onKeyDown(self, event):
             key=event.keycode
