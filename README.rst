@@ -295,6 +295,7 @@ short smaple
 
 History
 =======
+* 20130113 0.3.1 fix mouse manupilation for PyQt4
 * 20120127 0.3.0 add mouse manupilation
 * 20120127 0.2.6 add stencil buffer for glut/wgl/sdl sample
 * 20120126 0.2.5 use glutIdleFunc for glut animation

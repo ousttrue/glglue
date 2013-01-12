@@ -25,42 +25,34 @@ class Widget(QtOpenGL.QGLWidget):
         self.controller.onResize(width, height)
 
     def mousePressEvent(self, event):
-        pos = QtCore.QPoint(event.pos())
-        if event.buttons() & QtCore.Qt.LeftButton:
-            if self.controller.onLeftDown(pos.x(), pos.y()):
+        if event.button()==QtCore.Qt.LeftButton:
+            if self.controller.onLeftDown(event.x(), event.y()):
                 self.repaint()
-        elif event.buttons() & QtCore.Qt.MiddleButton:
-            if self.controller.onMiddleDown(pos.x(), pos.y()):
+        elif event.button()==QtCore.Qt.MiddleButton:
+            if self.controller.onMiddleDown(event.x(), event.y()):
                 self.repaint()
-        elif event.buttons() & QtCore.Qt.RightButton:
-            if self.controller.onRightDown(pos.x(), pos.y()):
-                self.repaint()
-
-    def mousePressEvent(self, event):
-        pos = QtCore.QPoint(event.pos())
-        if event.buttons() & QtCore.Qt.LeftButton:
-            if self.controller.onLeftDown(pos.x(), pos.y()):
-                self.repaint()
-        elif event.buttons() & QtCore.Qt.MiddleButton:
-            if self.controller.onMiddleDown(pos.x(), pos.y()):
-                self.repaint()
-        elif event.buttons() & QtCore.Qt.RightButton:
-            if self.controller.onRightDown(pos.x(), pos.y()):
+        elif event.button()==QtCore.Qt.RightButton:
+            if self.controller.onRightDown(event.x(), event.y()):
                 self.repaint()
 
     def mouseReleaseEvent(self, event):
-        if event.buttons() & QtCore.Qt.LeftButton:
+        if event.button()==QtCore.Qt.LeftButton:
             if self.controller.onLeftUp(event.x(), event.y()):
                 self.repaint()
-        elif event.buttons() & QtCore.Qt.MiddleButton:
+        elif event.button()==QtCore.Qt.MiddleButton:
             if self.controller.onMiddleUp(event.x(), event.y()):
                 self.repaint()
-        elif event.buttons() & QtCore.Qt.RightButton:
+        elif event.button()==QtCore.Qt.RightButton:
             if self.controller.onRightUp(event.x(), event.y()):
                 self.repaint()
 
     def mouseMoveEvent(self, event):
-        self.controller.onMotion(event.x(), event.y())
+        if self.controller.onMotion(event.x(), event.y()):
+            self.repaint()
+
+    def wheelEvent(self, event):
+        if self.controller.onWheel(-event.delta()):
+            self.repaint()
 
 
 if __name__=="__main__":
