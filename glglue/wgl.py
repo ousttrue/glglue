@@ -1,6 +1,7 @@
-import win32con
+﻿import glglue.win32con as win32con
 import sys
 from ctypes import *
+from ctypes.wintypes import *
 from OpenGL.GL import *
 
 ##############################################################################
@@ -18,7 +19,7 @@ def LOWORD(n):
 def HIWORD(n):
     return (n>>16)&0XFFFF
 
-WNDPROC = WINFUNCTYPE(c_long, c_int, c_uint, c_int, c_int)
+WNDPROC = WINFUNCTYPE(c_int, HWND, c_uint, WPARAM, LPARAM)
 
 win32con.PFD_TYPE_RGBA =       0
 win32con.PFD_TYPE_COLORINDEX = 1
@@ -47,25 +48,25 @@ class WNDCLASS(Structure):
             ('lpfnWndProc', WNDPROC),
             ('cbClsExtra', c_int),
             ('cbWndExtra', c_int),
-            ('hInstance', c_int),
-            ('hIcon', c_int),
-            ('hCursor', c_int),
-            ('hbrBackground', c_int),
-            ('lpszMenuName', c_char_p),
-            ('lpszClassName', c_char_p)]
+            ('hInstance', HANDLE),
+            ('hIcon', HANDLE),
+            ('hCursor', HANDLE),
+            ('hbrBackground', HANDLE),
+            ('lpszMenuName', LPCSTR),
+            ('lpszClassName', LPCSTR)]
 
 class CREATESTRUCT(Structure):
     _fields_ = [('lpCreateParams', c_void_p),
-            ('hInstance', c_int),
-            ('hMenu', c_int),
-            ('hwndParent', c_int),
+            ('hInstance', HANDLE),
+            ('hMenu', HANDLE),
+            ('hwndParent', HWND),
             ('cy', c_int),
             ('cx', c_int),
             ('y', c_int),
             ('x', c_int),
             ('style', c_int),
-            ('lpszName', c_char_p),
-            ('lpszClass', c_char_p),
+            ('lpszName', LPCSTR),
+            ('lpszClass', LPCSTR),
             ('dwExStyle', c_int)]
 
 class PIXELFORMATDESCRIPTOR(Structure):
@@ -105,11 +106,11 @@ class RECT(Structure):
                 ('bottom', c_long)]
 
 class PAINTSTRUCT(Structure):
-    _fields_ = [('hdc', c_int),
-                ('fErase', c_int),
+    _fields_ = [('hdc', HDC),
+                ('fErase', BOOL),
                 ('rcPaint', RECT),
-                ('fRestore', c_int),
-                ('fIncUpdate', c_int),
+                ('fRestore', BOOL),
+                ('fIncUpdate', BOOL),
                 ('rgbReserved', c_char * 32)]
 
 class POINT(Structure):
@@ -117,73 +118,103 @@ class POINT(Structure):
                 ('y', c_long)]
     
 class MSG(Structure):
-    _fields_ = [('hwnd', c_int),
+    _fields_ = [('hwnd', HWND),
                 ('message', c_uint),
-                ('wParam', c_int),
-                ('lParam', c_int),
+                ('wParam', WPARAM),
+                ('lParam', LPARAM),
                 ('time', c_int),
                 ('pt', POINT)]
 
+ShowWindow = windll.user32.ShowWindow
+ShowWindow.argtypes = [ HWND, c_int ]
+ShowWindow.restype = BOOL
+
+RegisterClass = windll.user32.RegisterClassA
+RegisterClass.argtypes=[ c_void_p ]
+RegisterClass.restype = ATOM
+
 CreateWindowEx = windll.user32.CreateWindowExA
 CreateWindowEx.argtypes = [
-        c_int, c_char_p, c_char_p, 
+        c_int, LPCSTR, LPCSTR, c_int, 
         c_int, c_int, c_int, c_int, 
-        c_int, c_int, c_int, c_int,
+        HWND, HANDLE, HANDLE,
         py_object
         ]
-CreateWindowEx.restype = ErrorIfZero
+CreateWindowEx.restype = HWND
 
-SetWindowLongPtr = windll.user32.SetWindowLongA
-SetWindowLongPtr.argtypes = [
-        c_int, c_int, c_void_p
-        ]
-SetWindowLongPtr.restype = c_void_p
+if sys.maxsize > 2**32:
+    # 64bit
+    SetWindowLongPtr = windll.user32.SetWindowLongPtrA
+    SetWindowLongPtr.argtypes = [
+            HWND, c_int, c_void_p
+            ]
+    SetWindowLongPtr.restype = c_void_p
 
-GetWindowLongPtr = windll.user32.GetWindowLongA
-GetWindowLongPtr.argtypes = [
-        c_int, c_int
-        ]
-GetWindowLongPtr.restype = c_void_p
+    GetWindowLongPtr = windll.user32.GetWindowLongPtrA
+    GetWindowLongPtr.argtypes = [
+            HWND, c_int
+            ]
+    GetWindowLongPtr.restype = c_void_p
+else:
+    # 64bit
+    SetWindowLongPtr = windll.user32.SetWindowLongA
+    SetWindowLongPtr.argtypes = [
+            HWND, c_int, c_void_p
+            ]
+    SetWindowLongPtr.restype = c_void_p
+
+    GetWindowLongPtr = windll.user32.GetWindowLongA
+    GetWindowLongPtr.argtypes = [
+            HWND, c_int
+            ]
+    GetWindowLongPtr.restype = c_void_p
 
 GetDC=windll.user32.GetDC
 GetDC.argtypes = [
-        c_int
+        HWND
         ]
-GetWindowLongPtr.restype = ErrorIfZero
+
+BeginPaint = windll.user32.BeginPaint
+BeginPaint.argtypes=[HWND, c_void_p]
+BeginPaint.restype = HDC
+
+EndPaint = windll.user32.EndPaint
+EndPaint.argtypes=[HWND, c_void_p]
+EndPaint.restype = HDC
 
 ChoosePixelFormat = windll.gdi32.ChoosePixelFormat
 ChoosePixelFormat.argtypes=[
-    c_int, c_void_p
+    HDC, c_void_p
 ]
 ChoosePixelFormat.restype=ErrorIfZero
 
 SetPixelFormat=windll.gdi32.SetPixelFormat
 SetPixelFormat.argtypes=[
-    c_int, c_int, c_void_p,
+    HDC, c_int, c_void_p,
 ]
 SetPixelFormat.restype=ErrorIfZero
 
 SwapBuffers=windll.gdi32.SwapBuffers
 SwapBuffers.argtypes=[
-        c_int,
+        HDC,
         ]
 SwapBuffers.restype=ErrorIfZero
 
 wglCreateContext=windll.opengl32.wglCreateContext
 wglCreateContext.argtypes=[
-    c_int,
+    HDC,
 ]
 wglCreateContext.restype=ErrorIfZero
 
 wglMakeCurrent=windll.opengl32.wglMakeCurrent
 wglMakeCurrent.argtypes=[
-    c_int, c_int,
+    HDC, HANDLE,
 ]
 wglMakeCurrent.restype=ErrorIfZero
 
 DefWindowProc=windll.user32.DefWindowProcA
 DefWindowProc.argtypes=[
-        c_int, c_int, c_int, c_int
+        HWND, c_int, WPARAM, LPARAM
         ]
 DefWindowProc.restype=c_int
 
@@ -220,32 +251,32 @@ class Window(object):
         print('finalize', self.__class__)
 
     def Redraw(self):
-        windll.user32.InvalidateRect(c_int(self.hwnd), c_int(0), c_int(0))
+        windll.user32.InvalidateRect(self.hwnd, c_int(0), c_int(0))
 
     def Show(self):
-        windll.user32.ShowWindow(c_int(self.hwnd), 
-                c_int(win32con.SW_SHOWNORMAL))
-        windll.user32.UpdateWindow(c_int(self.hwnd))
+        ShowWindow(self.hwnd, 
+                win32con.SW_SHOWNORMAL)
+        windll.user32.UpdateWindow(self.hwnd)
 
-    def SetLongPtr(self, key, value):
+    def SetLongPtr(self, hwnd, key, value):
         self.ptrs[key]=value
-        SetWindowLongPtr(c_int(self.hwnd), key, value);
+        SetWindowLongPtr(hwnd, key, value);
 
     def onPaint(self, hwnd, message, wParam, lParam):
-        #sys.stderr.write("WM_PAINT\n")
+        #print("WM_PAINT")
+        ps = PAINTSTRUCT()
+        hdc = BeginPaint(hwnd, byref(ps))
         if self.hrc and self.controller:
-            ps = PAINTSTRUCT()
-            hdc = windll.user32.BeginPaint(c_int(hwnd), byref(ps))
             self.controller.draw()
             SwapBuffers(hdc)
-            windll.user32.EndPaint(c_int(hwnd), byref(ps))
+        EndPaint(hwnd, byref(ps))
         return 0
 
     def onSize(self, hwnd, message, wParam, lParam):
-        #sys.stderr.write("WM_SIZE\n")
+        w=LOWORD(lParam)
+        h=HIWORD(lParam)
+        print("WM_SIZE %d x %d %s" % (w, h, self.controller))
         if self.controller:
-            w=LOWORD(lParam)
-            h=HIWORD(lParam)
             self.controller.onResize(w, h)
         return 0
 
@@ -405,21 +436,23 @@ class WindowFactory(object):
         """
         # Define Window Class
         wndclass = WNDCLASS()
-        wndclass.style = win32con.CS_HREDRAW | win32con.CS_VREDRAW
+        wndclass.style = win32con.CS_HREDRAW | win32con.CS_VREDRAW 
         wndclass.lpfnWndProc = WNDPROC(WindowFactory.WndProc)
         wndclass.cbClsExtra = wndclass.cbWndExtra = 0
         wndclass.hInstance = windll.kernel32.GetModuleHandleA(
-                c_int(win32con.NULL))
+                HANDLE(win32con.NULL))
         wndclass.hIcon = windll.user32.LoadIconA(
-                c_int(win32con.NULL), c_int(win32con.IDI_APPLICATION))
+                HANDLE(win32con.NULL), LPCSTR(win32con.IDI_APPLICATION))
         wndclass.hCursor = windll.user32.LoadCursorA(
-                c_int(win32con.NULL), c_int(win32con.IDC_ARROW))
+                HANDLE(win32con.NULL), LPCSTR(win32con.IDC_ARROW))
         wndclass.hbrBackground = windll.gdi32.GetStockObject(
                 c_int(win32con.WHITE_BRUSH))
         wndclass.lpszMenuName = None
         wndclass.lpszClassName = className
         # Register Window Class
-        if not windll.user32.RegisterClassA(byref(wndclass)):
+        res = RegisterClass(byref(wndclass))
+        print(res)
+        if not res:
             raise WinError()
         self.classes.append(wndclass)
         return wndclass
@@ -427,8 +460,8 @@ class WindowFactory(object):
     def create(self, klass, **kw):
         width='width' in kw and kw['width'] or win32con.CW_USEDEFAULT
         height='height' in kw and kw['height'] or win32con.CW_USEDEFAULT
-        wndclass='wndclass' in kw and kw['wndclass'] or self.wndclass
-        title='title' in kw and kw['title'] or b"glglue.wgl"
+        wndclass=b'wndclass' in kw and kw['wndclass'] or self.wndclass
+        title=b'title' in kw and kw['title'] or b"glglue.wgl"
 
         window=klass()
         pywindow=py_object(window)
@@ -478,9 +511,9 @@ class WindowFactory(object):
             createstruct = lpcreatestruct.contents;
             window=cast(createstruct.lpCreateParams, py_object).value
             window.hwnd=hwnd
-            window.SetLongPtr(win32con.GWL_USERDATA, 
+            window.SetLongPtr(hwnd, win32con.GWL_USERDATA, 
                     createstruct.lpCreateParams)
-            window.SetLongPtr(win32con.GWL_WNDPROC,
+            window.SetLongPtr(hwnd, win32con.GWL_WNDPROC,
                     cast(WNDPROC(Window.WndProcProxy), c_void_p))
             return window.WndProc(hwnd, message, wParam, lParam)
 
@@ -496,7 +529,7 @@ def mainloop(controller, **kw):
     window=factory.create(Window, **kw)
     window.createGLContext(16)
     window.controller=controller
-    window.Show()
+    ShowWindow(window.hwnd, win32con.SW_SHOWNORMAL)
     import sys
     sys.exit(factory.loop(window))
 
