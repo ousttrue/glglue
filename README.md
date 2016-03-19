@@ -1,6 +1,5 @@
 # glglue
-
-glglueは、PyOpenGLとWindowsSystemを分離しようという趣旨のユーティリティです。
+glglueは、PyOpenGLとWindowSystemを分離しようという趣旨のユーティリティです。
 python2はサポートしないことにした。
 
 # Requirements
@@ -16,89 +15,6 @@ python2はサポートしないことにした。
 #Site
 * http://pypi.python.org/pypi/glglue/
 * https://github.com/ousttrue/glglue
-
-# Controller convention
-You should implement Controller class that has follow methods.
-
-* onUpdate
-* onLeftDown
-* onLeftUp
-* onMiddleDown
-* onMiddleUp
-* onRightDown
-* onRightUp
-* onMotion
-* onResize
-* onWheel
-* onKeyDown
-* draw
-
-## example
-
-controller_sample.py
-
-```python
-# coding: utf-8
-from OpenGL.GL import *
-
-
-class Controller(object):
-    def __init__(self):
-        pass
-
-    def onResize(self, w, h):
-        glViewport(0, 0, w, h)
-
-    def onLeftDown(self, x, y):
-        print 'onLeftDown', x, y
-
-    def onLeftUp(self, x, y):
-        print 'onLeftUp', x, y
-
-    def onMiddleDown(self, x, y):
-        print 'onMiddleDown', x, y
-
-    def onMiddleUp(self, x, y):
-        print 'onMiddleUp', x, y
-
-    def onRightDown(self, x, y):
-        print 'onRightDown', x, y
-
-    def onRightUp(self, x, y):
-        print 'onRightUp', x, y
-
-    def onMotion(self, x, y):
-        print 'onMotion', x, y
-
-    def onWheel(self, d):
-        print 'onWheel', d
-
-    def onKeyDown(self, keycode):
-        print 'onKeyDown', keycode
-
-    def onUpdate(self, d):
-        print 'onUpdate', d
-
-    def draw(self):
-        glClearColor(0.9, 0.5, 0.0, 0.0)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-        glBegin(GL_TRIANGLES)
-        glVertex(-1.0,-1.0)
-        glVertex( 1.0,-1.0)
-        glVertex( 0.0, 1.0)
-        glEnd()
-
-        glFlush()
-
-
-if __name__=="__main__":
-    controller=Controller()
-    import glglue.glut
-    glglue.glut.mainloop(controller, width=640, height=480, title=b"sample")    
-    #import glglue.wgl
-    #glglue.wgl.mainloop(controller, width=640, height=480, title=b"sample")
-```
 
 # Samples
 
@@ -145,6 +61,47 @@ import glglue.glut
 if __name__=="__main__":
     controller=glglue.sample.SampleController()
     glglue.glut.mainloop(controller)
+```
+
+##pyGame
+require pyOpenGL + pyGame
+
+```python
+import pygame
+from pygame.locals import *
+import glglue.sample
+
+if __name__=="__main__":   
+    pygame.init()
+    size=(640, 480)
+    pygame.display.gl_set_attribute(pygame.GL_STENCIL_SIZE, 2)
+    screen = pygame.display.set_mode(size, 
+            HWSURFACE | OPENGL | DOUBLEBUF)
+
+    controller=glglue.sample.SampleController()
+    controller.onResize(*size)
+
+    clock = pygame.time.Clock()    
+    is_running=True
+    while is_running:
+        #pressed = pygame.key.get_pressed()
+
+        # event handling
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                is_running=False
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    is_running=False
+                else:
+                    controller.onKeyDown(event.key)
+            
+        # update
+        d = clock.tick()
+        if d>0:
+            controller.onUpdate(d)
+            controller.draw()
+            pygame.display.flip()
 ```
 
 ##tkinter
@@ -239,45 +196,87 @@ window.show()
 sys.exit(app.exec_())
 ```
 
-##pyGame
-require pyOpenGL + pyGame
+# Controller convention
+You should implement Controller class that has follow methods.
+
+* onUpdate
+* onLeftDown
+* onLeftUp
+* onMiddleDown
+* onMiddleUp
+* onRightDown
+* onRightUp
+* onMotion
+* onResize
+* onWheel
+* onKeyDown
+* draw
+
+## example
+
+controller_sample.py
 
 ```python
-import pygame
-from pygame.locals import *
-import glglue.sample
+# coding: utf-8
+from OpenGL.GL import *
 
-if __name__=="__main__":   
-    pygame.init()
-    size=(640, 480)
-    pygame.display.gl_set_attribute(pygame.GL_STENCIL_SIZE, 2)
-    screen = pygame.display.set_mode(size, 
-            HWSURFACE | OPENGL | DOUBLEBUF)
 
-    controller=glglue.sample.SampleController()
-    controller.onResize(*size)
+class Controller(object):
+    def __init__(self):
+        pass
 
-    clock = pygame.time.Clock()    
-    is_running=True
-    while is_running:
-        #pressed = pygame.key.get_pressed()
+    def onResize(self, w, h):
+        glViewport(0, 0, w, h)
 
-        # event handling
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                is_running=False
-            if event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    is_running=False
-                else:
-                    controller.onKeyDown(event.key)
-            
-        # update
-        d = clock.tick()
-        if d>0:
-            controller.onUpdate(d)
-            controller.draw()
-            pygame.display.flip()
+    def onLeftDown(self, x, y):
+        print 'onLeftDown', x, y
+
+    def onLeftUp(self, x, y):
+        print 'onLeftUp', x, y
+
+    def onMiddleDown(self, x, y):
+        print 'onMiddleDown', x, y
+
+    def onMiddleUp(self, x, y):
+        print 'onMiddleUp', x, y
+
+    def onRightDown(self, x, y):
+        print 'onRightDown', x, y
+
+    def onRightUp(self, x, y):
+        print 'onRightUp', x, y
+
+    def onMotion(self, x, y):
+        print 'onMotion', x, y
+
+    def onWheel(self, d):
+        print 'onWheel', d
+
+    def onKeyDown(self, keycode):
+        print 'onKeyDown', keycode
+
+    def onUpdate(self, d):
+        print 'onUpdate', d
+
+    def draw(self):
+        glClearColor(0.9, 0.5, 0.0, 0.0)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        glBegin(GL_TRIANGLES)
+        glVertex(-1.0,-1.0)
+        glVertex( 1.0,-1.0)
+        glVertex( 0.0, 1.0)
+        glEnd()
+
+        glFlush()
+
+
+if __name__=="__main__":
+    controller=Controller()
+    import glglue.glut
+    glglue.glut.mainloop(controller, width=640, height=480, title=b"sample")    
+    #import glglue.wgl
+    #glglue.wgl.mainloop(controller, width=640, height=480, title=b"sample")
 ```
 
 # History

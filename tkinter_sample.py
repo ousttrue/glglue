@@ -1,13 +1,14 @@
 import sys
 import tkinter
 import glglue.togl
-import glglue.sample
+import controller_sample
+
 class Frame(tkinter.Frame):
     def __init__(self, width, height, master=None, **kw):
         #super(Frame, self).__init__(master, **kw)
         tkinter.Frame.__init__(self, master, **kw)
         # setup opengl widget
-        self.controller=glglue.sample.SampleController()
+        self.controller=controller_sample.Controller()
         self.glwidget=glglue.togl.Widget(
                 self, self.controller, width=width, height=height)
         self.glwidget.pack(fill=tkinter.BOTH, expand=True)

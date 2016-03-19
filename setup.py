@@ -10,7 +10,6 @@ setup(
         description='The glue code which mediates between OpenGL and some GUI',
         long_description=open('README.rst').read(),
         classifiers=[
-            'Programming Language :: Python :: 2',
             'Programming Language :: Python :: 3',
             'License :: OSI Approved :: zlib/libpng License',
             'Topic :: Multimedia :: Graphics :: 3D Modeling',
