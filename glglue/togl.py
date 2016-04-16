@@ -2,6 +2,8 @@
 # coding: utf-8
 
 import OpenGL.Tk
+from logging import getLogger
+logger = getLogger(__name__)
 
 
 class Widget(OpenGL.Tk.RawOpengl):
@@ -62,7 +64,7 @@ if __name__=="__main__":
                 # q
                 sys.exit()
             else:
-                print("keycode: %d" % key)
+                logger.debug("keycode: %d" % key)
 
     f = Frame(width=600, height=600)
     f.pack(fill=tkinter.BOTH, expand=True)

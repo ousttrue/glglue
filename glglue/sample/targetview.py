@@ -4,6 +4,9 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+from logging import getLogger
+logger = getLogger(__name__)
+
 
 class TargetView(object):
     def __init__(self, distance=None):
@@ -38,7 +41,7 @@ class TargetView(object):
         glRotate(self.head, 0, 1, 0)
 
     def onResize(self, w=None, h=None):
-        print("resize: %d, %d" % (self.w, self.h))
+        logger.debug("resize: %d, %d" , self.w, self.h)
         self.w=w or self.w
         self.h=h or self.h
         glViewport(0, 0, self.w, self.h)

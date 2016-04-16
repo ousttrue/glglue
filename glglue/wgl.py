@@ -1,8 +1,13 @@
-﻿import glglue.win32con as win32con
+﻿import sys
+sys.path.append('..')
+import glglue.win32con as win32con
 import sys
 from ctypes import *
 from ctypes.wintypes import *
 from OpenGL.GL import *
+from logging import getLogger
+logger = getLogger(__name__)
+
 
 ##############################################################################
 # Windows types
@@ -116,7 +121,7 @@ class PAINTSTRUCT(Structure):
 class POINT(Structure):
     _fields_ = [('x', c_long),
                 ('y', c_long)]
-    
+
 class MSG(Structure):
     _fields_ = [('hwnd', HWND),
                 ('message', c_uint),
@@ -135,8 +140,8 @@ RegisterClass.restype = ATOM
 
 CreateWindowEx = windll.user32.CreateWindowExA
 CreateWindowEx.argtypes = [
-        c_int, LPCSTR, LPCSTR, c_int, 
-        c_int, c_int, c_int, c_int, 
+        c_int, LPCSTR, LPCSTR, c_int,
+        c_int, c_int, c_int, c_int,
         HWND, HANDLE, HANDLE,
         py_object
         ]
@@ -248,13 +253,13 @@ class Window(object):
                 }
 
     def finalize(self):
-        print('finalize', self.__class__)
+        logger.debug('finalize %s', self.__class__)
 
     def Redraw(self):
         windll.user32.InvalidateRect(self.hwnd, c_int(0), c_int(0))
 
     def Show(self):
-        ShowWindow(self.hwnd, 
+        ShowWindow(self.hwnd,
                 win32con.SW_SHOWNORMAL)
         windll.user32.UpdateWindow(self.hwnd)
 
@@ -263,7 +268,6 @@ class Window(object):
         SetWindowLongPtr(hwnd, key, value);
 
     def onPaint(self, hwnd, message, wParam, lParam):
-        #print("WM_PAINT")
         ps = PAINTSTRUCT()
         hdc = BeginPaint(hwnd, byref(ps))
         if self.hrc and self.controller:
@@ -275,7 +279,7 @@ class Window(object):
     def onSize(self, hwnd, message, wParam, lParam):
         w=LOWORD(lParam)
         h=HIWORD(lParam)
-        print("WM_SIZE %d x %d %s" % (w, h, self.controller))
+        logger.debug("WM_SIZE %d x %d %s" % (w, h, self.controller))
         if self.controller:
             self.controller.onResize(w, h)
         return 0
@@ -414,7 +418,7 @@ class Window(object):
         p=GetWindowLongPtr(hwnd, win32con.GWL_USERDATA)
         window=cast(p, py_object)
         return window.value.WndProc(hwnd, message, wParam, lParam)
-        
+
 
 class WindowFactory(object):
     def __init__(self):
@@ -428,7 +432,7 @@ class WindowFactory(object):
     def finalize(self):
         for w in self.windows:
             w.value.finalize()
-        print('finalize', self.__class__)
+        logger.debug('finalize %s', self.__class__)
 
     def register_class(self, className):
         """
@@ -436,7 +440,7 @@ class WindowFactory(object):
         """
         # Define Window Class
         wndclass = WNDCLASS()
-        wndclass.style = win32con.CS_HREDRAW | win32con.CS_VREDRAW 
+        wndclass.style = win32con.CS_HREDRAW | win32con.CS_VREDRAW
         wndclass.lpfnWndProc = WNDPROC(WindowFactory.WndProc)
         wndclass.cbClsExtra = wndclass.cbWndExtra = 0
         wndclass.hInstance = windll.kernel32.GetModuleHandleA(
@@ -451,7 +455,7 @@ class WindowFactory(object):
         wndclass.lpszClassName = className
         # Register Window Class
         res = RegisterClass(byref(wndclass))
-        print(res)
+        logger.debug(res)
         if not res:
             raise WinError()
         self.classes.append(wndclass)
@@ -498,7 +502,6 @@ class WindowFactory(object):
                 count=timeGetTime()
                 d=count-lastCount
                 if d>0:
-                    #print d
                     window.controller.onUpdate(d)
                     window.Redraw()
                     lastCount=count
@@ -511,7 +514,7 @@ class WindowFactory(object):
             createstruct = lpcreatestruct.contents;
             window=cast(createstruct.lpCreateParams, py_object).value
             window.hwnd=hwnd
-            window.SetLongPtr(hwnd, win32con.GWL_USERDATA, 
+            window.SetLongPtr(hwnd, win32con.GWL_USERDATA,
                     createstruct.lpCreateParams)
             window.SetLongPtr(hwnd, win32con.GWL_WNDPROC,
                     cast(WNDPROC(Window.WndProcProxy), c_void_p))
@@ -520,7 +523,7 @@ class WindowFactory(object):
         elif message == win32con.WM_DESTROY:
             windll.user32.PostQuitMessage(0)
             return 0
-        
+
         return DefWindowProc(hwnd, message, wParam, lParam)
 
 
@@ -537,8 +540,7 @@ def mainloop(controller, **kw):
 if __name__=="__main__":
     import os
     if os.name!='nt':
-        print("this script is windows only: "+os.name)
+        logger.debug("this script is windows only: "+os.name)
         sys.exit()
     import glglue.sample
     mainloop(glglue.sample.SampleController(), width=600, height=400)
-

@@ -9,6 +9,9 @@ from . import triangle
 from . import cube
 from . import coord
 
+from logging import getLogger
+logger = getLogger(__name__)
+
 DELEGATE_PATTERN=re.compile('^on[A-Z]')
 VELOCITY=0.1
 
@@ -49,24 +52,22 @@ class SampleController(object):
         self.delegate(root)
 
     def delegate(self, to):
-        for name in dir(to):  
+        for name in dir(to):
             if DELEGATE_PATTERN.match(name):
-                method = getattr(to, name)  
+                method = getattr(to, name)
                 setattr(self, name, method)
 
     def onUpdate(self, ms):
         self.root.onUpdate(ms)
 
     def onKeyDown(self, key):
-        #print("onKeyDown: %x" % key)
+        logger.debug("onKeyDown: %x", key)
         if key==ord('\033'):
             # Escape
             sys.exit()
         if key==ord('q'):
             # q
             sys.exit()
-        else:
-            print(key)
 
     def onInitialize(*args):
         pass
@@ -96,4 +97,3 @@ class SampleController(object):
         self.root.draw()
 
         glFlush()
-

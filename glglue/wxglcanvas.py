@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
 import wx.glcanvas
+from logging import getLogger
+logger = getLogger(__name__)
 
 
 class Widget(wx.glcanvas.GLCanvas):
@@ -8,7 +10,7 @@ class Widget(wx.glcanvas.GLCanvas):
         attribList = (wx.glcanvas.WX_GL_RGBA, # RGBA
                 wx.glcanvas.WX_GL_DOUBLEBUFFER, # Double Buffered
                 wx.glcanvas.WX_GL_DEPTH_SIZE, 32) # 32 bit
-        super(Widget, self).__init__(parent, 
+        super(Widget, self).__init__(parent,
                 attribList=attribList, *args, **kwargs)
         self.controller=controller
         self.context = wx.glcanvas.GLContext(self)
@@ -16,23 +18,23 @@ class Widget(wx.glcanvas.GLCanvas):
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnResize)
         self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBG)
-        self.Bind(wx.EVT_LEFT_DOWN, 
+        self.Bind(wx.EVT_LEFT_DOWN,
                 lambda e: self.SetFocus() or self.controller.onLeftDown(e.x, e.y) and self.Refresh())
-        self.Bind(wx.EVT_LEFT_UP, 
+        self.Bind(wx.EVT_LEFT_UP,
                 lambda e: self.controller.onLeftUp(e.x, e.y) and self.Refresh())
-        self.Bind(wx.EVT_RIGHT_DOWN, 
+        self.Bind(wx.EVT_RIGHT_DOWN,
                 lambda e: self.SetFocus() or self.controller.onRightDown(e.x, e.y) and self.Refresh())
-        self.Bind(wx.EVT_RIGHT_UP, 
+        self.Bind(wx.EVT_RIGHT_UP,
                 lambda e: self.controller.onRightUp(e.x, e.y) and self.Refresh())
-        self.Bind(wx.EVT_MIDDLE_DOWN, 
+        self.Bind(wx.EVT_MIDDLE_DOWN,
                 lambda e: self.SetFocus() or self.controller.onMiddleDown(e.x, e.y) and self.Refresh())
-        self.Bind(wx.EVT_MIDDLE_UP, 
+        self.Bind(wx.EVT_MIDDLE_UP,
                 lambda e: self.controller.onMiddleUp(e.x, e.y) and self.Refresh())
-        self.Bind(wx.EVT_MOTION, 
+        self.Bind(wx.EVT_MOTION,
                 lambda e: self.controller.onMotion(e.x, e.y) and self.Refresh())
-        self.Bind(wx.EVT_MOUSEWHEEL, 
+        self.Bind(wx.EVT_MOUSEWHEEL,
                 lambda e: self.controller.onWheel(-e.WheelRotation) and self.Refresh())
-        self.Bind(wx.EVT_KEY_DOWN,  
+        self.Bind(wx.EVT_KEY_DOWN,
                 lambda e: self.controller.onKeyDown(e.KeyCode) and self.Refresh())
 
     def OnPaint(self, event):
@@ -43,7 +45,7 @@ class Widget(wx.glcanvas.GLCanvas):
             self.SwapBuffers()
             event.Skip()
         except wx._core.PyAssertionError as e:
-            print('OnPaint', e)
+            logger.debug('OnPaint %s', e)
 
     def OnResize(self, event):
         self.size = self.GetClientSize()
@@ -53,7 +55,7 @@ class Widget(wx.glcanvas.GLCanvas):
             self.Refresh()
             event.Skip()
         except wx._core.PyAssertionError as e:
-            print('OnResize', e)
+            logger.derbug('OnResize %s', e)
 
     def OnEraseBG(self, event):
         pass # Do nothing, to avoid flashing on MSWin

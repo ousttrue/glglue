@@ -3,3 +3,5 @@ dist
 build
 glglue.egg-info
 *.swp
+*.suo
+*.sln
