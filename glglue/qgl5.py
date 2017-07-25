@@ -51,7 +51,7 @@ class Widget(QtOpenGL.QGLWidget):
             self.repaint()
 
     def wheelEvent(self, event):
-        if self.controller.onWheel(-event.delta()):
+        if self.controller.onWheel(-event.angleDelta().y()):
             self.repaint()
 
 
