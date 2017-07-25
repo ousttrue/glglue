@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{ea1b189c-19fc-4283-9410-8ef5763a0f23}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>examples\pyqt4_sample.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>{9a7a9026-48c1-4688-9d5d-e5699d47d074}</InterpreterId>
+    <InterpreterVersion>3.5</InterpreterVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="examples\glut_sample.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="examples\pyqt4_sample.py" />
+    <Compile Include="examples\tkinter_sample.py" />
+    <Compile Include="examples\wgl_sample.py" />
+    <Compile Include="glglue\basecontroller.py" />
+    <Compile Include="glglue\glut.py" />
+    <Compile Include="glglue\qgl.py" />
+    <Compile Include="glglue\sample\coord.py" />
+    <Compile Include="glglue\sample\cube.py" />
+    <Compile Include="glglue\sample\samplecontroller.py" />
+    <Compile Include="glglue\sample\targetview.py" />
+    <Compile Include="glglue\sample\triangle.py" />
+    <Compile Include="glglue\sample\__init__.py" />
+    <Compile Include="glglue\sdl.py" />
+    <Compile Include="glglue\togl.py" />
+    <Compile Include="glglue\wgl.py" />
+    <Compile Include="glglue\win32con.py" />
+    <Compile Include="glglue\wxglcanvas.py" />
+    <Compile Include="glglue\__init__.py" />
+    <Compile Include="setup.py" />
+    <Compile Include="tutorial\01_glut_basic.py" />
+    <Compile Include="tutorial\02_glut_wighout_opengl.py" />
+    <Compile Include="tutorial\03_use_glglue.py" />
+    <Compile Include="tutorial\simple_renderer.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="examples" />
+    <Folder Include="glglue" />
+    <Folder Include="glglue\sample" />
+    <Folder Include="tutorial" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{9a7a9026-48c1-4688-9d5d-e5699d47d074}\3.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="README.rst" />
+  </ItemGroup>
+  <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
+</Project>

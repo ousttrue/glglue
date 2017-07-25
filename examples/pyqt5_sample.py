@@ -4,8 +4,8 @@
 import pathlib
 import sys
 sys.path.append(str(pathlib.Path(__file__).parents[1]))
-import glglue.qgl4
-from PyQt4 import Qt
+import glglue.qgl5
+from PyQt5 import Qt
 from OpenGL.GL import *
 import logging
 logger = logging.getLogger(__name__)
@@ -75,7 +75,7 @@ class Window(Qt.QMainWindow):
         super().__init__(parent)
         # setup opengl widget
         self.controller=Controller()
-        self.glwidget=glglue.qgl4.Widget(self, self.controller)
+        self.glwidget=glglue.qgl5.Widget(self, self.controller)
         self.setCentralWidget(self.glwidget)
 
 
