@@ -10,6 +10,7 @@ Requirements
 
 Features
 ========
+* pysdl2
 * glut window
 * pyQt4's qgl widget
 * pyQt5's qgl widget
@@ -44,6 +45,7 @@ You should implement Controller class that has follow methods.
 History
 =======
 
+* 20170730 0.4.3 add PySDL2
 * 20170726 0.4.2 add PyQt5
 * 20160417 0.4.1 remove print. use logger
 * 20160318 0.4 fix for python3. drop python2 support

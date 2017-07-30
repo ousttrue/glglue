@@ -1,5 +1,6 @@
 ﻿import sys
 sys.path.append('..')
+sys.path.append('.')
 import glglue.win32con as win32con
 import sys
 from ctypes import *
