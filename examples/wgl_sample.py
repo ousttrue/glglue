@@ -5,8 +5,7 @@ Win32APIでOpenGLホストするサンプル
 from logging import getLogger
 logger = getLogger(__name__)
 
-from OpenGL.GL import *
-import logging
+from OpenGL.GL import *  # pylint: disable=W0614, W0622, W0401
 
 
 class Controller:
@@ -15,7 +14,7 @@ class Controller:
     """
 
     def __init__(self):
-        pass
+        self.is_initialized = False
 
     def onResize(self, w, h):
         logger.debug('onResize: %d, %d', w, h)
@@ -52,7 +51,12 @@ class Controller:
         #logger.debug('onUpdate: delta %d ms', d)
         pass
 
+    def initialize(self):
+        self.is_initialized = True
+
     def draw(self):
+        if not self.is_initialized:
+            self.initialize()
         glClearColor(0.0, 0.0, 1.0, 0.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 

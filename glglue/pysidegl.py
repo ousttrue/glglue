@@ -56,22 +56,21 @@ class Widget(QtOpenGL.QGLWidget):
 
 
 if __name__ == "__main__":
-    from PyQt4 import Qt
     import glglue.sample
 
-    class Window(Qt.QWidget):
+    class Window(QtGui.QWidget):
         def __init__(self, parent=None):
-            Qt.QWidget.__init__(self, parent)
+            super().__init__(parent)
             # setup opengl widget
             self.controller = glglue.sample.SampleController()
             self.glwidget = Widget(self, self.controller)
             # packing
-            mainLayout = Qt.QHBoxLayout()
+            mainLayout = QtGui.QHBoxLayout()
             mainLayout.addWidget(self.glwidget)
             self.setLayout(mainLayout)
 
     import sys
-    app = Qt.QApplication(sys.argv)
+    app = QtGui.QApplication(sys.argv)
     window = Window()
     window.show()
     sys.exit(app.exec_())

@@ -15,6 +15,7 @@ Features
 * pyQt4's qgl widget
 * pyQt5's qgl widget
 * win32api wgl
+* pyside(Qt4)
 
 Site
 ====
@@ -45,6 +46,7 @@ You should implement Controller class that has follow methods.
 History
 =======
 
+* 20170926 0.4.4 add PySide
 * 20170730 0.4.3 add PySDL2
 * 20170726 0.4.2 add PyQt5
 * 20160417 0.4.1 remove print. use logger
