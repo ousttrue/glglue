@@ -5,3 +5,4 @@ glglue.egg-info
 *.swp
 *.suo
 *.sln
+.mypy_cache

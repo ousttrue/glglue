@@ -1,14 +1,13 @@
 # coding: utf-8
 '''
-## glut
-requrie pyOpenGL + glut install
+# glut
+requrie pyOpenGL + glut.dll
 
-###glut install on Windows
+# glut install on Windows
 
-1. download glut-3.7.6-bin.zip from http://user.xmission.com/~nate/glut.html
-2. copy glut32.dll to C:/PythonXX/
+* なんとかしてglut.dllを入手(vcpkgでビルドするのおすすめ)
+* Python.exeと同じフォルダにコピーする。
 '''
-
 
 import pathlib
 import sys
@@ -17,6 +16,6 @@ import glglue.sample
 import glglue.glut
 
 
-if __name__=="__main__":
-    controller=glglue.sample.SampleController()
+if __name__ == "__main__":
+    controller = glglue.sample.SampleController()
     glglue.glut.mainloop(controller)

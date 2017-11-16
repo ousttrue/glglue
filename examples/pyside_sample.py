@@ -1,5 +1,10 @@
 ﻿'''
+# pyside install on Windows
+
+* https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyside
 '''
+from logging import getLogger
+logger = getLogger(__name__)
 
 import pathlib
 import sys
@@ -7,12 +12,6 @@ sys.path.append(str(pathlib.Path(__file__).parents[1]))
 import glglue.pysidegl
 from PySide import QtGui as Qt
 from OpenGL.GL import *
-import logging
-logger = logging.getLogger(__name__)
-logging.basicConfig(
-        format='%(levelname)s:%(name)s:%(message)s'
-        , level=logging.DEBUG
-        )
 
 
 class Controller:
@@ -80,8 +79,11 @@ class Window(Qt.QMainWindow):
 
 
 if __name__=="__main__":
+    from logging import basicConfig, DEBUG
+    basicConfig(
+        format='%(levelname)s:%(name)s:%(message)s', level=DEBUG
+    )    
     app = Qt.QApplication(sys.argv)
     window = Window()
     window.show()
     sys.exit(app.exec_())
-

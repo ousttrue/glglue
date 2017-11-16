@@ -1,5 +1,6 @@
-﻿'''
-'''
+﻿from logging import getLogger
+logger = getLogger(__name__)
+
 
 import pathlib
 import sys
@@ -7,18 +8,13 @@ sys.path.append(str(pathlib.Path(__file__).parents[1]))
 import glglue.qgl4
 from PyQt4 import Qt
 from OpenGL.GL import *
-import logging
-logger = logging.getLogger(__name__)
-logging.basicConfig(
-        format='%(levelname)s:%(name)s:%(message)s'
-        , level=logging.DEBUG
-        )
 
 
 class Controller:
     """
     [CLASSES] Controllerクラスは、glglueの規約に沿って以下のコールバックを実装する
     """
+
     def __init__(self):
         pass
 
@@ -62,9 +58,9 @@ class Controller:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         glBegin(GL_TRIANGLES)
-        glVertex(-1.0,-1.0)
-        glVertex( 1.0,-1.0)
-        glVertex( 0.0, 1.0)
+        glVertex(-1.0, -1.0)
+        glVertex(1.0, -1.0)
+        glVertex(0.0, 1.0)
         glEnd()
 
         glFlush()
@@ -74,14 +70,18 @@ class Window(Qt.QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         # setup opengl widget
-        self.controller=Controller()
-        self.glwidget=glglue.qgl4.Widget(self, self.controller)
+        self.controller = Controller()
+        self.glwidget = glglue.qgl4.Widget(self, self.controller)
         self.setCentralWidget(self.glwidget)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
+    from logging import basicConfig, DEBUG
+    basicConfig(
+        format='%(levelname)s:%(name)s:%(message)s', level=DEBUG
+    )
+
     app = Qt.QApplication(sys.argv)
     window = Window()
     window.show()
     sys.exit(app.exec_())
-

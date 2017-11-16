@@ -1,7 +1,4 @@
-﻿'''
-'''
-
-import pathlib
+﻿import pathlib
 import sys
 sys.path.append(str(pathlib.Path(__file__).parents[1]))
 import glglue.qgl5
@@ -84,4 +81,3 @@ if __name__=="__main__":
     window = Window()
     window.show()
     sys.exit(app.exec_())
-
