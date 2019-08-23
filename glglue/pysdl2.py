@@ -15,7 +15,10 @@ from sdl2 import *
 import ctypes
 
 
-def mainloop(controller, title, width, height, **kw):
+def mainloop(controller, **kw):
+    title = kw.get('title', b'glglue.pysdl2')
+    width = kw.get('width', 600)
+    height = kw.get('height', 400)
     SDL_Init(SDL_INIT_VIDEO)
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1)
     window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED,

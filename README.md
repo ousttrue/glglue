@@ -1,7 +1,6 @@
 # glglue
 
-glglueは、PyOpenGLとWindowSystemを分離しようという趣旨のユーティリティです。
-python2はサポートしないことにした。
+The glue code which mediates between OpenGL and some GUI
 
 ## Requirements
 
@@ -12,12 +11,11 @@ python2はサポートしないことにした。
 * http://pypi.python.org/pypi/glglue/
 * https://github.com/ousttrue/glglue
 
-## Usage
+## minimal usage
 
-* [Windows](./examples/wgl_sample.py)
-* [glut](./examples/glut_sample.py)
-* [SDL2](./examples/pysdl2_sample.py)
-* [PyQt5](./examples/qyqt5_sample.py)
+* [minimal](./examples/minimal.py)
+
+then implement your own Controller.
 
 ## Controller convention
 
@@ -26,51 +24,75 @@ You should implement Controller class that has follow methods.
 ``` py
 class Controller:
     def onResize(self, w: int, h: int) -> None:
+        ''' when OpenGL window is resized. '''
         pass
 
     def onLeftDown(self, x: int, y: int) -> None:
+        ''' mouse input '''
         pass
 
     def onLeftUp(self, x: int, y: int) -> None:
+        ''' mouse input '''
         pass
 
     def onMiddleDown(self, x: int, y: int) -> None:
+        ''' mouse input '''
         pass
 
     def onMiddleUp(self, x: int, y: int) -> None:
+        ''' mouse input '''
         pass
 
     def onRightDown(self, x: int, y: int) -> None:
+        ''' mouse input '''
         pass
 
     def onRightUp(self, x: int, y: int) -> None:
+        ''' mouse input '''
         pass
 
     def onMotion(self, x: int, y: int) -> None:
+        ''' mouse input '''
         pass
 
     def onWheel(self, d: int) -> None:
+        ''' mouse input '''
         pass
 
     def onKeyDown(self, keycode: int) -> None:
+        ''' keyboard input'''
         pass
 
     def onUpdate(self, d: int) -> None:
-        '''
-        milliseconds
-        '''
-        pass
-
-    def initialize(self) -> None:
+        ''' each frame. milliseconds '''
         pass
 
     def draw(self) -> None:
+        ''' each frame'''
         pass
-
 ```
+
+## implementations
+
+### maintenance
+
+* [Windows](./examples/wgl_sample.py)
+* [glut](./examples/glut_sample.py)
+* [SDL2](./examples/pysdl2_sample.py)
+
+* [PyQt5](./examples/qyqt5_sample.py)
+* [PySide2](./examples/qyside2_sample.py)
+
+### not maintenance
+
+* [tkinter](./examples/tkinter_sample.py)
+* [PyQt4](./examples/pyqt4_sample.py)
+* [PySide](./examples/pyside_sample.py)
+* wxglcanvas
 
 ## History
 
+* 20190824 1.1.0 add PySide2
 * 20190824 1.0.0 README.rst to README.md
 * 20170926 0.4.4 add PySide
 * 20170730 0.4.3 add PySDL2

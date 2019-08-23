@@ -5,6 +5,8 @@
         "mainloop",
         "opengl",
         "pysdl",
-        "pyside"
+        "pyside",
+        "tkinter",
+        "togl"
     ]
 }
