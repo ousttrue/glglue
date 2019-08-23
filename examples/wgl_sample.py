@@ -1,6 +1,9 @@
 # coding: utf-8
 '''
-Win32APIでOpenGLホストするサンプル
+Win32APIでOpenGLホストするサンプル。
+
+* Windows専用
+* 追加のインストールは不要
 '''
 from logging import getLogger
 logger = getLogger(__name__)
@@ -13,48 +16,51 @@ class Controller:
     [CLASSES] Controllerクラスは、glglueの規約に沿って以下のコールバックを実装する
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.is_initialized = False
 
-    def onResize(self, w, h):
+    def onResize(self, w: int, h: int) -> None:
         logger.debug('onResize: %d, %d', w, h)
         glViewport(0, 0, w, h)
 
-    def onLeftDown(self, x, y):
+    def onLeftDown(self, x: int, y: int) -> None:
         logger.debug('onLeftDown: %d, %d', x, y)
 
-    def onLeftUp(self, x, y):
+    def onLeftUp(self, x: int, y: int) -> None:
         logger.debug('onLeftUp: %d, %d', x, y)
 
-    def onMiddleDown(self, x, y):
+    def onMiddleDown(self, x: int, y: int) -> None:
         logger.debug('onMiddleDown: %d, %d', x, y)
 
-    def onMiddleUp(self, x, y):
+    def onMiddleUp(self, x: int, y: int) -> None:
         logger.debug('onMiddleUp: %d, %d', x, y)
 
-    def onRightDown(self, x, y):
+    def onRightDown(self, x: int, y: int) -> None:
         logger.debug('onRightDown: %d, %d', x, y)
 
-    def onRightUp(self, x, y):
+    def onRightUp(self, x: int, y: int) -> None:
         logger.debug('onRightUp: %d, %d', x, y)
 
-    def onMotion(self, x, y):
+    def onMotion(self, x: int, y: int) -> None:
         logger.debug('onMotion: %d, %d', x, y)
 
-    def onWheel(self, d):
+    def onWheel(self, d: int) -> None:
         logger.debug('onWheel: %d', d)
 
-    def onKeyDown(self, keycode):
+    def onKeyDown(self, keycode: int) -> None:
         logger.debug('onKeyDown: %d', keycode)
 
-    def onUpdate(self, d):
+    def onUpdate(self, d: int) -> None:
+        '''
+        milliseconds
+        '''
         #logger.debug('onUpdate: delta %d ms', d)
         pass
 
-    def initialize(self):
+    def initialize(self) -> None:
         self.is_initialized = True
 
-    def draw(self):
+    def draw(self) -> None:
         if not self.is_initialized:
             self.initialize()
         glClearColor(0.0, 0.0, 1.0, 0.0)
@@ -71,9 +77,7 @@ class Controller:
 
 if __name__ == "__main__":
     from logging import basicConfig, DEBUG
-    basicConfig(
-        format='%(levelname)s:%(name)s:%(message)s', level=DEBUG
-    )
+    basicConfig(format='%(levelname)s:%(name)s:%(message)s', level=DEBUG)
     controller = Controller()
     import pathlib
     import sys

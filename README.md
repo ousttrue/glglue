@@ -7,40 +7,67 @@ python2はサポートしないことにした。
 
 * Python 3.2
 
-## Features
-
-* pysdl2
-* glut window
-* pyQt4's qgl widget
-* pyQt5's qgl widget
-* win32api wgl
-* pyside(Qt4)
-
 ## Site
 
 * http://pypi.python.org/pypi/glglue/
 * https://github.com/ousttrue/glglue
 
-## Samples
+## Usage
 
-show tutorial and examples directory.
+* [Windows](./examples/wgl_sample.py)
+* [glut](./examples/glut_sample.py)
+* [SDL2](./examples/pysdl2_sample.py)
+* [PyQt5](./examples/qyqt5_sample.py)
 
 ## Controller convention
 
 You should implement Controller class that has follow methods.
 
-* onUpdate
-* onLeftDown
-* onLeftUp
-* onMiddleDown
-* onMiddleUp
-* onRightDown
-* onRightUp
-* onMotion
-* onResize
-* onWheel
-* onKeyDown
-* draw
+``` py
+class Controller:
+    def onResize(self, w: int, h: int) -> None:
+        pass
+
+    def onLeftDown(self, x: int, y: int) -> None:
+        pass
+
+    def onLeftUp(self, x: int, y: int) -> None:
+        pass
+
+    def onMiddleDown(self, x: int, y: int) -> None:
+        pass
+
+    def onMiddleUp(self, x: int, y: int) -> None:
+        pass
+
+    def onRightDown(self, x: int, y: int) -> None:
+        pass
+
+    def onRightUp(self, x: int, y: int) -> None:
+        pass
+
+    def onMotion(self, x: int, y: int) -> None:
+        pass
+
+    def onWheel(self, d: int) -> None:
+        pass
+
+    def onKeyDown(self, keycode: int) -> None:
+        pass
+
+    def onUpdate(self, d: int) -> None:
+        '''
+        milliseconds
+        '''
+        pass
+
+    def initialize(self) -> None:
+        pass
+
+    def draw(self) -> None:
+        pass
+
+```
 
 ## History
 

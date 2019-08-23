@@ -2,11 +2,12 @@
 '''
 # glut
 requrie pyOpenGL + glut.dll
+requrie pyOpenGL + freeglut.dll
 
 # glut install on Windows
 
-* なんとかしてglut.dllを入手(vcpkgでビルドするのおすすめ)
-* Python.exeと同じフォルダにコピーする。
+* glut.dllもしくはfreeglut.dllを入手(vcpkgでビルドするのおすすめ)
+* Python.exeと同じフォルダにコピーするか環境変数PATHを設定する
 '''
 
 import pathlib

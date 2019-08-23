@@ -9,6 +9,9 @@ from OpenGL.GLUT import *
 import time
 from logging import getLogger
 logger = getLogger(__name__)
+import sys
+sys.path.append('..')
+sys.path.append('.')
 
 
 FPS=30
@@ -89,7 +92,7 @@ def _create_idle_func():
     return idle
 
 
-def mainloop(controller, width: int=640, height: int=480, title: bytearray=b"glut sample"):
+def setup(controller, width: int=640, height: int=480, title: bytearray=b"glut sample"):
     """ [FUNCTIONS] setup and start glut mainloop
     """
     global _g_controller
@@ -109,17 +112,54 @@ def mainloop(controller, width: int=640, height: int=480, title: bytearray=b"glu
     glutMotionFunc(_motion)
     # キーボードが押された時に呼ばれる関数
     glutKeyboardFunc(_keyboard)
-    # タイマー
-    #glutTimerFunc(MSPF, timer , 0);
-    # idle
-    glutIdleFunc(_create_idle_func())
-    # start mainloop
-    glutMainLoop()
+
+def mainloop(controller, width: int=640, height: int=480, title: bytearray=b"glut sample"):
+    """ [FUNCTIONS] setup and start glut mainloop
+    """
+    setup(controller, width, height, title)
+
+    if glutMainLoopEvent:
+        # manual loop
+        lastclock=0
+        while True:
+            glutMainLoopEvent()
+            clock=time.clock() * 1000
+            d=clock-lastclock
+            lastclock = clock
+            _g_controller.onUpdate(d)
+            _g_controller.draw()
+            glutSwapBuffers()
+    else:
+        # タイマー
+        #glutTimerFunc(MSPF, timer , 0);
+        # idle
+        glutIdleFunc(_create_idle_func())
+        # start mainloop
+        glutMainLoop()
 
 
 if __name__=="__main__":
     import sys
     sys.path.append('..')
     import glglue.sample
-    mainloop(glglue.sample.SampleController()
+    setup(glglue.sample.SampleController()
         , width=480, height=480, title=b"glut")
+
+    if glutMainLoopEvent:
+        # manual loop
+        lastclock=0
+        while True:
+            glutMainLoopEvent()
+            clock=time.clock() * 1000
+            d=clock-lastclock
+            lastclock = clock
+            _g_controller.onUpdate(d)
+            _g_controller.draw()
+            glutSwapBuffers()
+    else:
+        # タイマー
+        #glutTimerFunc(MSPF, timer , 0);
+        # idle
+        glutIdleFunc(_create_idle_func())
+        # start mainloop
+        glutMainLoop()
