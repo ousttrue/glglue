@@ -1,6 +1,17 @@
 # glglue
 
-The glue code which mediates between OpenGL and some GUI
+The glue code which mediates between OpenGL and some GUI.
+Represent below pattern.
+
+```
++--------+                   +------------+
+| GUI    |--window resize--->| OpenGL     |
+| Window |--mouse input----->| Controller |
+|        |--keyboard input-->|            |
+|        |                   |            |
+|        |<-- draw ----------|            |
++--------+                   +------------+
+```
 
 ## Requirements
 
