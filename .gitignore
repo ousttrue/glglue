@@ -6,3 +6,4 @@ glglue.egg-info
 *.suo
 *.sln
 .mypy_cache
+/.eggs
