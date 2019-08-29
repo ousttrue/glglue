@@ -82,4 +82,14 @@ if __name__ == "__main__":
     basicConfig(format='%(levelname)s:%(name)s:%(message)s', level=DEBUG)
     controller = Controller()
     import glglue.wgl
-    glglue.wgl.mainloop(controller, width=640, height=480, title=b"sample")
+    loop = glglue.wgl.LoopManager(controller, width=640, height=480, title=b"sample")
+    while True:
+        count = loop.begin_frame()
+        if not count:
+            break
+        d = count - lastCount if lastCount else 0
+        lastCount = count
+        if d > 0:
+            controller.onUpdate(d)
+            controller.draw()
+            loop.end_frame()
