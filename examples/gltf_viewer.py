@@ -1,10 +1,30 @@
 from logging import getLogger
 import sys
 import pathlib
+import struct
 from OpenGL.GL import *  # pylint: disable=W0614, W0622, W0401
 HERE = pathlib.Path(__file__).absolute().parent
 sys.path.insert(0, str(HERE.parent / 'src'))
 logger = getLogger(__name__)
+
+
+VS = '''
+#version 330
+in vec2 aPosition;
+void main ()
+{
+    gl_Position = vec4(aPosition, 1, 1);
+}
+'''
+
+FS = '''
+#version 330
+out vec4 FragColor;
+void main()
+{
+    FragColor = vec4(1, 1, 1, 1);
+}
+'''
 
 
 class Controller:
@@ -12,38 +32,40 @@ class Controller:
     [CLASSES] Controllerクラスは、glglueの規約に沿って以下のコールバックを実装する
     """
     def __init__(self) -> None:
+        self.shader = None
         self.is_initialized = False
+        self.vbo = False
 
     def onResize(self, w: int, h: int) -> None:
         logger.debug('onResize: %d, %d', w, h)
         glViewport(0, 0, w, h)
 
     def onLeftDown(self, x: int, y: int) -> None:
-        logger.debug('onLeftDown: %d, %d', x, y)
+        pass
 
     def onLeftUp(self, x: int, y: int) -> None:
-        logger.debug('onLeftUp: %d, %d', x, y)
+        pass
 
     def onMiddleDown(self, x: int, y: int) -> None:
-        logger.debug('onMiddleDown: %d, %d', x, y)
+        pass
 
     def onMiddleUp(self, x: int, y: int) -> None:
-        logger.debug('onMiddleUp: %d, %d', x, y)
+        pass
 
     def onRightDown(self, x: int, y: int) -> None:
-        logger.debug('onRightDown: %d, %d', x, y)
+        pass
 
     def onRightUp(self, x: int, y: int) -> None:
-        logger.debug('onRightUp: %d, %d', x, y)
+        pass
 
     def onMotion(self, x: int, y: int) -> None:
-        logger.debug('onMotion: %d, %d', x, y)
+        pass
 
     def onWheel(self, d: int) -> None:
-        logger.debug('onWheel: %d', d)
+        pass
 
     def onKeyDown(self, keycode: int) -> None:
-        logger.debug('onKeyDown: %d', keycode)
+        pass
 
     def onUpdate(self, d: int) -> None:
         '''
@@ -53,7 +75,25 @@ class Controller:
         pass
 
     def initialize(self) -> None:
+        import glglue.gl3
+        self.shader = glglue.gl3.Shader()
+        self.shader.compile(VS, FS)
+
+        self.vbo = glglue.gl3.VBO()
+        positions = (
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            0.0,
+            1.0,
+        )
+        position_bytes = struct.pack('6f', *positions)
+        self.vbo.set_vertex_attribute(2, position_bytes)
+
         self.is_initialized = True
+
+        # vbo
 
     def draw(self) -> None:
         if not self.is_initialized:
@@ -61,11 +101,9 @@ class Controller:
         glClearColor(0.0, 0.0, 1.0, 0.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        glBegin(GL_TRIANGLES)
-        glVertex(-1.0, -1.0)
-        glVertex(1.0, -1.0)
-        glVertex(0.0, 1.0)
-        glEnd()
+        self.shader.use()
+        self.vbo.set_slot(0)
+        self.vbo.draw()
 
         glFlush()
 
@@ -85,6 +123,9 @@ def main():
                                   width=640,
                                   height=480,
                                   title=b"gltf_viewer")
+
+    logger.debug(glglue.get_info())
+
     lastCount = None
     while True:
         count = loop.begin_frame()

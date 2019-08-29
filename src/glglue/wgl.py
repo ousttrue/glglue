@@ -266,9 +266,9 @@ class Window(object):
     def onPaint(self, hwnd, message, wParam, lParam):
         ps = PAINTSTRUCT()
         hdc = BeginPaint(hwnd, byref(ps))
-        if self.hrc and self.controller:
-            self.controller.draw()
-            SwapBuffers(hdc)
+        # if self.hrc and self.controller:
+        #     self.controller.draw()
+        #     SwapBuffers(hdc)
         EndPaint(hwnd, byref(ps))
         return 0
 
@@ -494,8 +494,9 @@ class WindowFactory(object):
             HANDLE(win32con.NULL), LPCSTR(win32con.IDI_APPLICATION))
         wndclass.hCursor = windll.user32.LoadCursorA(
             HANDLE(win32con.NULL), LPCSTR(win32con.IDC_ARROW))
-        wndclass.hbrBackground = windll.gdi32.GetStockObject(
-            c_int(win32con.WHITE_BRUSH))
+        # wndclass.hbrBackground = windll.gdi32.GetStockObject(
+        #     c_int(win32con.WHITE_BRUSH))
+        wndclass.hbrBackground = None
         wndclass.lpszMenuName = None
         wndclass.lpszClassName = className
         # Register Window Class
@@ -588,20 +589,21 @@ class LoopManager:
                     return  #msg.wParam
                 windll.user32.TranslateMessage(self.pMsg)
                 windll.user32.DispatchMessageA(self.pMsg)
+            break
 
         return timeGetTime()
 
     def end_frame(self):
         ps = PAINTSTRUCT()
-        hdc = BeginPaint(hwnd, byref(ps))
-        if self.hrc and self.controller:
-            self.controller.draw()
+        hdc = BeginPaint(self.window.hwnd, byref(ps))
+        if hdc:
             SwapBuffers(hdc)
-        EndPaint(hwnd, byref(ps))
- 
+        EndPaint(self.window.hwnd, byref(ps))
+
 
 def mainloop(controller, **kw):
     loop = LoopManager(controller, **kw)
+    lastCount = None
     while True:
         count = loop.begin_frame()
         if not count:
