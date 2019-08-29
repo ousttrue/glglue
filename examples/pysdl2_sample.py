@@ -1,30 +1,26 @@
 # coding: utf-8
 '''
 # sdl2
-requrie pyOpenGL + pysdl2 + sdl2.dll
+require pyOpenGL + pysdl2 + sdl2.dll
 
 # sdl2 install on Windows
 
 * なんとかしてSDL2.dllを入手(vcpkgでビルドするなど) 
 * 環境変数PYSDL2_DLL_PATHを設定する
 '''
-
-from logging import getLogger
-logger = getLogger(__name__)
-
 import pathlib
 import sys
-import os
-sys.path.append(str(pathlib.Path(__file__).parents[1]))
+import logging
 from OpenGL.GL import *
-
+HERE = pathlib.Path(__file__).absolute().parent
+sys.path.insert(0, str(HERE.parent / 'src'))
+logger = logging.getLogger(__name__)
 
 
 class Controller:
     """
     [CLASSES] Controllerクラスは、glglueの規約に沿って以下のコールバックを実装する
     """
-
     def __init__(self):
         pass
 
@@ -77,10 +73,24 @@ class Controller:
 
 
 if __name__ == "__main__":
-    from logging import basicConfig, DEBUG
-    basicConfig(
-        format='%(levelname)s:%(name)s:%(message)s', level=DEBUG
-    )    
-    # import する前に環境変数'PYSDL2_DLL_PATH'を設定するべし
+    logging.basicConfig(format='%(levelname)s:%(name)s:%(message)s',
+                        level=logging.DEBUG)
+    # sdl2.dllにパスが通っていない場合は、
+    # import する前に環境変数'PYSDL2_DLL_PATH'を設定する
     import glglue.pysdl2
-    glglue.pysdl2.mainloop(Controller(), b'pysdl2 sample', 640, 480)
+    controller = Controller()
+    loop = glglue.pysdl2.LoopManager(controller)
+    lastTime = 0
+    while True:
+        time = loop.begin_frame()
+        if not time:
+            break
+        if lastTime == 0:
+            lastTime = time
+            continue
+        d = time - lastTime
+        lastTime = time
+        if d:
+            controller.onUpdate(d)
+            controller.draw()
+            loop.end_frame()

@@ -19,4 +19,16 @@ if __name__ == "__main__":
     import glglue.sample
     import glglue.glut
     controller = glglue.sample.SampleController()
-    glglue.glut.mainloop(controller)
+
+    # manual loop
+    lastclock = 0
+    loop = glglue.glut.LoopManager(controller)
+    while True:
+        # require freeglut glutMainLoopEvent
+        clock = loop.begin_frame()
+        d = clock - lastclock
+        lastclock = clock
+        controller.onUpdate(d)
+        controller.draw()
+        loop.end_frame()
+ 

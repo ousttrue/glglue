@@ -6,16 +6,18 @@ Win32APIでOpenGLホストするサンプル。
 * 追加のインストールは不要
 '''
 from logging import getLogger
-logger = getLogger(__name__)
-
+import sys
+import pathlib
 from OpenGL.GL import *  # pylint: disable=W0614, W0622, W0401
+logger = getLogger(__name__)
+HERE = pathlib.Path(__file__).absolute().parent
+sys.path.insert(0, str(HERE.parent / 'src'))
 
 
 class Controller:
     """
     [CLASSES] Controllerクラスは、glglueの規約に沿って以下のコールバックを実装する
     """
-
     def __init__(self) -> None:
         self.is_initialized = False
 
@@ -79,8 +81,5 @@ if __name__ == "__main__":
     from logging import basicConfig, DEBUG
     basicConfig(format='%(levelname)s:%(name)s:%(message)s', level=DEBUG)
     controller = Controller()
-    import pathlib
-    import sys
-    sys.path.append(str(pathlib.Path(__file__).parents[1]))
     import glglue.wgl
     glglue.wgl.mainloop(controller, width=640, height=480, title=b"sample")

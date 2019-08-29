@@ -85,21 +85,24 @@ class Controller:
 
 ## implementations
 
-### maintenance
+### [Windows](./examples/wgl_sample.py)
 
-* [Windows](./examples/wgl_sample.py)
-* [glut](./examples/glut_sample.py)
-* [SDL2](./examples/pysdl2_sample.py)
+### [glut](./examples/glut_sample.py)
 
-* [PyQt5](./examples/qyqt5_sample.py)
-* [PySide2](./examples/qyside2_sample.py)
+* require glut.dll or freeglut.dll
 
-### not maintenance
+### * [SDL2](./examples/pysdl2_sample.py)
 
-* [tkinter](./examples/tkinter_sample.py)
-* [PyQt4](./examples/pyqt4_sample.py)
-* [PySide](./examples/pyside_sample.py)
-* wxglcanvas
+* require sdl2.dll
+* `pip install pysdl2`
+
+### [PyQt5](./examples/qyqt5_sample.py)
+
+* `pip install pyqt5`
+
+### [PySide2](./examples/qyside2_sample.py)
+
+* `pip install pyside2`
 
 ## History
 

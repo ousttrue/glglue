@@ -2,15 +2,13 @@
 pip install pyside2
 '''
 from logging import getLogger
-logger = getLogger(__name__)
-
 import pathlib
 import sys
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
-print(sys.path)
-import glglue.pyside2gl
 from PySide2 import QtWidgets as Qt
 from OpenGL.GL import *
+HERE = pathlib.Path(__file__).absolute().parent
+sys.path.insert(0, str(HERE.parent / 'src'))
+logger = getLogger(__name__)
 
 
 class Controller:
@@ -60,9 +58,9 @@ class Controller:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         glBegin(GL_TRIANGLES)
-        glVertex(-1.0,-1.0)
-        glVertex( 1.0,-1.0)
-        glVertex( 0.0, 1.0)
+        glVertex(-1.0, -1.0)
+        glVertex(1.0, -1.0)
+        glVertex(0.0, 1.0)
         glEnd()
 
         glFlush()
@@ -70,18 +68,17 @@ class Controller:
 
 class Window(Qt.QMainWindow):
     def __init__(self, parent=None):
+        import glglue.pyside2gl
         super().__init__(parent)
         # setup opengl widget
-        self.controller=Controller()
-        self.glwidget=glglue.pyside2gl.Widget(self, self.controller)
+        self.controller = Controller()
+        self.glwidget = glglue.pyside2gl.Widget(self, self.controller)
         self.setCentralWidget(self.glwidget)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     from logging import basicConfig, DEBUG
-    basicConfig(
-        format='%(levelname)s:%(name)s:%(message)s', level=DEBUG
-    )    
+    basicConfig(format='%(levelname)s:%(name)s:%(message)s', level=DEBUG)
     app = Qt.QApplication(sys.argv)
     window = Window()
     window.show()

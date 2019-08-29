@@ -1,15 +1,13 @@
 ﻿import pathlib
 import sys
-sys.path.append(str(pathlib.Path(__file__).parents[1]))
-import glglue.qgl5
 from PyQt5 import Qt
 from OpenGL.GL import *
 import logging
+HERE = pathlib.Path(__file__).absolute().parent
+sys.path.insert(0, str(HERE.parent / 'src'))
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-        format='%(levelname)s:%(name)s:%(message)s'
-        , level=logging.DEBUG
-        )
+logging.basicConfig(format='%(levelname)s:%(name)s:%(message)s',
+                    level=logging.DEBUG)
 
 
 class Controller:
@@ -59,9 +57,9 @@ class Controller:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         glBegin(GL_TRIANGLES)
-        glVertex(-1.0,-1.0)
-        glVertex( 1.0,-1.0)
-        glVertex( 0.0, 1.0)
+        glVertex(-1.0, -1.0)
+        glVertex(1.0, -1.0)
+        glVertex(0.0, 1.0)
         glEnd()
 
         glFlush()
@@ -69,14 +67,15 @@ class Controller:
 
 class Window(Qt.QMainWindow):
     def __init__(self, parent=None):
+        import glglue.qgl5
         super().__init__(parent)
         # setup opengl widget
-        self.controller=Controller()
-        self.glwidget=glglue.qgl5.Widget(self, self.controller)
+        self.controller = Controller()
+        self.glwidget = glglue.qgl5.Widget(self, self.controller)
         self.setCentralWidget(self.glwidget)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     app = Qt.QApplication(sys.argv)
     window = Window()
     window.show()
