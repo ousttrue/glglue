@@ -8,10 +8,11 @@
 from OpenGL.GLUT import *
 import time
 from logging import getLogger
-logger = getLogger(__name__)
 import sys
-sys.path.append('..')
-sys.path.append('.')
+import pathlib
+HERE = pathlib.Path(__file__).absolute().parent
+sys.path.insert(0, str(HERE.parent))
+logger = getLogger(__name__)
 
 FPS = 30
 MSPF = int(1000.0 / FPS)
@@ -150,7 +151,7 @@ class LoopManager:
     def __init__(self, controller, **kw):
         self.controller = controller
         setup(controller, **kw)
- 
+
     def begin_frame(self):
         glutMainLoopEvent()
         clock = time.perf_counter() * 1000
@@ -161,14 +162,12 @@ class LoopManager:
 
 
 if __name__ == "__main__":
-    import sys
-    sys.path.append('..')
-    import glglue.sample
+    import glglue.gl3
 
     if glutMainLoopEvent:
         # manual loop
         lastclock = 0
-        loop = LoopManager(glglue.sample.SampleController(),
+        loop = LoopManager(glglue.gl3.SampleController(),
                            width=480,
                            height=480,
                            title=b"glut")

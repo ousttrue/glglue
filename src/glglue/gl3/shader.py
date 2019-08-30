@@ -54,7 +54,10 @@ class UniformMat4:
 class Shader:
     def __init__(self) -> None:
         self.program = glCreateProgram()
-        self.matrix = UniformMat4(self.program, 'm')
+        self.uniforms = {
+            'm': UniformMat4(self.program, 'm'),
+            'vp': UniformMat4(self.program, 'vp'),
+        }
 
     def __del__(self) -> None:
         glDeleteProgram(self.program)

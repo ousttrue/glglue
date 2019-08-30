@@ -275,7 +275,7 @@ class Window(object):
     def onSize(self, hwnd, message, wParam, lParam):
         w = LOWORD(lParam)
         h = HIWORD(lParam)
-        logger.debug("WM_SIZE %d x %d %s" % (w, h, self.controller))
+        # logger.debug("WM_SIZE %d x %d %s" % (w, h, self.controller))
         if self.controller:
             self.controller.onResize(w, h)
         return 0
@@ -501,7 +501,7 @@ class WindowFactory(object):
         wndclass.lpszClassName = className
         # Register Window Class
         res = RegisterClass(byref(wndclass))
-        logger.debug(res)
+        # logger.debug(res)
         if not res:
             raise WinError()
         self.classes.append(wndclass)
@@ -570,8 +570,8 @@ class WindowFactory(object):
 class LoopManager:
     def __init__(self, controller, **kw):
         self.controller = controller
-        factory = WindowFactory()
-        self.window = factory.create(Window, **kw)
+        self.factory = WindowFactory()
+        self.window = self.factory.create(Window, **kw)
         self.window.createGLContext(16,
                                     version=kw.get('version'),
                                     profile=kw.get('profile', 'compatibility'))

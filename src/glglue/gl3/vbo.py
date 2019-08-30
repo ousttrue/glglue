@@ -67,4 +67,5 @@ class IBO:
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, len(data), data, GL_STATIC_DRAW)
 
     def draw(self) -> None:
+        self.bind()
         glDrawElements(GL_TRIANGLES, self.index_count, self.index_type, None)

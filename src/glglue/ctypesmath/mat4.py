@@ -90,7 +90,7 @@ class Mat4(ctypes.Structure):
         )
 
     @classmethod
-    def new_translate(cls, x, y, z):
+    def new_translation(cls, x, y, z):
         return cls(
             1,
             0,
@@ -111,7 +111,7 @@ class Mat4(ctypes.Structure):
         )
 
     @classmethod
-    def new_rotate_y(cls, rad):
+    def new_rotation_y(cls, rad):
         s = math.sin(rad)
         c = math.cos(rad)
         return cls(
@@ -134,7 +134,7 @@ class Mat4(ctypes.Structure):
         )
 
     @classmethod
-    def new_rotate_x(cls, rad):
+    def new_rotation_x(cls, rad):
         s = math.sin(rad)
         c = math.cos(rad)
         return cls(
