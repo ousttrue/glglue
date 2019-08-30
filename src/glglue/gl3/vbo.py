@@ -3,7 +3,7 @@ from OpenGL.GL import (glGenBuffers, glDeleteBuffers, glBindBuffer,
                        glEnableVertexAttribArray, glVertexAttribPointer,
                        glDrawArrays, glDrawElements, GL_FLOAT,
                        GL_UNSIGNED_SHORT, GL_UNSIGNED_INT, GL_FALSE,
-                       GL_TRIANGLES, GL_ELEMENT_ARRAY_BUFFER)
+                       GL_TRIANGLES, GL_LINES, GL_ELEMENT_ARRAY_BUFFER)
 
 
 class VBO:
@@ -37,6 +37,9 @@ class VBO:
 
     def draw(self) -> None:
         glDrawArrays(GL_TRIANGLES, 0, self.vertex_count)
+
+    def draw_lines(self) -> None:
+        glDrawArrays(GL_LINES, 0, self.vertex_count)
 
 
 class IBO:
