@@ -134,6 +134,7 @@ class Controller:
 ## maintenance
 
 ```
-$ python setup.py sdist
-$ twine upload --repository-url https://test.pypi.org/legacy/ dist/glglue-1.0.0.tar.gz
+$ py -m venv .venv
+$ .venv/Scripts/Activate.ps1
+(.venv)$ pip install -e .
 ```

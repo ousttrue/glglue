@@ -1,9 +1,4 @@
 *.pyc
-dist
-build
-glglue.egg-info
-*.swp
-*.suo
-*.sln
-.mypy_cache
-/.eggs
+.venv
+*.egg-info
+_version.py
