@@ -5,20 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "examples/pyside2_sample",
-            "type": "python",
-            "request": "launch",
-            "stopOnEntry": false,
-            "program": "${workspaceFolder}/examples/pyside2_sample.py",
-            "args": [
-                "${env:GLTF_SAMPLE_MODELS}/2.0/Duck/glTF-Binary/Duck.glb"
-            ],
-            "cwd": "${workspaceRoot}",
-            "env": {
-                "PATH": "${env:VCPKG_DIR}/installed/x64-windows/bin;${env:PATH}"
-            }
-        },
-        {
             "name": "examples/gltf_viewer",
             "type": "python",
             "request": "launch",
@@ -27,17 +13,6 @@
             "args": [
                 "${env:GLTF_SAMPLE_MODELS}/2.0/Duck/glTF-Binary/Duck.glb"
             ],
-            "cwd": "${workspaceRoot}",
-            "env": {
-                "PATH": "${env:VCPKG_DIR}/installed/x64-windows/bin;${env:PATH}"
-            }
-        },
-        {
-            "name": "current file",
-            "type": "python",
-            "request": "launch",
-            "stopOnEntry": false,
-            "program": "${file}",
             "cwd": "${workspaceRoot}",
             "env": {
                 "PATH": "${env:VCPKG_DIR}/installed/x64-windows/bin;${env:PATH}"
