@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "examples/gltf_viewer",
+            "name": "gltf_viewer",
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
@@ -14,9 +14,14 @@
                 "${env:GLTF_SAMPLE_MODELS}/2.0/Duck/glTF-Binary/Duck.glb"
             ],
             "cwd": "${workspaceRoot}",
-            "env": {
-                "PATH": "${env:VCPKG_DIR}/installed/x64-windows/bin;${env:PATH}"
-            }
+        },
+        {
+            "name": "pyside6_sample",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "program": "${workspaceFolder}/examples/pyside6_sample.py",
+            "cwd": "${workspaceRoot}",
         },
     ]
 }

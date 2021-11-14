@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from PySide import QtCore, QtGui, QtOpenGL
+from PySide6 import QtCore, QtGui
+from PySide6 import QtOpenGLWidgets
 
 
-class Widget(QtOpenGL.QGLWidget):
+class Widget(QtOpenGLWidgets.QOpenGLWidget):
+    '''
+    https://doc.qt.io/qtforpython/PySide6/QtOpenGLWidgets/QOpenGLWidget.html
+    '''
     def __init__(self, parent, controller):
-        QtOpenGL.QGLWidget.__init__(
-            self,
-            QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers),
-            parent)
+        super().__init__(parent)
         self.controller = controller
 
     def minimumSizeHint(self):
