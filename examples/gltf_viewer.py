@@ -1,11 +1,9 @@
 from logging import getLogger
-import sys
+logger = getLogger(__name__)
 import pathlib
 import struct
 from OpenGL.GL import *  # pylint: disable=W0614, W0622, W0401
 HERE = pathlib.Path(__file__).absolute().parent
-sys.path.insert(0, str(HERE.parent / 'src'))
-logger = getLogger(__name__)
 
 
 VS = '''
