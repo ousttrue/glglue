@@ -106,6 +106,7 @@ class Controller:
 
 ## History
 
+* 20211115 1.2.0 remove PySide2 and add PySide6. fix wgl.
 * 20190824 1.1.0 add PySide2
 * 20190824 1.0.0 README.rst to README.md
 * 20170926 0.4.4 add PySide
