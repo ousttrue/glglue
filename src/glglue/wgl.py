@@ -409,6 +409,8 @@ class Window(object):
 
         if version or profile:
             p = wglGetProcAddress("wglCreateContextAttribsARB".encode('utf-8'))
+            if not p:
+                raise Exception()
             wglCreateContextAttribsARB = WINFUNCTYPE(c_void_p, HDC, c_void_p,
                                                      POINTER(c_int))(p)
 
@@ -432,8 +434,9 @@ class Window(object):
 
             attribs.append(0)
 
+            array = (ctypes.c_int * len(attribs))(*attribs)
             hrc = wglCreateContextAttribsARB(
-                hdc, None, (ctypes.c_int * len(attribs))(*attribs))
+                hdc, None, array)
             wglDeleteContext(self.hrc)
             self.hrc = hrc
             wglMakeCurrent(hdc, self.hrc)
@@ -574,7 +577,7 @@ class LoopManager:
         self.window = self.factory.create(Window, **kw)
         self.window.createGLContext(16,
                                     version=kw.get('version'),
-                                    profile=kw.get('profile', 'compatibility'))
+                                    profile=kw.get('profile'))
         self.window.controller = controller
         ShowWindow(self.window.hwnd, win32con.SW_SHOWNORMAL)
         self.msg = MSG()
