@@ -1,0 +1,20 @@
+# OpenGL1.5
+
+いにしえのAPI。
+知識が無駄になるので、
+最初から `OpenGL4` 以降ではじめるのがお勧め。
+
+```{gitinclude} v1.2.2 src/glglue/sample/samplecontroller.py
+:language: python
+:caption:
+```
+
+```{gitinclude} v1.2.2 src/glglue/sample/coord.py
+:language: python
+:caption:
+```
+
+```{gitinclude} v1.2.2 src/glglue/sample/cube.py
+:language: python
+:caption:
+```
