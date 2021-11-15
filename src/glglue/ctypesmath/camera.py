@@ -45,53 +45,78 @@ class Camera:
         self.middle = False
         self.right = False
 
-    def onResize(self, w, h):
+    def onResize(self, w, h) -> bool:
+        if self.width == w and self.height == h:
+            return False
         self.width = w
         self.height = h
         self.projection.aspect = w / h
         self.projection.update_matrix()
+        return True
 
-    def onLeftDown(self, x: int, y: int) -> None:
-        ''' mouse input '''
+    def onLeftDown(self, x: int, y: int) -> bool:
+        ''' 
+        Mouse input. Returns whether redraw is required.
+        '''
         self.left = True
         self.x = x
         self.y = y
+        return False
 
-    def onLeftUp(self, x: int, y: int) -> None:
-        ''' mouse input '''
+    def onLeftUp(self, x: int, y: int) -> bool:
+        ''' 
+        Mouse input. Returns whether redraw is required.
+        '''
         self.left = False
+        return False
 
-    def onMiddleDown(self, x: int, y: int) -> None:
-        ''' mouse input '''
+    def onMiddleDown(self, x: int, y: int) -> bool:
+        ''' 
+        Mouse input. Returns whether redraw is required.
+        '''
         self.middle = True
         self.x = x
         self.y = y
+        return False
 
-    def onMiddleUp(self, x: int, y: int) -> None:
-        ''' mouse input '''
+    def onMiddleUp(self, x: int, y: int) -> bool:
+        ''' 
+        Mouse input. Returns whether redraw is required.
+        '''
         self.middle = False
+        return False
 
-    def onRightDown(self, x: int, y: int) -> None:
-        ''' mouse input '''
+    def onRightDown(self, x: int, y: int) -> bool:
+        ''' 
+        Mouse input. Returns whether redraw is required.
+        '''
         self.right = True
         self.x = x
         self.y = y
+        return False
 
-    def onRightUp(self, x: int, y: int) -> None:
-        ''' mouse input '''
+    def onRightUp(self, x: int, y: int) -> bool:
+        ''' 
+        Mouse input. Returns whether redraw is required.
+        '''
         self.right = False
+        return False
 
-    def onMotion(self, x: int, y: int) -> None:
-        ''' mouse input '''
+    def onMotion(self, x: int, y: int) -> bool:
+        ''' 
+        Mouse input. Returns whether redraw is required.
+        '''
         dx = x - self.x
         self.x = x
         dy = y - self.y
         self.y = y
 
+        redraw_is_required = False
         if self.right:
             self.view.yaw -= dx * 0.01
             self.view.pitch -= dy * 0.01
             self.view.update_matrix()
+            redraw_is_required = True
 
         if self.middle:
             plane_height = math.tan(
@@ -99,12 +124,20 @@ class Camera:
             self.view.x += dx / self.height * plane_height
             self.view.y -= dy / self.height * plane_height
             self.view.update_matrix()
+            redraw_is_required = True
 
-    def onWheel(self, d: int) -> None:
-        ''' mouse input '''
+        return redraw_is_required
+
+    def onWheel(self, d: int) -> bool:
+        ''' 
+        Mouse input. Returns whether redraw is required.
+        '''
         if d > 0:
             self.view.distance *= 1.1
             self.view.update_matrix()
+            return True
         elif d < 0:
             self.view.distance *= 0.9
             self.view.update_matrix()
+            return True
+        return False

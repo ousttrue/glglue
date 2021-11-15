@@ -44,6 +44,9 @@ class Scene(object):
 
 
 class SampleController(object):
+    '''
+    OpenGL1.5
+    '''
     def __init__(self, view=None, root=None):
         view=view or targetview.TargetView()
         self.view=view

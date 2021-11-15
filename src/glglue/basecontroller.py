@@ -8,84 +8,84 @@ class BaseController(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def onUpdate(*args):
+    def onUpdate(*args) -> bool:
         """
-        updage scene
+        Update scene. Returns whether redraw is required.
         """
-        pass
+        return False
 
     @abstractmethod
-    def onLeftDown(self, x: int, y: int):
+    def onLeftDown(self, x: int, y: int) -> bool:
         """
-        mouse event
+        Mouse event. Returns whether redraw is required.
         """
-        pass
+        return False
 
     @abstractmethod
-    def onLeftUp(self, x: int, y: int):
+    def onLeftUp(self, x: int, y: int) -> bool:
         """
-        mouse event
+        Mouse event. Returns whether redraw is required.
         """
-        pass
+        return False
 
     @abstractmethod
-    def onMiddleDown(self, x: int, y: int):
+    def onMiddleDown(self, x: int, y: int) -> bool:
         """
-        mouse event
+        Mouse event. Returns whether redraw is required.
         """
-        pass
+        return False
 
     @abstractmethod
-    def onMiddleUp(self, x: int, y: int):
+    def onMiddleUp(self, x: int, y: int) -> bool:
         """
-        mouse event
+        Mouse event. Returns whether redraw is required.
         """
-        pass
+        return False
 
     @abstractmethod
-    def onRightDown(self, x: int, y: int):
+    def onRightDown(self, x: int, y: int) -> bool:
         """
-        mouse event
+        Mouse event. Returns whether redraw is required.
         """
-        pass
+        return False
 
     @abstractmethod
-    def onRightUp(self, x: int, y: int):
+    def onRightUp(self, x: int, y: int) -> bool:
         """
-        mouse event
+        Mouse event. Returns whether redraw is required.
         """
-        pass
+        return False
 
     @abstractmethod
-    def onMotion(self, x: int, y: int):
+    def onMotion(self, x: int, y: int) -> bool:
         """
-        mouse event
+        Mouse event. Returns whether redraw is required.
         """
-        pass
+        return False
 
     @abstractmethod
-    def onResize(self, w: int, h: int):
+    def onResize(self, w: int, h: int) -> bool:
         """
-        gui event
+        Gui event. Returns whether redraw is required.
         """
-        pass
+        return False
 
     @abstractmethod
-    def onWheel(self, d: int):
+    def onWheel(self, d: int) -> bool:
         """
-        mouse event
+        Mouse event. Returns whether redraw is required.
         """
-        pass
+        return False
 
     @abstractmethod
-    def onKeyDown(*args: str):
+    def onKeyDown(*args: str) -> bool:
         """
-        keyboard event
+        Keyboard event. Returns whether redraw is required.
         """
-        pass
+        return False
 
     @abstractmethod
-    def draw(self):
+    def draw(self) -> None:
         """
         draw scene
         """

@@ -27,7 +27,7 @@ void main()
 '''
 
 
-def load_shader(src: str, shader_type: int) -> int:
+def compile_shader(src: str, shader_type: int) -> int:
     shader = glCreateShader(shader_type)
     glShaderSource(shader, src)
     glCompileShader(shader)
@@ -62,13 +62,15 @@ class Shader:
     def __del__(self) -> None:
         glDeleteProgram(self.program)
 
-    def compile(self, vs_src: str, fs_src: str) -> None:
-        vs = load_shader(vs_src, GL_VERTEX_SHADER)
+    def compile(self, vs_src: str, fs_src: str) -> bool:
+        vs = compile_shader(vs_src, GL_VERTEX_SHADER)
         if not vs:
-            return
-        fs = load_shader(fs_src, GL_FRAGMENT_SHADER)
+            raise Exception('compile_shader: GL_VERTEX_SHADER')
+
+        fs = compile_shader(fs_src, GL_FRAGMENT_SHADER)
         if not fs:
-            return
+            raise Exception('compile_shader: GL_FRAGMENT_SHADER')
+
         glAttachShader(self.program, vs)
         glAttachShader(self.program, fs)
         glLinkProgram(self.program)

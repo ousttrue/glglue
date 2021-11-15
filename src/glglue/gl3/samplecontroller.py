@@ -1,14 +1,14 @@
-import math
 from logging import getLogger
 from OpenGL.GL import (glClear, glFlush, glEnable, glClearColor, glViewport,
                        GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST)
 import glglue
 from .cube import Cube
 from .axis import Axis
+
 logger = getLogger(__name__)
 
 
-class SampleController:
+class SampleController(glglue.basecontroller.BaseController):
     def __init__(self):
         self.clear_color = (0.6, 0.6, 0.4, 0.0)
         self.axis = Axis(1.0)
@@ -16,50 +16,51 @@ class SampleController:
         self.camera = glglue.ctypesmath.Camera()
         self.isInitialized = False
 
-    def onResize(self, w: int, h: int) -> None:
+    def onResize(self, w: int, h: int) -> bool:
         glViewport(0, 0, w, h)
-        self.camera.onResize(w, h)
+        return self.camera.onResize(w, h)
 
-    def onLeftDown(self, x: int, y: int) -> None:
+    def onLeftDown(self, x: int, y: int) -> bool:
         ''' mouse input '''
-        self.camera.onLeftDown(x, y)
+        return self.camera.onLeftDown(x, y)
 
-    def onLeftUp(self, x: int, y: int) -> None:
+    def onLeftUp(self, x: int, y: int) -> bool:
         ''' mouse input '''
-        self.camera.onLeftUp(x, y)
+        return self.camera.onLeftUp(x, y)
 
-    def onMiddleDown(self, x: int, y: int) -> None:
+    def onMiddleDown(self, x: int, y: int) -> bool:
         ''' mouse input '''
-        self.camera.onMiddleDown(x, y)
+        return self.camera.onMiddleDown(x, y)
 
-    def onMiddleUp(self, x: int, y: int) -> None:
+    def onMiddleUp(self, x: int, y: int) -> bool:
         ''' mouse input '''
-        self.camera.onMiddleUp(x, y)
+        return self.camera.onMiddleUp(x, y)
 
-    def onRightDown(self, x: int, y: int) -> None:
+    def onRightDown(self, x: int, y: int) -> bool:
         ''' mouse input '''
-        self.camera.onRightDown(x, y)
+        return self.camera.onRightDown(x, y)
 
-    def onRightUp(self, x: int, y: int) -> None:
+    def onRightUp(self, x: int, y: int) -> bool:
         ''' mouse input '''
-        self.camera.onRightUp(x, y)
+        return self.camera.onRightUp(x, y)
 
-    def onMotion(self, x: int, y: int) -> None:
+    def onMotion(self, x: int, y: int) -> bool:
         ''' mouse input '''
-        self.camera.onMotion(x, y)
+        return self.camera.onMotion(x, y)
 
-    def onWheel(self, d: int) -> None:
+    def onWheel(self, d: int) -> bool:
         ''' mouse input '''
-        self.camera.onWheel(d)
+        return self.camera.onWheel(d)
 
-    def onKeyDown(self, keycode: int) -> None:
-        pass
+    def onKeyDown(self, keycode: int) -> bool:
+        return False
 
-    def onUpdate(self, d: int) -> None:
+    def onUpdate(self, d: int) -> bool:
         '''
         milliseconds
         '''
         self.cube.update(d)
+        return False
 
     def initialize(self):
         glEnable(GL_DEPTH_TEST)

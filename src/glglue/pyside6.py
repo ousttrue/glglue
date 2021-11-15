@@ -24,7 +24,8 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
         self.controller.draw()
 
     def resizeGL(self, width, height):
-        self.controller.onResize(width, height)
+        if self.controller.onResize(width, height):
+            self.repaint()
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
@@ -53,7 +54,7 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
             self.repaint()
 
     def wheelEvent(self, event):
-        if self.controller.onWheel(-event.delta()):
+        if self.controller.onWheel(-event.angleDelta().y()):
             self.repaint()
 
 

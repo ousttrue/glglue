@@ -11,9 +11,9 @@ GUI からのイベントを受け取って OpenGL を描画するクラス。
 :caption:
 ```
 
-## Samples
+## GUI Samples
 
-`OpenGL Controller` と個々の GUI のイベントハンドリングを切り離すことができる。
+各種 GUI の使用例
 
 ```{toctree}
 samples/wgl
@@ -23,12 +23,14 @@ samples/pyqt5
 samples/pyside6
 ```
 
-## OpenGL
+## Controller Samples
 
-* clear backbuffer
-* shader pipeline
-* vertex buffer
-* 3d projection
+Controller の実装例
+
+```{toctree}
+controller/gl15
+controller/gl33
+```
 
 ## Indices and tables
 
