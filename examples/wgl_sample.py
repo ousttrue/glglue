@@ -6,12 +6,14 @@ Win32APIでOpenGLホストするサンプル。
 * 追加のインストールは不要
 '''
 from logging import getLogger
-import sys
-import pathlib
-from OpenGL.GL import *  # pylint: disable=W0614, W0622, W0401
+
 logger = getLogger(__name__)
-HERE = pathlib.Path(__file__).absolute().parent
-sys.path.insert(0, str(HERE.parent / 'src'))
+
+from logging import basicConfig, DEBUG
+
+basicConfig(format='%(levelname)s:%(name)s:%(message)s', level=DEBUG)
+
+from OpenGL.GL import *  # pylint: disable=W0614, W0622, W0401
 
 
 class Controller:
@@ -78,16 +80,19 @@ class Controller:
 
 
 if __name__ == "__main__":
-    from logging import basicConfig, DEBUG
-    basicConfig(format='%(levelname)s:%(name)s:%(message)s', level=DEBUG)
     controller = Controller()
     import glglue.wgl
-    loop = glglue.wgl.LoopManager(controller, width=640, height=480, title=b"sample")
+    loop = glglue.wgl.LoopManager(controller,
+                                  width=640,
+                                  height=480,
+                                  title=b"sample")
+    
+    lastCount = 0
     while True:
         count = loop.begin_frame()
         if not count:
             break
-        d = count - lastCount if lastCount else 0
+        d = count - lastCount
         lastCount = count
         if d > 0:
             controller.onUpdate(d)

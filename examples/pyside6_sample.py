@@ -1,10 +1,11 @@
-﻿import pathlib
+import pathlib
 import sys
 # pip install pyside6
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow, QApplication
 from OpenGL.GL import *
 import logging
+
 HERE = pathlib.Path(__file__).absolute().parent
 sys.path.insert(0, str(HERE.parent / 'src'))
 logger = logging.getLogger(__name__)

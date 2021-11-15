@@ -18,5 +18,5 @@
     ],
     "terminal.integrated.env.windows": {
         "PYTHONPATH": "${env:PYTHONPATH};${workspaceRoot}\\src"
-    }
+    },
 }

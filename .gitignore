@@ -2,3 +2,4 @@
 .venv
 *.egg-info
 _version.py
+build

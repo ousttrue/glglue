@@ -5,14 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "gltf_viewer",
+            "name": "wgl_sample",
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
-            "program": "${workspaceFolder}/examples/gltf_viewer.py",
-            "args": [
-                "${env:GLTF_SAMPLE_MODELS}/2.0/Duck/glTF-Binary/Duck.glb"
-            ],
+            "program": "${workspaceFolder}/examples/wgl_sample.py",
             "cwd": "${workspaceRoot}",
         },
         {
