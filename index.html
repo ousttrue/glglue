@@ -42,6 +42,17 @@
   <section class="tex2jax_ignore mathjax_ignore" id="glglue">
 <h1>glglue<a class="headerlink" href="#glglue" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p><a class="reference external" href="https://github.com/ousttrue/glglue">https://github.com/ousttrue/glglue</a></p>
+<p>GUI イベント(resize, mouse, keyboard, repaint) を OpenGL に橋渡しする。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GUI</span>                         <span class="n">OpenGL</span> <span class="n">controller</span>
+<span class="o">+--------+</span>                   <span class="o">+------------+</span>
+<span class="o">|</span> <span class="n">win32</span>  <span class="o">|--</span><span class="n">window</span> <span class="n">resize</span><span class="o">---&gt;|</span> <span class="n">Update</span>     <span class="o">|</span>
+<span class="o">|</span> <span class="n">glut</span>   <span class="o">|--</span><span class="n">mouse</span> <span class="nb">input</span><span class="o">-----&gt;|</span> <span class="n">Update</span>     <span class="o">|</span>
+<span class="o">|</span> <span class="n">sdl</span>    <span class="o">|--</span><span class="n">keyboard</span> <span class="nb">input</span><span class="o">--&gt;|</span> <span class="n">Update</span>     <span class="o">|</span>
+<span class="o">|</span> <span class="n">pyside6</span><span class="o">|</span>                   <span class="o">|</span>            <span class="o">|</span>
+<span class="o">|</span>     <span class="n">etc</span><span class="o">|--</span><span class="n">repaint</span><span class="o">---------&gt;|</span> <span class="n">Draw</span>       <span class="o">|</span>
+<span class="o">+--------+</span>                   <span class="o">+------------+</span>
+</pre></div>
+</div>
 <section id="controller-convention">
 <h2>Controller convention<a class="headerlink" href="#controller-convention" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>GUI からのイベントを受け取って OpenGL を描画するクラス。</p>
