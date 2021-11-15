@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from PySide6 import QtCore, QtGui
@@ -13,6 +12,7 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
     def __init__(self, parent, controller: BaseController):
         super().__init__(parent)
         self.controller = controller
+        self.setMouseTracking(True)
 
     def minimumSizeHint(self):
         return QtCore.QSize(50, 50)
