@@ -3,13 +3,14 @@
 
 from PySide6 import QtCore, QtGui
 from PySide6 import QtOpenGLWidgets
+from .basecontroller import BaseController
 
 
 class Widget(QtOpenGLWidgets.QOpenGLWidget):
     '''
     https://doc.qt.io/qtforpython/PySide6/QtOpenGLWidgets/QOpenGLWidget.html
     '''
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller: BaseController):
         super().__init__(parent)
         self.controller = controller
 

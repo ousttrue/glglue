@@ -1,96 +1,92 @@
-#!/usr/bin/python
 # coding: utf-8
 
-import abc
+from abc import ABCMeta, abstractmethod
 
 
-class BaseController(object):
-    __metaclass__=abc.ABCMeta
+class BaseController(metaclass=ABCMeta):
     def __init__(self):
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def onUpdate(*args):
         """
         updage scene
         """
         pass
 
-    @abc.abstractmethod
-    def onLeftDown(self, x, y):
+    @abstractmethod
+    def onLeftDown(self, x: int, y: int):
         """
         mouse event
         """
         pass
 
-    @abc.abstractmethod
-    def onLeftUp(self, x, y):
+    @abstractmethod
+    def onLeftUp(self, x: int, y: int):
         """
         mouse event
         """
         pass
 
-    @abc.abstractmethod
-    def onMiddleDown(self, x, y):
+    @abstractmethod
+    def onMiddleDown(self, x: int, y: int):
         """
         mouse event
         """
         pass
 
-    @abc.abstractmethod
-    def onMiddleUp(self, x, y):
+    @abstractmethod
+    def onMiddleUp(self, x: int, y: int):
         """
         mouse event
         """
         pass
 
-    @abc.abstractmethod
-    def onRightDown(self, x, y):
+    @abstractmethod
+    def onRightDown(self, x: int, y: int):
         """
         mouse event
         """
         pass
 
-    @abc.abstractmethod
-    def onRightUp(self, x, y):
+    @abstractmethod
+    def onRightUp(self, x: int, y: int):
         """
         mouse event
         """
         pass
 
-    @abc.abstractmethod
-    def onMotion(self, x, y):
+    @abstractmethod
+    def onMotion(self, x: int, y: int):
         """
         mouse event
         """
         pass
 
-    @abc.abstractmethod
-    def onResize(self, w, h):
+    @abstractmethod
+    def onResize(self, w: int, h: int):
         """
         gui event
         """
         pass
 
-    @abc.abstractmethod
-    def onWheel(self, d):
+    @abstractmethod
+    def onWheel(self, d: int):
         """
         mouse event
         """
         pass
 
-    @abc.abstractmethod
-    def onKeyDown(*args):
+    @abstractmethod
+    def onKeyDown(*args: str):
         """
         keyboard event
         """
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def draw(self):
         """
         draw scene
         """
         pass
-
-

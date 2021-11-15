@@ -1,19 +1,16 @@
-import pathlib
-import sys
-# pip install pyside6
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QMainWindow, QApplication
-from OpenGL.GL import *
 import logging
 
-HERE = pathlib.Path(__file__).absolute().parent
-sys.path.insert(0, str(HERE.parent / 'src'))
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(levelname)s:%(name)s:%(message)s',
                     level=logging.DEBUG)
 
+# pip install pyside6
+from PySide6.QtWidgets import QMainWindow, QApplication
+from OpenGL.GL import *
+from glglue.basecontroller import BaseController
 
-class Controller:
+
+class Controller(BaseController):
     """
     [CLASSES] Controllerクラスは、glglueの規約に沿って以下のコールバックを実装する
     """
@@ -79,6 +76,7 @@ class Window(QMainWindow):
 
 
 if __name__ == "__main__":
+    import sys
     app = QApplication(sys.argv)
     window = Window()
     window.show()

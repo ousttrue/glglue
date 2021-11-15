@@ -24,8 +24,8 @@ GUI                         OpenGL controller
 
 ## Site
 
-* http://pypi.python.org/pypi/glglue/
-* https://github.com/ousttrue/glglue
+* <http://ousttrue.github.io/glglue/>
+* <http://pypi.python.org/pypi/glglue/>
 
 ## History
 

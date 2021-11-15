@@ -1,69 +1,19 @@
 # glglue
 
-<!-- ## minimal usage
-
-* [minimal](./examples/minimal.py)
-
-then implement your own Controller. -->
+<https://github.com/ousttrue/glglue>
 
 ## Controller convention
 
-You should implement Controller class that has follow methods.
+GUI からのイベントを受け取って OpenGL を描画するクラス。
 
-``` py
-class Controller:
-    def onResize(self, w: int, h: int) -> None:
-        ''' when OpenGL window is resized. '''
-        pass
-
-    def onLeftDown(self, x: int, y: int) -> None:
-        ''' mouse input '''
-        pass
-
-    def onLeftUp(self, x: int, y: int) -> None:
-        ''' mouse input '''
-        pass
-
-    def onMiddleDown(self, x: int, y: int) -> None:
-        ''' mouse input '''
-        pass
-
-    def onMiddleUp(self, x: int, y: int) -> None:
-        ''' mouse input '''
-        pass
-
-    def onRightDown(self, x: int, y: int) -> None:
-        ''' mouse input '''
-        pass
-
-    def onRightUp(self, x: int, y: int) -> None:
-        ''' mouse input '''
-        pass
-
-    def onMotion(self, x: int, y: int) -> None:
-        ''' mouse input '''
-        pass
-
-    def onWheel(self, d: int) -> None:
-        ''' mouse input '''
-        pass
-
-    def onKeyDown(self, keycode: int) -> None:
-        ''' keyboard input'''
-        pass
-
-    def onUpdate(self, d: int) -> None:
-        ''' each frame. milliseconds '''
-        pass
-
-    def draw(self) -> None:
-        ''' each frame'''
-        pass
+```{gitinclude} v1.2.3 src/glglue/basecontroller.py
+:language: python
+:caption:
 ```
 
 ## Samples
 
-同じ `OpenGL Controller` を異なる GUI で使いまわすことができる。
+`OpenGL Controller` と個々の GUI のイベントハンドリングを切り離すことができる。
 
 ```{toctree}
 samples/wgl
@@ -72,6 +22,13 @@ samples/pysdl2
 samples/pyqt5
 samples/pyside6
 ```
+
+## OpenGL
+
+* clear backbuffer
+* shader pipeline
+* vertex buffer
+* 3d projection
 
 ## Indices and tables
 
