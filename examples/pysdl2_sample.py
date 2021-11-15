@@ -4,17 +4,15 @@
 require pyOpenGL + pysdl2 + sdl2.dll
 
 # sdl2 install on Windows
-
-* なんとかしてSDL2.dllを入手(vcpkgでビルドするなど) 
-* 環境変数PYSDL2_DLL_PATHを設定する
+* pip install pysdl2 pysdl2-dll
 '''
-import pathlib
-import sys
 import logging
-from OpenGL.GL import *
-HERE = pathlib.Path(__file__).absolute().parent
-sys.path.insert(0, str(HERE.parent / 'src'))
+
 logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(levelname)s:%(name)s:%(message)s',
+                    level=logging.DEBUG)
+
+from OpenGL.GL import *
 
 
 class Controller:
@@ -73,12 +71,9 @@ class Controller:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(format='%(levelname)s:%(name)s:%(message)s',
-                        level=logging.DEBUG)
-    # sdl2.dllにパスが通っていない場合は、
-    # import する前に環境変数'PYSDL2_DLL_PATH'を設定する
-    import glglue.pysdl2
     controller = Controller()
+
+    import glglue.pysdl2
     loop = glglue.pysdl2.LoopManager(controller)
     lastTime = 0
     while True:

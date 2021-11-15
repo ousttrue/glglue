@@ -1,15 +1,20 @@
 # glglue
 
 The glue code which mediates between OpenGL and some GUI.
-Represent below pattern.
 
-```
+* GUI の OpenGL widgets を初期化
+* GUI イベント(resize, mouse, keyboard) の OpenGL への橋渡し
+
+をするライブラリ。
+
+```                           
+GUI                         OpenGL controller
 +--------+                   +------------+
-| GUI    |--window resize--->| OpenGL     |
-| Window |--mouse input----->| Controller |
-|        |--keyboard input-->|            |
-|        |                   |            |
-|        |--repaint--------->| Draw       |
+| win32  |--window resize--->| Update     |
+| glut   |--mouse input----->| Update     |
+| sdl    |--keyboard input-->| Update     |
+| pyside6|                   |            |
+|     etc|--repaint--------->| Draw       |
 +--------+                   +------------+
 ```
 

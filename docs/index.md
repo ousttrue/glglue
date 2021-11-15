@@ -63,23 +63,15 @@ class Controller:
 
 ## Samples
 
+同じ `OpenGL Controller` を異なる GUI で使いまわすことができる。
+
 ```{toctree}
 samples/wgl
 samples/glut
+samples/pysdl2
+samples/pyqt5
+samples/pyside6
 ```
-
-### [SDL2](./examples/pysdl2_sample.py)
-
-* require sdl2.dll
-* `pip install pysdl2`
-
-### [PyQt5](./examples/qyqt5_sample.py)
-
-* `pip install pyqt5`
-
-### [PySide2](./examples/qyside2_sample.py)
-
-* `pip install pyside2`
 
 ## Indices and tables
 

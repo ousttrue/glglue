@@ -22,6 +22,24 @@
             "justMyCode": false
         },
         {
+            "name": "pysdl2_sample",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "program": "${workspaceFolder}/examples/pysdl2_sample.py",
+            "cwd": "${workspaceRoot}",
+            "justMyCode": false
+        },
+        {
+            "name": "pyqt5_sample",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "program": "${workspaceFolder}/examples/pyqt5_sample.py",
+            "cwd": "${workspaceRoot}",
+            "justMyCode": false
+        },
+        {
             "name": "pyside6_sample",
             "type": "python",
             "request": "launch",

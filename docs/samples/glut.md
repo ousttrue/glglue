@@ -12,3 +12,4 @@ pyOpenGL の freeglut の探索名が `freeglut64.vc14.dll` とかだった。
 :language: python
 :caption:
 ```
+
