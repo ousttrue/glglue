@@ -8,7 +8,7 @@ pyOpenGL の freeglut の探索名が `freeglut64.vc14.dll` とかだった。
 
 `site-packages\OpenGL\platform\win32.py` の `def GLUT()` で決めているポイ？
 
-```{gitinclude} v1.2.2 examples/glut_sample.py
+```{gitinclude} HEAD examples/glut_sample.py
 :language: python
 :caption:
 ```

@@ -1,6 +1,6 @@
 # SDL2
 
-```{gitinclude} v1.2.2 examples/pysdl2_sample.py
+```{gitinclude} HEAD examples/pysdl2_sample.py
 :language: python
 :caption:
 ```
