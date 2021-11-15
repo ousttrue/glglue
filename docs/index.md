@@ -6,7 +6,7 @@
 
 GUI からのイベントを受け取って OpenGL を描画するクラス。
 
-```{gitinclude} v1.2.3 src/glglue/basecontroller.py
+```{gitinclude} HEAD src/glglue/basecontroller.py
 :language: python
 :caption:
 ```
