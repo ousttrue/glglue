@@ -10,6 +10,7 @@ import time
 from logging import getLogger
 import sys
 import pathlib
+
 HERE = pathlib.Path(__file__).absolute().parent
 sys.path.insert(0, str(HERE.parent))
 logger = getLogger(__name__)
@@ -132,7 +133,7 @@ def mainloop(controller,
         lastclock = 0
         while True:
             glutMainLoopEvent()
-            clock = time.clock() * 1000
+            clock = time.perf_counter() * 1000
             d = clock - lastclock
             lastclock = clock
             _g_controller.onUpdate(d)

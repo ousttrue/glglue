@@ -65,13 +65,8 @@ class Controller:
 
 ```{toctree}
 samples/wgl
+samples/glut
 ```
-
-### [Windows](./examples/wgl_sample.py)
-
-### [glut](./examples/glut_sample.py)
-
-* require glut.dll or freeglut.dll
 
 ### [SDL2](./examples/pysdl2_sample.py)
 

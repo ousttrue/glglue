@@ -10,11 +10,6 @@ require pyOpenGL + freeglut.dll
 * Python.exeと同じフォルダにコピーするか環境変数PATHを設定する
 '''
 
-import pathlib
-import sys
-HERE = pathlib.Path(__file__).absolute().parent
-sys.path.insert(0, str(HERE.parent / 'src'))
-
 if __name__ == "__main__":
     import glglue.gl3
     import glglue.glut

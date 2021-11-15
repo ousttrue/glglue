@@ -13,6 +13,15 @@
             "cwd": "${workspaceRoot}",
         },
         {
+            "name": "glut_sample",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "program": "${workspaceFolder}/examples/glut_sample.py",
+            "cwd": "${workspaceRoot}",
+            "justMyCode": false
+        },
+        {
             "name": "pyside6_sample",
             "type": "python",
             "request": "launch",
