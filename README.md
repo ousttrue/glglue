@@ -2,10 +2,7 @@
 
 The glue code which mediates between OpenGL and some GUI.
 
-* GUI の OpenGL widgets を初期化
-* GUI イベント(resize, mouse, keyboard) の OpenGL への橋渡し
-
-をするライブラリ。
+GUI イベント(resize, mouse, keyboard, repaint) を OpenGL に橋渡しする。
 
 ```                           
 GUI                         OpenGL controller
