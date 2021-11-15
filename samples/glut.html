@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>glut &#8212; glglue  ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="SDL2" href="pysdl2.html" />
+    <link rel="prev" title="Windows API" href="wgl.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="pysdl2.html" title="SDL2"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="wgl.html" title="Windows API"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">glglue  ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">glut</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="glut">
+<h1>glut<a class="headerlink" href="#glut" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<ul class="simple">
+<li><p>require glut.dll or freeglut.dll</p></li>
+<li><p>ビルド済み <a class="reference external" href="https://www.transmissionzero.co.uk/software/freeglut-devel/">https://www.transmissionzero.co.uk/software/freeglut-devel/</a></p></li>
+</ul>
+<p>pyOpenGL の freeglut の探索名が <code class="docutils literal notranslate"><span class="pre">freeglut64.vc14.dll</span></code> とかだった。
+わかりにくいのでお勧めできない・・・。</p>
+<p><code class="docutils literal notranslate"><span class="pre">site-packages\OpenGL\platform\win32.py</span></code> の <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">GLUT()</span></code> で決めているポイ？</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">v1.2.2 examples/glut_sample.py</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># coding: utf-8</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">glglue.gl3</span>
+    <span class="n">controller</span> <span class="o">=</span> <span class="n">glglue</span><span class="o">.</span><span class="n">gl3</span><span class="o">.</span><span class="n">SampleController</span><span class="p">()</span>
+
+    <span class="kn">import</span> <span class="nn">glglue.glut</span>
+    <span class="n">glglue</span><span class="o">.</span><span class="n">glut</span><span class="o">.</span><span class="n">mainloop</span><span class="p">(</span><span class="n">controller</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="wgl.html"
+                        title="前の章へ">Windows API</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="pysdl2.html"
+                        title="次の章へ">SDL2</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/samples/glut.md.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="pysdl2.html" title="SDL2"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="wgl.html" title="Windows API"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">glglue  ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">glut</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, ousttrue.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.0.
+    </div>
+  </body>
+</html>
