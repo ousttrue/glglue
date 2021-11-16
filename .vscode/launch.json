@@ -47,5 +47,13 @@
             "program": "${workspaceFolder}/examples/pyside6_sample.py",
             "cwd": "${workspaceRoot}",
         },
+        {
+            "name": "imgui_sample",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "program": "${workspaceFolder}/examples/imgui_sample.py",
+            "cwd": "${workspaceRoot}",
+        },
     ]
 }
