@@ -43,6 +43,7 @@ Controller の実装例
 ```{toctree}
 controller/gl15
 controller/gl33
+controller/imgui
 ```
 
 ## Indices and tables
