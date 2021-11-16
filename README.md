@@ -26,6 +26,7 @@ GUI                         OpenGL controller
 
 ## History
 
+* 20211115 1.3.2 add ImGuiController
 * 20211115 1.3.0 Update BaseController. Returns whether redraw is required.
 * 20211115 1.2.0 remove PySide2 and add PySide6. fix wgl.
 * 20190824 1.1.0 add PySide2

@@ -4,7 +4,7 @@
 
 `pip install imgui`
 
-```{gitinclude} HEAD src/glglue/samples/imguicontroller.py
+```{gitinclude} HEAD src/glglue/sample/imguicontroller.py
 :language: python
 :caption:
 ```
