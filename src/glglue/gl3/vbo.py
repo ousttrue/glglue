@@ -1,8 +1,7 @@
 import ctypes
 import array
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Optional
 from OpenGL import GL
-import OpenGL.error
 
 
 class VertexAttribute(NamedTuple):
@@ -42,6 +41,7 @@ class VBO:
                     VertexAttribute(offset, stride, (end-offset) // 4))
         else:
             self.attributes.append(VertexAttribute(0, stride, stride // 4))
+        self.unbind()
 
     def set_slot(self, slot: int) -> None:
         self.bind()
@@ -97,6 +97,7 @@ class IBO:
             self.index_type = GL.GL_UNSIGNED_INT
         GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER,
                         len(data), data, GL.GL_STATIC_DRAW)
+        self.unbind()
 
     def draw(self) -> None:
         self.bind()
@@ -120,9 +121,11 @@ class VAO:
     https://wlog.flatlib.jp/item/1629
     '''
 
-    def __init__(self, ibo: IBO):
+    def __init__(self, topology: int, draw_count: int, index_format=None):
         self.vao = GL.glGenVertexArrays(1)
-        self.ibo = ibo
+        self.topology = topology
+        self.draw_count = draw_count
+        self.index_format = index_format
 
     def __del__(self) -> None:
         GL.glDeleteVertexArrays(1, [self.vao])
@@ -135,19 +138,36 @@ class VAO:
 
     def draw(self):
         self.bind()
-        GL.glDrawElements(self.ibo.topology, self.ibo.index_count,
-                          self.ibo.index_type, None)
+        if self.index_format:
+            GL.glDrawElements(self.topology, self.draw_count,
+                              self.index_format, None)
+        else:
+            GL.glDrawArrays(self.topology, 0, self.draw_count)
         self.unbind()
 
 
-def create_vao_from(vbo: VBO, ibo: IBO, slot: int) -> VAO:
-    vao = VAO(ibo)
+def create_vao_from(topology, ibo: Optional[IBO], *vbo_list: VBO) -> VAO:
+    if ibo:
+        vao = VAO(topology, ibo.index_count, ibo.index_type)
+    else:
+        vao = VAO(topology, vbo_list[0].vertex_count)
     vao.bind()
-    ibo.bind()
-    vbo.bind()
-    for i, a in enumerate(vbo.attributes):
-        GL.glEnableVertexAttribArray(i)
-        GL.glVertexAttribPointer(i, a.component_count, GL.GL_FLOAT, GL.GL_FALSE,
-                                 a.stride,  ctypes.c_void_p(a.offset))
+    if ibo:
+        ibo.bind()
+
+    match vbo_list:
+        case [vbo]:
+            # interleaved
+            vbo.bind()
+            for i, a in enumerate(vbo.attributes):
+                GL.glEnableVertexAttribArray(i)
+                GL.glVertexAttribPointer(i, a.component_count, GL.GL_FLOAT, GL.GL_FALSE,
+                                         a.stride,  ctypes.c_void_p(a.offset))
+        case [*_]:
+            # planar
+            for i, vbo in enumerate(vbo_list):
+                vbo.bind()
+                vbo.set_slot(i)
+
     vao.unbind()
     return vao

@@ -3,6 +3,7 @@ import glglue
 import ctypes
 import array
 import glglue.gl3
+from OpenGL import GL
 
 VELOCITY = 0.1
 
@@ -138,7 +139,8 @@ class Cube:
         self.vbo = glglue.gl3.vbo.create_vbo_from(
             self.vertices, 0, 12)
         self.ibo = glglue.gl3.vbo.create_ibo_from(self.indices)
-        self.vao = glglue.gl3.vbo.create_vao_from(self.vbo, self.ibo, 0)
+        self.vao = glglue.gl3.vbo.create_vao_from(
+            GL.GL_TRIANGLES, self.ibo, self.vbo)
         self.shader = glglue.gl3.shader.create_from(CUBE_VS, CUBE_FS)
         self.is_initialized = True
 

@@ -1,5 +1,6 @@
 import glglue
 import ctypes
+from OpenGL import GL
 
 
 VS = '''
@@ -120,6 +121,8 @@ class Axis:
         self.is_initialized = True
         self.vbo_position = glglue.gl3.vbo.create_vbo_from(self.positions)
         self.vbo_color = glglue.gl3.vbo.create_vbo_from(self.colors)
+        self.vao = glglue.gl3.vbo.create_vao_from(
+            GL.GL_LINES, None, self.vbo_position, self.vbo_color)
         self.shader = glglue.gl3.shader.create_from(VS, FS)
 
     def draw(self, projection, view):
@@ -127,6 +130,4 @@ class Axis:
             self.initialize()
         self.shader.use()
         self.shader.uniforms['vp'].set(view * projection)
-        self.vbo_position.set_slot(0)
-        self.vbo_color.set_slot(1)
-        self.vbo_position.draw_lines()
+        self.vao.draw()
