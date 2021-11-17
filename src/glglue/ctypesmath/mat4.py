@@ -1,5 +1,6 @@
 import ctypes
 import math
+from typing import Tuple
 
 
 class Mat4(ctypes.Structure):
@@ -17,26 +18,49 @@ class Mat4(ctypes.Structure):
 
     def __mul__(self, rhs: 'Mat4') -> 'Mat4':
         m = Mat4()
-        m._11 = self._11 * rhs._11 + self._12 * rhs._21 + self._13 * rhs._31 + self._14 * rhs._41
-        m._12 = self._11 * rhs._12 + self._12 * rhs._22 + self._13 * rhs._32 + self._14 * rhs._42
-        m._13 = self._11 * rhs._13 + self._12 * rhs._23 + self._13 * rhs._33 + self._14 * rhs._43
-        m._14 = self._11 * rhs._14 + self._12 * rhs._24 + self._13 * rhs._34 + self._14 * rhs._44
+        m._11 = self._11 * rhs._11 + self._12 * rhs._21 + \
+            self._13 * rhs._31 + self._14 * rhs._41
+        m._12 = self._11 * rhs._12 + self._12 * rhs._22 + \
+            self._13 * rhs._32 + self._14 * rhs._42
+        m._13 = self._11 * rhs._13 + self._12 * rhs._23 + \
+            self._13 * rhs._33 + self._14 * rhs._43
+        m._14 = self._11 * rhs._14 + self._12 * rhs._24 + \
+            self._13 * rhs._34 + self._14 * rhs._44
 
-        m._21 = self._21 * rhs._11 + self._22 * rhs._21 + self._23 * rhs._31 + self._24 * rhs._41
-        m._22 = self._21 * rhs._12 + self._22 * rhs._22 + self._23 * rhs._32 + self._24 * rhs._42
-        m._23 = self._21 * rhs._13 + self._22 * rhs._23 + self._23 * rhs._33 + self._24 * rhs._43
-        m._24 = self._21 * rhs._14 + self._22 * rhs._24 + self._23 * rhs._34 + self._24 * rhs._44
+        m._21 = self._21 * rhs._11 + self._22 * rhs._21 + \
+            self._23 * rhs._31 + self._24 * rhs._41
+        m._22 = self._21 * rhs._12 + self._22 * rhs._22 + \
+            self._23 * rhs._32 + self._24 * rhs._42
+        m._23 = self._21 * rhs._13 + self._22 * rhs._23 + \
+            self._23 * rhs._33 + self._24 * rhs._43
+        m._24 = self._21 * rhs._14 + self._22 * rhs._24 + \
+            self._23 * rhs._34 + self._24 * rhs._44
 
-        m._31 = self._31 * rhs._11 + self._32 * rhs._21 + self._33 * rhs._31 + self._34 * rhs._41
-        m._32 = self._31 * rhs._12 + self._32 * rhs._22 + self._33 * rhs._32 + self._34 * rhs._42
-        m._33 = self._31 * rhs._13 + self._32 * rhs._23 + self._33 * rhs._33 + self._34 * rhs._43
-        m._34 = self._31 * rhs._14 + self._32 * rhs._24 + self._33 * rhs._34 + self._34 * rhs._44
+        m._31 = self._31 * rhs._11 + self._32 * rhs._21 + \
+            self._33 * rhs._31 + self._34 * rhs._41
+        m._32 = self._31 * rhs._12 + self._32 * rhs._22 + \
+            self._33 * rhs._32 + self._34 * rhs._42
+        m._33 = self._31 * rhs._13 + self._32 * rhs._23 + \
+            self._33 * rhs._33 + self._34 * rhs._43
+        m._34 = self._31 * rhs._14 + self._32 * rhs._24 + \
+            self._33 * rhs._34 + self._34 * rhs._44
 
-        m._41 = self._41 * rhs._11 + self._42 * rhs._21 + self._43 * rhs._31 + self._44 * rhs._41
-        m._42 = self._41 * rhs._12 + self._42 * rhs._22 + self._43 * rhs._32 + self._44 * rhs._42
-        m._43 = self._41 * rhs._13 + self._42 * rhs._23 + self._43 * rhs._33 + self._44 * rhs._43
-        m._44 = self._41 * rhs._14 + self._42 * rhs._24 + self._43 * rhs._34 + self._44 * rhs._44
+        m._41 = self._41 * rhs._11 + self._42 * rhs._21 + \
+            self._43 * rhs._31 + self._44 * rhs._41
+        m._42 = self._41 * rhs._12 + self._42 * rhs._22 + \
+            self._43 * rhs._32 + self._44 * rhs._42
+        m._43 = self._41 * rhs._13 + self._42 * rhs._23 + \
+            self._43 * rhs._33 + self._44 * rhs._43
+        m._44 = self._41 * rhs._14 + self._42 * rhs._24 + \
+            self._43 * rhs._34 + self._44 * rhs._44
         return m
+
+    def apply(self, x: float, y: float, z: float) -> Tuple[float, float, float]:
+        return (
+            x * self._11 + y * self._21 + z * self._31 + self._41,
+            x * self._12 + y * self._22 + z * self._32 + self._42,
+            x * self._13 + y * self._23 + z * self._33 + self._43
+        )
 
     def to_array(self):
         return (ctypes.c_float * 16).from_buffer(self)
@@ -92,22 +116,21 @@ class Mat4(ctypes.Structure):
     @classmethod
     def new_translation(cls, x, y, z):
         return cls(
-            1,
-            0,
-            0,
-            0,  #
-            0,
-            1,
-            0,
-            0,  #
-            0,
-            0,
-            1,
-            0,  #
-            x,
-            y,
-            z,
-            1  #
+            1, 0, 0, 0,  #
+            0, 1, 0, 0,  #
+            0, 0, 1, 0,  #
+            x, y, z, 1  #
+        )
+
+    @classmethod
+    def new_rotation_z(cls, rad):
+        s = math.sin(rad)
+        c = math.cos(rad)
+        return cls(
+            c, s, 0, 0,  #
+            -s, c, 0, 0,  #
+            0, 0, 1, 0,  #
+            0, 0, 0, 1  #
         )
 
     @classmethod
@@ -115,22 +138,10 @@ class Mat4(ctypes.Structure):
         s = math.sin(rad)
         c = math.cos(rad)
         return cls(
-            c,
-            0,
-            s,
-            0,  #
-            0,
-            1,
-            0,
-            0,  #
-            -s,
-            0,
-            c,
-            0,  #
-            0,
-            0,
-            0,
-            1  #
+            c, 0, -s, 0,  #
+            0, 1, 0, 0,  #
+            s, 0, c, 0,  #
+            0, 0, 0, 1  #
         )
 
     @classmethod
@@ -138,22 +149,10 @@ class Mat4(ctypes.Structure):
         s = math.sin(rad)
         c = math.cos(rad)
         return cls(
-            1,
-            0,
-            0,
-            0,  #
-            0,
-            c,
-            -s,
-            0,  #
-            0,
-            s,
-            c,
-            0,  #
-            0,
-            0,
-            0,
-            1  #
+            1, 0, 0, 0,  #
+            0, c, s, 0,  #
+            0, -s, c, 0,  #
+            0, 0, 0, 1  #
         )
 
 
