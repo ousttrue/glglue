@@ -26,12 +26,14 @@ class VBO:
     def unbind(self) -> None:
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
-    def set_vertex_attribute(self, data: bytes, stride: int, offsets: List[int]) -> None:
+    def set_vertex_attribute(self, data: bytes, stride: int, offsets: List[int], is_dynamic: bool) -> None:
         ''' float2, 3, 4'''
         self.stride = stride
         self.vertex_count = len(data) // stride
         self.bind()
-        GL.glBufferData(GL.GL_ARRAY_BUFFER, len(data), data, GL.GL_STATIC_DRAW)
+        GL.glBufferData(GL.GL_ARRAY_BUFFER, len(data), data,
+                        GL.GL_DYNAMIC_DRAW if is_dynamic else GL.GL_STATIC_DRAW)
+        self.unbind()
         if offsets:
             for i, offset in enumerate(offsets):
                 end = stride
@@ -41,6 +43,10 @@ class VBO:
                     VertexAttribute(offset, stride, (end-offset) // 4))
         else:
             self.attributes.append(VertexAttribute(0, stride, stride // 4))
+
+    def update(self, data: bytes) -> None:
+        self.bind()
+        GL.glBufferSubData(GL.GL_ARRAY_BUFFER, 0, len(data), data)
         self.unbind()
 
     def set_slot(self, slot: int) -> None:
@@ -58,13 +64,13 @@ class VBO:
         GL.glDrawArrays(GL.GL_LINES, 0, self.vertex_count)
 
 
-def create_vbo_from(src: ctypes.Array, *interleaved_offsets: int) -> VBO:
+def create_vbo_from(src: ctypes.Array, *interleaved_offsets: int, is_dynamic=False) -> VBO:
     vbo = VBO()
     match src:
         case ctypes.Array() as a:
             v = memoryview(a).cast('B').tobytes()
             vbo.set_vertex_attribute(
-                v, ctypes.sizeof(a._type_), interleaved_offsets)
+                v, ctypes.sizeof(a._type_), interleaved_offsets, is_dynamic)
         case _:
             raise RuntimeError()
     return vbo
