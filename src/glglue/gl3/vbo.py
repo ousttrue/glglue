@@ -1,12 +1,7 @@
 import ctypes
 import array
 from typing import List, NamedTuple
-from OpenGL.GL import (glGenBuffers, glDeleteBuffers, glBindBuffer,
-                       glBufferData, GL_STATIC_DRAW, GL_ARRAY_BUFFER,
-                       glEnableVertexAttribArray, glVertexAttribPointer,
-                       glDrawArrays, glDrawElements, GL_FLOAT,
-                       GL_UNSIGNED_SHORT, GL_UNSIGNED_INT, GL_FALSE,
-                       GL_TRIANGLES, GL_LINES, GL_ELEMENT_ARRAY_BUFFER)
+from OpenGL import GL
 
 
 class VertexAttribute(NamedTuple):
@@ -18,24 +13,24 @@ class VertexAttribute(NamedTuple):
 
 class VBO:
     def __init__(self) -> None:
-        self.vbo = glGenBuffers(1)
+        self.vbo = GL.glGenBuffers(1)
         self.vertex_count = 0
         self.attributes: List[VertexAttribute] = []
 
     def __del__(self) -> None:
-        glDeleteBuffers(1, [self.vbo])
+        GL.glDeleteBuffers(1, [self.vbo])
 
     def bind(self) -> None:
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
 
     def unbind(self) -> None:
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
     def set_vertex_attribute(self, data: bytes, stride: int, offsets: List[int]) -> None:
         ''' float2, 3, 4'''
         self.vertex_count = len(data) // stride
         self.bind()
-        glBufferData(GL_ARRAY_BUFFER, len(data), data, GL_STATIC_DRAW)
+        GL.glBufferData(GL.GL_ARRAY_BUFFER, len(data), data, GL.GL_STATIC_DRAW)
         if offsets:
             for i, offset in enumerate(offsets):
                 end = stride
@@ -49,16 +44,16 @@ class VBO:
     def set_slot(self, slot: int) -> None:
         self.bind()
         for a in self.attributes:
-            glEnableVertexAttribArray(slot)
-            glVertexAttribPointer(slot, a.component_count, GL_FLOAT, GL_FALSE,
-                                  a.stride,  ctypes.c_void_p(a.offset))
+            GL.glEnableVertexAttribArray(slot)
+            GL.glVertexAttribPointer(slot, a.component_count, GL.GL_FLOAT, GL.GL_FALSE,
+                                     a.stride,  ctypes.c_void_p(a.offset))
             slot += 1
 
     def draw(self) -> None:
-        glDrawArrays(GL_TRIANGLES, 0, self.vertex_count)
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.vertex_count)
 
     def draw_lines(self) -> None:
-        glDrawArrays(GL_LINES, 0, self.vertex_count)
+        GL.glDrawArrays(GL.GL_LINES, 0, self.vertex_count)
 
 
 def create_vbo_from(src: ctypes.Array, *interleaved_offsets: int) -> VBO:
@@ -75,19 +70,19 @@ def create_vbo_from(src: ctypes.Array, *interleaved_offsets: int) -> VBO:
 
 class IBO:
     def __init__(self) -> None:
-        self.vbo = glGenBuffers(1)
+        self.vbo = GL.glGenBuffers(1)
         self.index_count = 0
         self.index_type = 0
-        self.topology = GL_TRIANGLES
+        self.topology = GL.GL_TRIANGLES
 
     def __del__(self) -> None:
-        glDeleteBuffers(1, [self.vbo])
+        GL.glDeleteBuffers(1, [self.vbo])
 
     def bind(self) -> None:
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.vbo)
+        GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, self.vbo)
 
     def unbind(self) -> None:
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
+        GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0)
 
     def set_indices(self, data: bytes, stride: int) -> None:
         self.index_count = len(data) // stride
@@ -95,14 +90,16 @@ class IBO:
         if stride == 1:
             raise Exception("not implemented")
         elif stride == 2:
-            self.index_type = GL_UNSIGNED_SHORT
+            self.index_type = GL.GL_UNSIGNED_SHORT
         elif stride == 4:
-            self.index_type = GL_UNSIGNED_INT
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, len(data), data, GL_STATIC_DRAW)
+            self.index_type = GL.GL_UNSIGNED_INT
+        GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER,
+                        len(data), data, GL.GL_STATIC_DRAW)
 
     def draw(self) -> None:
         self.bind()
-        glDrawElements(self.topology, self.index_count, self.index_type, None)
+        GL.glDrawElements(self.topology, self.index_count,
+                          self.index_type, None)
 
 
 def create_ibo_from(src: array.array) -> IBO:
@@ -114,3 +111,28 @@ def create_ibo_from(src: array.array) -> IBO:
         case _:
             raise RuntimeError()
     return ibo
+
+
+class VAO:
+    def __init__(self):
+        self.vao = GL.glGenVertexArrays(1)
+
+    def __del__(self) -> None:
+        GL.glDeleteVertexArrays(1, [self.vao])
+
+    def bind(self):
+        GL.glBindVertexArray(self.vao)
+
+    def unbind(self):
+        GL.glBindVertexArray(0)
+
+
+def create_vao_from(vbo: VBO, ibo: IBO) -> VAO:
+    vao = VAO()
+
+    vao.bind()
+    vbo.bind()
+    ibo.bind()
+    vao.unbind()
+
+    return vao

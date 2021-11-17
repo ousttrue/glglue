@@ -54,7 +54,7 @@ class Cube:
         self.y_rot = 0
         self.m = glglue.ctypesmath.Mat4.new_identity()
         self.is_initialized = False
-        self.vbo_position = None
+        self.vbo = None
         self.vbo_color = None
         self.ibo = None
         self.shader = None
@@ -135,8 +135,10 @@ class Cube:
                 to_radian(self.x_rot))
 
     def initialize(self):
-        self.vbo_position = glglue.gl3.vbo.create_vbo_from(self.vertices, 0, 12)
+        self.vbo = glglue.gl3.vbo.create_vbo_from(
+            self.vertices, 0, 12)
         self.ibo = glglue.gl3.vbo.create_ibo_from(self.indices)
+        self.vao = glglue.gl3.vbo.create_vao_from(self.vbo, self.ibo)
         self.shader = glglue.gl3.shader.create_from(CUBE_VS, CUBE_FS)
         self.is_initialized = True
 
@@ -146,5 +148,6 @@ class Cube:
         self.shader.use()
         self.shader.uniforms['vp'].set(view * projection)
         self.shader.uniforms['m'].set(self.m)
-        self.vbo_position.set_slot(0)
+        self.vao.bind()
+        self.vbo.set_slot(0)
         self.ibo.draw()
