@@ -33,11 +33,14 @@ void main()
 '''
 
 
-class Float3(ctypes.Structure):
+class Vertex(ctypes.Structure):
     _fields_ = [
         ('x', ctypes.c_float),
         ('y', ctypes.c_float),
         ('z', ctypes.c_float),
+        ('r', ctypes.c_float),
+        ('g', ctypes.c_float),
+        ('b', ctypes.c_float),
     ]
 
 
@@ -55,57 +58,31 @@ class Cube:
         self.vbo_color = None
         self.ibo = None
         self.shader = None
-        self.vertices = (Float3 * 8)(
-            Float3(-s,
+        self.vertices = (Vertex * 8)(
+            Vertex(-s,
                    -s,
-                   -s),
-            Float3(s,
+                   -s, 0, 0, 0),
+            Vertex(s,
                    -s,
-                   -s),
-            Float3(s,
+                   -s, 1, 0, 0),
+            Vertex(s,
                    s,
-                   -s),
-            Float3(-s,
+                   -s, 0, 1, 0),
+            Vertex(-s,
                    s,
-                   -s),
-            Float3(-s,
+                   -s, 0, 0, 1),
+            Vertex(-s,
                    -s,
-                   s),
-            Float3(s,
+                   s, 0, 1, 1),
+            Vertex(s,
                    -s,
-                   s),
-            Float3(s,
+                   s, 1, 0, 1),
+            Vertex(s,
                    s,
-                   s),
-            Float3(-s,
+                   s, 1, 1, 1),
+            Vertex(-s,
                    s,
-                   s),
-        )
-        self.colors = (Float3 * 8)(
-            Float3(0,
-                   0,
-                   0),
-            Float3(1,
-                   0,
-                   0),
-            Float3(0,
-                   1,
-                   0),
-            Float3(0,
-                   0,
-                   1),
-            Float3(0,
-                   1,
-                   1),
-            Float3(1,
-                   0,
-                   1),
-            Float3(1,
-                   1,
-                   1),
-            Float3(1,
-                   1,
-                   0),
+                   s, 1, 1, 0),
         )
         self.indices = array.array('H', [
             0,
@@ -158,8 +135,7 @@ class Cube:
                 to_radian(self.x_rot))
 
     def initialize(self):
-        self.vbo_position = glglue.gl3.vbo.create_vbo_from(self.vertices)
-        self.vbo_color = glglue.gl3.vbo.create_vbo_from(self.colors)
+        self.vbo_position = glglue.gl3.vbo.create_vbo_from(self.vertices, 0, 12)
         self.ibo = glglue.gl3.vbo.create_ibo_from(self.indices)
         self.shader = glglue.gl3.shader.create_from(CUBE_VS, CUBE_FS)
         self.is_initialized = True
@@ -171,5 +147,4 @@ class Cube:
         self.shader.uniforms['vp'].set(view * projection)
         self.shader.uniforms['m'].set(self.m)
         self.vbo_position.set_slot(0)
-        self.vbo_color.set_slot(1)
         self.ibo.draw()
