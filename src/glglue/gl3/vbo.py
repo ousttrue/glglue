@@ -2,6 +2,7 @@ import ctypes
 import array
 from typing import List, NamedTuple
 from OpenGL import GL
+import OpenGL.error
 
 
 class VertexAttribute(NamedTuple):
@@ -28,6 +29,7 @@ class VBO:
 
     def set_vertex_attribute(self, data: bytes, stride: int, offsets: List[int]) -> None:
         ''' float2, 3, 4'''
+        self.stride = stride
         self.vertex_count = len(data) // stride
         self.bind()
         GL.glBufferData(GL.GL_ARRAY_BUFFER, len(data), data, GL.GL_STATIC_DRAW)
@@ -114,8 +116,13 @@ def create_ibo_from(src: array.array) -> IBO:
 
 
 class VAO:
-    def __init__(self):
+    '''
+    https://wlog.flatlib.jp/item/1629
+    '''
+
+    def __init__(self, ibo: IBO):
         self.vao = GL.glGenVertexArrays(1)
+        self.ibo = ibo
 
     def __del__(self) -> None:
         GL.glDeleteVertexArrays(1, [self.vao])
@@ -126,13 +133,21 @@ class VAO:
     def unbind(self):
         GL.glBindVertexArray(0)
 
+    def draw(self):
+        self.bind()
+        GL.glDrawElements(self.ibo.topology, self.ibo.index_count,
+                          self.ibo.index_type, None)
+        self.unbind()
 
-def create_vao_from(vbo: VBO, ibo: IBO) -> VAO:
-    vao = VAO()
 
+def create_vao_from(vbo: VBO, ibo: IBO, slot: int) -> VAO:
+    vao = VAO(ibo)
     vao.bind()
-    vbo.bind()
     ibo.bind()
+    vbo.bind()
+    for i, a in enumerate(vbo.attributes):
+        GL.glEnableVertexAttribArray(i)
+        GL.glVertexAttribPointer(i, a.component_count, GL.GL_FLOAT, GL.GL_FALSE,
+                                 a.stride,  ctypes.c_void_p(a.offset))
     vao.unbind()
-
     return vao

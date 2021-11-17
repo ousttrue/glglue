@@ -138,7 +138,7 @@ class Cube:
         self.vbo = glglue.gl3.vbo.create_vbo_from(
             self.vertices, 0, 12)
         self.ibo = glglue.gl3.vbo.create_ibo_from(self.indices)
-        self.vao = glglue.gl3.vbo.create_vao_from(self.vbo, self.ibo)
+        self.vao = glglue.gl3.vbo.create_vao_from(self.vbo, self.ibo, 0)
         self.shader = glglue.gl3.shader.create_from(CUBE_VS, CUBE_FS)
         self.is_initialized = True
 
@@ -148,6 +148,4 @@ class Cube:
         self.shader.use()
         self.shader.uniforms['vp'].set(view * projection)
         self.shader.uniforms['m'].set(self.m)
-        self.vao.bind()
-        self.vbo.set_slot(0)
-        self.ibo.draw()
+        self.vao.draw()
