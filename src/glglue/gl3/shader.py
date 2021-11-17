@@ -86,3 +86,9 @@ class Shader:
 
     def unuse(self):
         glUseProgram(0)
+
+
+def create_from(vs: str, fs: str) -> Shader:
+    shader = Shader()
+    shader.compile(vs, fs)
+    return shader

@@ -1,6 +1,8 @@
-import struct
 import math
 import glglue
+import ctypes
+import array
+import glglue.gl3
 
 VELOCITY = 0.1
 
@@ -31,6 +33,14 @@ void main()
 '''
 
 
+class Float3(ctypes.Structure):
+    _fields_ = [
+        ('x', ctypes.c_float),
+        ('y', ctypes.c_float),
+        ('z', ctypes.c_float),
+    ]
+
+
 def to_radian(degree):
     return degree / 180.0 * math.pi
 
@@ -45,59 +55,59 @@ class Cube:
         self.vbo_color = None
         self.ibo = None
         self.shader = None
-        self.vertices = [
-            -s,
-            -s,
-            -s,
-            s,
-            -s,
-            -s,
-            s,
-            s,
-            -s,
-            -s,
-            s,
-            -s,
-            -s,
-            -s,
-            s,
-            s,
-            -s,
-            s,
-            s,
-            s,
-            s,
-            -s,
-            s,
-            s,
-        ]
-        self.colors = [
-            0,
-            0,
-            0,
-            1,
-            0,
-            0,
-            0,
-            1,
-            0,
-            0,
-            0,
-            1,
-            0,
-            1,
-            1,
-            1,
-            0,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            0,
-        ]
-        self.indices = [
+        self.vertices = (Float3 * 8)(
+            Float3(-s,
+                   -s,
+                   -s),
+            Float3(s,
+                   -s,
+                   -s),
+            Float3(s,
+                   s,
+                   -s),
+            Float3(-s,
+                   s,
+                   -s),
+            Float3(-s,
+                   -s,
+                   s),
+            Float3(s,
+                   -s,
+                   s),
+            Float3(s,
+                   s,
+                   s),
+            Float3(-s,
+                   s,
+                   s),
+        )
+        self.colors = (Float3 * 8)(
+            Float3(0,
+                   0,
+                   0),
+            Float3(1,
+                   0,
+                   0),
+            Float3(0,
+                   1,
+                   0),
+            Float3(0,
+                   0,
+                   1),
+            Float3(0,
+                   1,
+                   1),
+            Float3(1,
+                   0,
+                   1),
+            Float3(1,
+                   1,
+                   1),
+            Float3(1,
+                   1,
+                   0),
+        )
+        self.indices = array.array('H', [
             0,
             1,
             2,
@@ -134,7 +144,7 @@ class Cube:
             6,
             5,
             4,
-        ]
+        ])
 
     def update(self, delta_ms):
         self.y_rot += delta_ms * VELOCITY
@@ -148,19 +158,11 @@ class Cube:
                 to_radian(self.x_rot))
 
     def initialize(self):
+        self.vbo_position = glglue.gl3.vbo.create_vbo_from(self.vertices)
+        self.vbo_color = glglue.gl3.vbo.create_vbo_from(self.colors)
+        self.ibo = glglue.gl3.vbo.create_ibo_from(self.indices)
+        self.shader = glglue.gl3.shader.create_from(CUBE_VS, CUBE_FS)
         self.is_initialized = True
-        self.vbo_position = glglue.gl3.VBO()
-        self.vbo_position.set_vertex_attribute(
-            3, struct.pack(f'{len(self.vertices)}f', *self.vertices))
-        self.vbo_color = glglue.gl3.VBO()
-        self.vbo_color.set_vertex_attribute(
-            3, struct.pack(f'{len(self.colors)}f', *self.colors))
-        self.ibo = glglue.gl3.IBO()
-        self.ibo.set_indices(
-            struct.pack(f'{len(self.indices)}H', *self.indices),
-            len(self.indices))
-        self.shader = glglue.gl3.Shader()
-        self.shader.compile(CUBE_VS, CUBE_FS)
 
     def draw(self, projection, view):
         if not self.is_initialized:

@@ -1,5 +1,5 @@
-import struct
 import glglue
+import ctypes
 
 
 VS = '''
@@ -27,96 +27,100 @@ void main()
 }
 '''
 
+
+class Float3(ctypes.Structure):
+    _fields_ = [
+        ('x', ctypes.c_float),
+        ('y', ctypes.c_float),
+        ('z', ctypes.c_float),
+    ]
+
+
 class Axis:
     def __init__(self, size):
         self.is_initialized = False
-        self.positions = [
-            0,
-            0,
-            0,
-            size,
-            0,
-            0,
-            0,
-            0,
-            0,
-            -size,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            size,
-            0,
-            0,
-            0,
-            0,
-            0,
-            -size,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            size,
-            0,
-            0,
-            0,
-            0,
-            0,
-            -size,
-        ]
-        self.colors = [
-            1,
-            0,
-            0,
-            1,
-            0,
-            0,
-            0.5,
-            0,
-            0,
-            0.5,
-            0,
-            0,
-            0,
-            1,
-            0,
-            0,
-            1,
-            0,
-            0,
-            0.5,
-            0,
-            0,
-            0.5,
-            0,
-            0,
-            0,
-            1,
-            0,
-            0,
-            1,
-            0,
-            0,
-            0.5,
-            0,
-            0,
-            0.5,
-        ]
+        self.positions = (Float3 * 12)(
+            Float3(0,
+                   0,
+                   0),
+            Float3(size,
+                   0,
+                   0),
+            Float3(0,
+                   0,
+                   0),
+            Float3(-size,
+                   0,
+                   0),
+            Float3(0,
+                   0,
+                   0),
+            Float3(0,
+                   size,
+                   0),
+            Float3(0,
+                   0,
+                   0),
+            Float3(0,
+                   -size,
+                   0),
+            Float3(0,
+                   0,
+                   0),
+            Float3(0,
+                   0,
+                   size),
+            Float3(0,
+                   0,
+                   0),
+            Float3(0,
+                   0,
+                   -size),
+        )
+        self.colors = (Float3 * 12)(
+            Float3(1,
+                   0,
+                   0),
+            Float3(1,
+                   0,
+                   0),
+            Float3(0.5,
+                   0,
+                   0),
+            Float3(0.5,
+                   0,
+                   0),
+            Float3(0,
+                   1,
+                   0),
+            Float3(0,
+                   1,
+                   0),
+            Float3(0,
+                   0.5,
+                   0),
+            Float3(0,
+                   0.5,
+                   0),
+            Float3(0,
+                   0,
+                   1),
+            Float3(0,
+                   0,
+                   1),
+            Float3(0,
+                   0,
+                   0.5),
+            Float3(0,
+                   0,
+                   0.5),
+        )
 
     def initialize(self):
         self.is_initialized = True
-        self.vbo_position = glglue.gl3.VBO()
-        self.vbo_position.set_vertex_attribute(
-            3, struct.pack(f'{len(self.positions)}f', *self.positions))
-        self.vbo_color = glglue.gl3.VBO()
-        self.vbo_color.set_vertex_attribute(
-            3, struct.pack(f'{len(self.colors)}f', *self.colors))
-        self.shader = glglue.gl3.Shader()
-        self.shader.compile(VS, FS)
+        self.vbo_position = glglue.gl3.vbo.create_vbo_from(self.positions)
+        self.vbo_color = glglue.gl3.vbo.create_vbo_from(self.colors)
+        self.shader = glglue.gl3.shader.create_from(VS, FS)
 
     def draw(self, projection, view):
         if not self.is_initialized:
