@@ -48,6 +48,14 @@
             "cwd": "${workspaceRoot}",
         },
         {
+            "name": "gltf_sample",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "program": "${workspaceFolder}/examples/gltf_sample.py",
+            "cwd": "${workspaceRoot}",
+        },
+        {
             "name": "imgui_sample",
             "type": "python",
             "request": "launch",

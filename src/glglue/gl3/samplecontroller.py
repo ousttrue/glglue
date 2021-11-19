@@ -12,7 +12,7 @@ class SampleController(glglue.basecontroller.BaseController):
     def __init__(self):
         self.clear_color = (0.6, 0.6, 0.4, 0.0)
         self.axis = Axis(1.0)
-        self.cube = Cube(0.3)
+        self.drawable = Cube(0.3)
         self.camera = glglue.ctypesmath.Camera()
         self.isInitialized = False
 
@@ -59,7 +59,7 @@ class SampleController(glglue.basecontroller.BaseController):
         '''
         milliseconds
         '''
-        self.cube.update(d)
+        self.drawable.update(d)
         return False
 
     def initialize(self):
@@ -73,6 +73,6 @@ class SampleController(glglue.basecontroller.BaseController):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         self.axis.draw(self.camera.projection.matrix, self.camera.view.matrix)
-        self.cube.draw(self.camera.projection.matrix, self.camera.view.matrix)
+        self.drawable.draw(self.camera.projection.matrix, self.camera.view.matrix)
 
         glFlush()

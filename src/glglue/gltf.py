@@ -267,3 +267,15 @@ def parse_glb(data: bytes) -> Tuple[Optional[bytes], Optional[bytes]]:
                 raise NotImplementedError(f'unknown chunk: {chunk_type}')
 
     return json_chunk, bin_chunk
+
+
+def parse_path(path: pathlib.Path) -> GltfData:
+    data = path.read_bytes()
+    try:
+        json, bin = parse_glb(data)
+        if json and bin:
+            return parse_gltf(json, bin)
+    except GlbError:
+        pass
+
+    return parse_gltf(data, path)
