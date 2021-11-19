@@ -1,3 +1,6 @@
+'''
+https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/
+'''
 from typing import NamedTuple, Optional, Tuple, List, Dict
 import struct
 from enum import Enum
@@ -36,7 +39,7 @@ class ElementType(Enum):
                 raise NotImplementedError()
 
 
-TYPE_MAP = {
+TYPE_TO_ELEMENT_COUNT = {
     'SCALAR': 1,
     'VEC2': 2,
     'VEC3': 3,
@@ -48,10 +51,10 @@ TYPE_MAP = {
 
 
 def get_accessor_type(gltf_accessor) -> Tuple[ElementType, int]:
-    return ElementType(gltf_accessor['componentType']), TYPE_MAP[gltf_accessor['type']]
+    return ElementType(gltf_accessor['componentType']), TYPE_TO_ELEMENT_COUNT[gltf_accessor['type']]
 
 
-class TypedArray(NamedTuple):
+class TypedBytes(NamedTuple):
     data: bytes
     element_type: ElementType
     element_count: int = 1
@@ -96,15 +99,15 @@ class GltfBufferReader:
         length = gltf_buffer_view['byteLength']
         return bin[offset:offset+length]
 
-    def read_accessor(self, accessor_index: int) -> TypedArray:
+    def read_accessor(self, accessor_index: int) -> TypedBytes:
         gltf_accessor = self.gltf['accessors'][accessor_index]
         bin = self._buffer_view_bytes(gltf_accessor['bufferView'])
-        offset = gltf_accessor['byteOffset']
+        offset = gltf_accessor.get('byteOffset', 0)
         count = gltf_accessor['count']
         element_type, element_count = get_accessor_type(gltf_accessor)
         bin = bin[offset:offset+element_type.get_byte_length() *
                   element_count*count]
-        return TypedArray(bin, element_type, element_count)
+        return TypedBytes(bin, element_type, element_count)
 
 
 @dataclass
@@ -119,12 +122,9 @@ class GltfMaterial:
 
 @dataclass
 class GltfPrimitive:
-    '''
-    https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/schema/mesh.primitive.schema.json
-    '''
-    position: TypedArray
-    normal: Optional[TypedArray] = None
-    indices: Optional[TypedArray] = None
+    position: TypedBytes
+    normal: Optional[TypedBytes] = None
+    indices: Optional[TypedBytes] = None
 
 
 @dataclass
@@ -277,10 +277,12 @@ def parse_glb(data: bytes) -> Tuple[Optional[bytes], Optional[bytes]]:
 def parse_path(path: pathlib.Path) -> GltfData:
     data = path.read_bytes()
     try:
+        # first, try glb
         json, bin = parse_glb(data)
         if json and bin:
             return parse_gltf(json, path=path, bin=bin)
     except GlbError:
         pass
 
+    # fallback to gltf
     return parse_gltf(data, path=path)
