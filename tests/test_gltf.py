@@ -21,9 +21,12 @@ class TestGltf(unittest.TestCase):
         gltf_data = glglue.gltf.parse_gltf(json, bin)  # type: ignore
         self.assertEqual(1, len(gltf_data.materials))
         self.assertEqual(1, len(gltf_data.meshes))
-        self.assertEqual(24, gltf_data.meshes[0].primitives[0].position.count())
-        self.assertEqual(24, gltf_data.meshes[0].primitives[0].normal.count())  # type: ignore
-        self.assertEqual(36, gltf_data.meshes[0].primitives[0].indices.count())  # type: ignore
+        self.assertEqual(
+            24, gltf_data.meshes[0].primitives[0].position.count())
+        # type: ignore
+        self.assertEqual(24, gltf_data.meshes[0].primitives[0].normal.count())
+        # type: ignore
+        self.assertEqual(36, gltf_data.meshes[0].primitives[0].indices.count())
         self.assertEqual(2, len(gltf_data.nodes))
 
 
