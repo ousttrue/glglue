@@ -19,4 +19,13 @@
     "terminal.integrated.env.windows": {
         "PYTHONPATH": "${env:PYTHONPATH};${workspaceRoot}\\src"
     },
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./tests",
+        "-p",
+        "test_*.py"
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true,
 }

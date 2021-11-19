@@ -55,5 +55,12 @@
             "program": "${workspaceFolder}/examples/imgui_sample.py",
             "cwd": "${workspaceRoot}",
         },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
     ]
 }
