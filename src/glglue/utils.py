@@ -11,3 +11,5 @@ def get_desktop_scaling_factor():
         PhysicalScreenHeight = windll.gdi32.GetDeviceCaps(
             desktop, 117)  # DESKTOPVERTRES
         return PhysicalScreenHeight / LogicalScreenHeight
+
+    return 1
