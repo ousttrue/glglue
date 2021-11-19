@@ -1,4 +1,4 @@
-from typing import NamedTuple, Optional, Tuple, Union, List
+from typing import NamedTuple, Optional, Tuple, List, Dict
 import struct
 from enum import Enum
 import json
@@ -64,25 +64,30 @@ class TypedArray(NamedTuple):
 
 
 class GltfBufferReader:
-    def __init__(self, gltf, bin: Union[None, bytes, pathlib.Path]):
+    def __init__(self, gltf, path: Optional[pathlib.Path], bin: Optional[bytes]):
         self.gltf = gltf
-        match bin:
-            case bytes():
-                # glb
-                self.bin = bin
-            case pathlib.Path():
-                # gltf. base path
-                raise NotImplementedError()
-            case None:
-                # gltf only
-                pass
+        self.bin = bin
+        self.path = path
+        self.uri_cache: Dict[str, bytes] = {}
 
     def _buffer_bytes(self, buffer_index: int) -> bytes:
         if self.bin and buffer_index == 0:
             # glb bin_chunk
             return self.bin
 
-        raise NotImplementedError()
+        gltf_buffer = self.gltf['buffers'][buffer_index]
+        uri = gltf_buffer['uri']
+        if not isinstance(uri, str):
+            raise GltfError()
+        data = self.uri_cache.get(uri)
+        if not data:
+            if self.path:
+                path = self.path.parent / uri
+                data = path.read_bytes()
+            else:
+                raise NotImplementedError()
+        self.uri_cache[uri] = data
+        return data
 
     def _buffer_view_bytes(self, buffer_view_index: int) -> bytes:
         gltf_buffer_view = self.gltf['bufferViews'][buffer_view_index]
@@ -205,10 +210,10 @@ class GltfData:
             pass
 
 
-def parse_gltf(json_chunk: bytes, bin: Union[None, bytes, pathlib.Path]) -> GltfData:
+def parse_gltf(json_chunk: bytes, *, path: Optional[pathlib.Path] = None, bin: Optional[bytes] = None) -> GltfData:
     gltf = json.loads(json_chunk)
     data = GltfData(gltf)
-    buffer_reader = GltfBufferReader(gltf, bin)
+    buffer_reader = GltfBufferReader(gltf, path, bin)
     data.parse(buffer_reader)
 
     return data
@@ -274,8 +279,8 @@ def parse_path(path: pathlib.Path) -> GltfData:
     try:
         json, bin = parse_glb(data)
         if json and bin:
-            return parse_gltf(json, bin)
+            return parse_gltf(json, path=path, bin=bin)
     except GlbError:
         pass
 
-    return parse_gltf(data, path)
+    return parse_gltf(data, path=path)
