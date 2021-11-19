@@ -1,7 +1,7 @@
 import ctypes
 import array
 from sys import version
-from typing import List, NamedTuple, Optional, Union
+from typing import List, NamedTuple, Optional, Union, Any
 from OpenGL import GL
 
 
@@ -65,19 +65,50 @@ class VBO:
         GL.glDrawArrays(GL.GL_LINES, 0, self.vertex_count)
 
 
-class Planar(NamedTuple):
-    attributes: List[ctypes.Array]
+def get_byte_length(element_type) -> int:
+    match element_type:
+        case GL.GL_FLOAT:
+            return 4
+        case GL.GL_UNSIGNED_SHORT:
+            return 2
+        case _:
+            raise NotImplementedError()
+
+
+class TypedBytes(NamedTuple):
+    data: bytes
+    element_type: Any
+    element_count: int = 1
+
+    @staticmethod
+    def create(src: array.array) -> 'TypedBytes':
+        match src:
+            case array.array() as a:
+                match a.typecode:
+                    case 'H':
+                        return TypedBytes(memoryview(a).tobytes(), GL.GL_UNSIGNED_SHORT)
+        raise RuntimeError()
+
+    def stride(self) -> int:
+        return get_byte_length(self.element_type) * self.element_count
 
     def count(self) -> int:
-        return len(self.attributes[0])
+        return len(self.data) // self.stride()
+
+
+class Planar(NamedTuple):
+    attributes: List[TypedBytes]
+
+    def count(self) -> int:
+        return self.attributes[0].count()
 
 
 class Interleaved(NamedTuple):
-    vertices: ctypes.Array
+    vertices: TypedBytes
     offsets: List[int]
 
     def count(self) -> int:
-        return len(version)
+        return self.vertices.count()
 
 
 def create_vbo_from(src: Union[Planar, Interleaved], is_dynamic=False) -> List[VBO]:
@@ -87,12 +118,12 @@ def create_vbo_from(src: Union[Planar, Interleaved], is_dynamic=False) -> List[V
             for a in attributes:
                 vbo = VBO()
                 vbo.set_vertex_attribute(
-                    memoryview(a).tobytes(), ctypes.sizeof(a._type_), [], is_dynamic)
+                    a.data, a.stride(), [], is_dynamic)
                 vbo_list.append(vbo)
         case Interleaved(vertices, offsets):
             vbo = VBO()
-            vbo.set_vertex_attribute(memoryview(
-                vertices).tobytes(), ctypes.sizeof(vertices._type_), offsets, is_dynamic)
+            vbo.set_vertex_attribute(
+                vertices.data, vertices.stride(), offsets, is_dynamic)
             vbo_list.append(vbo)
         case _:
             raise RuntimeError()
@@ -134,14 +165,9 @@ class IBO:
                           self.index_type, None)
 
 
-def create_ibo_from(src: array.array) -> IBO:
+def create_ibo_from(src: TypedBytes) -> IBO:
     ibo = IBO()
-    match src:
-        case array.array() as a:
-            v = memoryview(a).cast('B')
-            ibo.set_indices(v.tobytes(), a.itemsize)
-        case _:
-            raise RuntimeError()
+    ibo.set_indices(src.data, src.stride())
     return ibo
 
 

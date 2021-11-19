@@ -1,6 +1,4 @@
-from OpenGL import GL
 from typing import List, Optional, Union
-
 import glglue.ctypesmath
 import glglue.gl3.shader
 import glglue.gl3.vbo
@@ -24,7 +22,7 @@ class Submesh:
 
 
 class Mesh:
-    def __init__(self, name: str, vertices: Union[glglue.gl3.vbo.Planar, glglue.gl3.vbo.Interleaved], indices=None) -> None:
+    def __init__(self, name: str, vertices: Union[glglue.gl3.vbo.Planar, glglue.gl3.vbo.Interleaved], indices: Optional[glglue.gl3.vbo.TypedBytes] = None) -> None:
         self.name = name
         self.model_matrix = glglue.ctypesmath.Mat4.new_identity()
         self.is_initialized = False
@@ -38,7 +36,7 @@ class Mesh:
     def add_submesh(self, topology, vs: str, fs: str):
         draw_count = self.vertices.count()
         if self.indices:
-            draw_count = len(self.indices)
+            draw_count = self.indices.count()
         self.submeshes.append(Submesh(topology, 0, draw_count, vs, fs))
 
     def initialize(self):

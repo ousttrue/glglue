@@ -1,8 +1,6 @@
 import glglue.gl3.vbo
 import ctypes
 from OpenGL import GL
-
-from glglue.gl3.vbo import Planar
 from .mesh import Mesh
 
 
@@ -117,6 +115,9 @@ def create_axis(size: float) -> Mesh:
                0,
                0.5),
     )
-    mesh = Mesh(f'axis {size}', Planar([positions, colors]))
+    mesh = Mesh(f'axis {size}', glglue.gl3.vbo.Planar([
+        glglue.gl3.vbo.TypedBytes(memoryview(
+            positions).tobytes(), GL.GL_FLOAT, 3),
+        glglue.gl3.vbo.TypedBytes(memoryview(colors).tobytes(), GL.GL_FLOAT, 3)]))
     mesh.add_submesh(GL.GL_LINES, VS, FS)
     return mesh
