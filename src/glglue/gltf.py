@@ -136,6 +136,8 @@ class GltfMesh:
 @dataclass
 class GltfNode:
     name: str
+    children: List['GltfNode']
+    mesh: Optional[GltfMesh]
 
 
 class GltfData:
@@ -145,6 +147,7 @@ class GltfData:
         self.materials: List[GltfMaterial] = []
         self.meshes: List[GltfMesh] = []
         self.nodes: List[GltfNode] = []
+        self.scene: List[GltfNode] = []
 
     def __str__(self) -> str:
         return f'{len(self.materials)} materials, {len(self.meshes)} meshes, {len(self.nodes)} nodes'
@@ -179,7 +182,11 @@ class GltfData:
         return mesh
 
     def _parse_node(self, i: int, gltf_node) -> GltfNode:
-        return GltfNode(gltf_node.get('name', f'{i}'))
+        node = GltfNode(gltf_node.get('name', f'{i}'), [], None)
+        match gltf_node.get('mesh'):
+            case int() as mesh_index:
+                node.mesh = self.meshes[mesh_index]
+        return node
 
     def parse(self, buffer_reader: GltfBufferReader):
         # texture
@@ -204,10 +211,19 @@ class GltfData:
         for i, gltf_node in enumerate(self.gltf.get('nodes', [])):
             node = self._parse_node(i, gltf_node)
             self.nodes.append(node)
+        for i, gltf_node in enumerate(self.gltf.get('nodes', [])):
+            match gltf_node.get('children'):
+                case [*children]:
+                    for child_index in children:
+                        self.nodes[i].children.append(self.nodes[child_index])
 
         # skinning
         for i, gltf_skin in enumerate(self.gltf.get('skins', [])):
             pass
+
+        # scene
+        self.scene += [self.nodes[node_index]
+                       for node_index in self.gltf['scenes'][self.gltf['scene']]['nodes']]
 
 
 def parse_gltf(json_chunk: bytes, *, path: Optional[pathlib.Path] = None, bin: Optional[bytes] = None) -> GltfData:

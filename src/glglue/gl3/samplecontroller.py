@@ -1,9 +1,10 @@
 from logging import getLogger
+from typing import Any, List
 from OpenGL.GL import (glClear, glFlush, glEnable, glClearColor, glViewport,
                        GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST)
-import glglue
-from .cube import Cube
-from .axis import Axis
+import glglue.basecontroller
+import glglue.ctypesmath
+from . import cube, axis
 
 logger = getLogger(__name__)
 
@@ -11,8 +12,8 @@ logger = getLogger(__name__)
 class SampleController(glglue.basecontroller.BaseController):
     def __init__(self):
         self.clear_color = (0.6, 0.6, 0.4, 0.0)
-        self.axis = Axis(1.0)
-        self.drawable = Cube(0.3)
+        self.axis = axis.create_axis(1.0)
+        self.drawables: List[Any] = [cube.create_cube(0.3)]
         self.camera = glglue.ctypesmath.Camera()
         self.isInitialized = False
 
@@ -59,7 +60,8 @@ class SampleController(glglue.basecontroller.BaseController):
         '''
         milliseconds
         '''
-        self.drawable.update(d)
+        for drawable in self.drawables:
+            drawable.update(d)
         return False
 
     def initialize(self):
@@ -70,9 +72,12 @@ class SampleController(glglue.basecontroller.BaseController):
         if not self.isInitialized:
             self.initialize()
         glClearColor(*self.clear_color)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
 
         self.axis.draw(self.camera.projection.matrix, self.camera.view.matrix)
-        self.drawable.draw(self.camera.projection.matrix, self.camera.view.matrix)
+
+        for drawable in self.drawables:
+            drawable.draw(self.camera.projection.matrix,
+                          self.camera.view.matrix)
 
         glFlush()

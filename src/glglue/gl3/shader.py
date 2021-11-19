@@ -6,6 +6,7 @@ from OpenGL.GL import (glCreateShader, glDeleteShader, glShaderSource,
                        GL_COMPILE_STATUS, GL_VERTEX_SHADER, GL_FRAGMENT_SHADER,
                        GL_LINK_STATUS)
 from glglue import ctypesmath
+from typing import Any
 
 VS = '''
 #version 330
@@ -86,6 +87,11 @@ class Shader:
 
     def unuse(self):
         glUseProgram(0)
+
+    def set_uniform(self, name: str, value: Any):
+        u = self.uniforms.get(name)
+        if u:
+            u.set(value)
 
 
 def create_from(vs: str, fs: str) -> Shader:

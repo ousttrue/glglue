@@ -13,8 +13,8 @@ class Window(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         # setup opengl widget
-        import glglue.gl3
-        self.controller = glglue.gl3.SampleController()
+        import glglue.gl3.samplecontroller
+        self.controller = glglue.gl3.samplecontroller.SampleController()
         import glglue.pyside6
         import glglue.utils
         self.glwidget = glglue.pyside6.Widget(

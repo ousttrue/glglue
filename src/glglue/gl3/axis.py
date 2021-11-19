@@ -1,10 +1,13 @@
-import glglue
+import glglue.gl3.vbo
 import ctypes
 from OpenGL import GL
 
+from glglue.gl3.vbo import Planar
+from .mesh import Mesh
+
 
 VS = '''
-#version 330
+# version 330
 in vec3 aPosition;
 in vec3 aColor;
 out vec3 vColor;
@@ -19,7 +22,7 @@ void main ()
 '''
 
 FS = '''
-#version 330
+# version 330
 in vec3 vColor;
 out vec4 fColor;
 void main()
@@ -37,97 +40,83 @@ class Float3(ctypes.Structure):
     ]
 
 
-class Axis:
-    def __init__(self, size):
-        self.is_initialized = False
-        self.positions = (Float3 * 12)(
-            Float3(0,
-                   0,
-                   0),
-            Float3(size,
-                   0,
-                   0),
-            Float3(0,
-                   0,
-                   0),
-            Float3(-size,
-                   0,
-                   0),
-            Float3(0,
-                   0,
-                   0),
-            Float3(0,
-                   size,
-                   0),
-            Float3(0,
-                   0,
-                   0),
-            Float3(0,
-                   -size,
-                   0),
-            Float3(0,
-                   0,
-                   0),
-            Float3(0,
-                   0,
-                   size),
-            Float3(0,
-                   0,
-                   0),
-            Float3(0,
-                   0,
-                   -size),
-        )
-        self.colors = (Float3 * 12)(
-            Float3(1,
-                   0,
-                   0),
-            Float3(1,
-                   0,
-                   0),
-            Float3(0.5,
-                   0,
-                   0),
-            Float3(0.5,
-                   0,
-                   0),
-            Float3(0,
-                   1,
-                   0),
-            Float3(0,
-                   1,
-                   0),
-            Float3(0,
-                   0.5,
-                   0),
-            Float3(0,
-                   0.5,
-                   0),
-            Float3(0,
-                   0,
-                   1),
-            Float3(0,
-                   0,
-                   1),
-            Float3(0,
-                   0,
-                   0.5),
-            Float3(0,
-                   0,
-                   0.5),
-        )
-
-    def initialize(self):
-        self.is_initialized = True
-        self.vbo_position = glglue.gl3.vbo.create_vbo_from(self.positions)
-        self.vbo_color = glglue.gl3.vbo.create_vbo_from(self.colors)
-        self.vao = glglue.gl3.vbo.create_vao_from(
-            GL.GL_LINES, None, self.vbo_position, self.vbo_color)
-        self.shader = glglue.gl3.shader.create_from(VS, FS)
-
-    def draw(self, projection, view):
-        if not self.is_initialized:
-            self.initialize()
-        self.shader.use()
-        self.shader.uniforms['vp'].set(view * projection)
-        self.vao.draw()
+def create_axis(size: float) -> Mesh:
+    positions = (Float3 * 12)(
+        Float3(0,
+               0,
+               0),
+        Float3(size,
+               0,
+               0),
+        Float3(0,
+               0,
+               0),
+        Float3(-size,
+               0,
+               0),
+        Float3(0,
+               0,
+               0),
+        Float3(0,
+               size,
+               0),
+        Float3(0,
+               0,
+               0),
+        Float3(0,
+               -size,
+               0),
+        Float3(0,
+               0,
+               0),
+        Float3(0,
+               0,
+               size),
+        Float3(0,
+               0,
+               0),
+        Float3(0,
+               0,
+               -size),
+    )
+    colors = (Float3 * 12)(
+        Float3(1,
+               0,
+               0),
+        Float3(1,
+               0,
+               0),
+        Float3(0.5,
+               0,
+               0),
+        Float3(0.5,
+               0,
+               0),
+        Float3(0,
+               1,
+               0),
+        Float3(0,
+               1,
+               0),
+        Float3(0,
+               0.5,
+               0),
+        Float3(0,
+               0.5,
+               0),
+        Float3(0,
+               0,
+               1),
+        Float3(0,
+               0,
+               1),
+        Float3(0,
+               0,
+               0.5),
+        Float3(0,
+               0,
+               0.5),
+    )
+    mesh = Mesh(f'axis {size}', Planar([positions, colors]))
+    mesh.add_submesh(GL.GL_LINES, VS, FS)
+    return mesh

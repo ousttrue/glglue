@@ -1,6 +1,7 @@
 import ctypes
 import array
-from typing import List, NamedTuple, Optional
+from sys import version
+from typing import List, NamedTuple, Optional, Union
 from OpenGL import GL
 
 
@@ -64,16 +65,38 @@ class VBO:
         GL.glDrawArrays(GL.GL_LINES, 0, self.vertex_count)
 
 
-def create_vbo_from(src: ctypes.Array, *interleaved_offsets: int, is_dynamic=False) -> VBO:
-    vbo = VBO()
+class Planar(NamedTuple):
+    attributes: List[ctypes.Array]
+
+    def count(self) -> int:
+        return len(self.attributes[0])
+
+
+class Interleaved(NamedTuple):
+    vertices: ctypes.Array
+    offsets: List[int]
+
+    def count(self) -> int:
+        return len(version)
+
+
+def create_vbo_from(src: Union[Planar, Interleaved], is_dynamic=False) -> List[VBO]:
+    vbo_list = []
     match src:
-        case ctypes.Array() as a:
-            v = memoryview(a).cast('B').tobytes()
-            vbo.set_vertex_attribute(
-                v, ctypes.sizeof(a._type_), interleaved_offsets, is_dynamic)
+        case Planar(attributes):
+            for a in attributes:
+                vbo = VBO()
+                vbo.set_vertex_attribute(
+                    memoryview(a).tobytes(), ctypes.sizeof(a._type_), [], is_dynamic)
+                vbo_list.append(vbo)
+        case Interleaved(vertices, offsets):
+            vbo = VBO()
+            vbo.set_vertex_attribute(memoryview(
+                vertices).tobytes(), ctypes.sizeof(vertices._type_), offsets, is_dynamic)
+            vbo_list.append(vbo)
         case _:
             raise RuntimeError()
-    return vbo
+    return vbo_list
 
 
 class IBO:
@@ -127,10 +150,8 @@ class VAO:
     https://wlog.flatlib.jp/item/1629
     '''
 
-    def __init__(self, topology: int, draw_count: int, index_format=None):
+    def __init__(self, index_format=None):
         self.vao = GL.glGenVertexArrays(1)
-        self.topology = topology
-        self.draw_count = draw_count
         self.index_format = index_format
 
     def __del__(self) -> None:
@@ -142,21 +163,21 @@ class VAO:
     def unbind(self):
         GL.glBindVertexArray(0)
 
-    def draw(self):
+    def draw(self, topology, offset: int, draw_count: int):
         self.bind()
         if self.index_format:
-            GL.glDrawElements(self.topology, self.draw_count,
-                              self.index_format, None)
+            GL.glDrawElements(topology, draw_count,
+                              self.index_format, ctypes.c_void_p(offset))
         else:
-            GL.glDrawArrays(self.topology, 0, self.draw_count)
+            GL.glDrawArrays(topology, offset, draw_count)
         self.unbind()
 
 
-def create_vao_from(topology, ibo: Optional[IBO], *vbo_list: VBO) -> VAO:
+def create_vao_from(ibo: Optional[IBO], vbo_list: List[VBO]) -> VAO:
     if ibo:
-        vao = VAO(topology, ibo.index_count, ibo.index_type)
+        vao = VAO(ibo.index_type)
     else:
-        vao = VAO(topology, vbo_list[0].vertex_count)
+        vao = VAO()
     vao.bind()
     if ibo:
         ibo.bind()
