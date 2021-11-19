@@ -6,7 +6,7 @@ class Perspective:
     def __init__(self) -> None:
         self.matrix = Mat4.new_identity()
         self.fov_y = math.pi * 30 / 180
-        self.aspect = 1
+        self.aspect = 1.0
         self.z_near = 0.1
         self.z_far = 50
         self.update_matrix()
@@ -19,11 +19,11 @@ class Perspective:
 class Orbit:
     def __init__(self) -> None:
         self.matrix = Mat4.new_identity()
-        self.x = 0
-        self.y = 0
-        self.distance = 2
-        self.yaw = 0
-        self.pitch = 0
+        self.x = 0.0
+        self.y = 0.0
+        self.distance = 2.0
+        self.yaw = 0.0
+        self.pitch = 0.0
         self.update_matrix()
 
     def update_matrix(self) -> None:
@@ -45,12 +45,12 @@ class Camera:
         self.middle = False
         self.right = False
 
-    def onResize(self, w, h) -> bool:
+    def onResize(self, w: int, h: int) -> bool:
         if self.width == w and self.height == h:
             return False
         self.width = w
         self.height = h
-        self.projection.aspect = w / h
+        self.projection.aspect = float(w) / h
         self.projection.update_matrix()
         return True
 
@@ -113,8 +113,8 @@ class Camera:
 
         redraw_is_required = False
         if self.right:
-            self.view.yaw -= dx * 0.01
-            self.view.pitch -= dy * 0.01
+            self.view.yaw += dx * 0.01
+            self.view.pitch += dy * 0.01
             self.view.update_matrix()
             redraw_is_required = True
 
