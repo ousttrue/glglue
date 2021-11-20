@@ -4,7 +4,7 @@ from OpenGL.GL import (glClear, glFlush, glEnable, glClearColor, glViewport,
                        GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST)
 import glglue.basecontroller
 import glglue.ctypesmath
-from . import cube, axis
+from ..scene import cube, axis
 
 logger = getLogger(__name__)
 

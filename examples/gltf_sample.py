@@ -2,7 +2,9 @@ from PySide6 import QtWidgets, QtGui, QtCore
 import pathlib
 import logging
 import glglue.gltf
-import glglue.gl3.mesh
+import glglue.scene.material
+import glglue.scene.mesh
+import glglue.scene.node
 import glglue.gl3.vbo
 import glglue.gl3.shader
 from typing import Dict, List
@@ -53,12 +55,12 @@ class Loader:
         self.gltf = gltf
         # self.textures: Dict[glglue.gltf.GltfTexture, glglue.gl3.shader.T]= {}
         self.materials: Dict[glglue.gltf.GltfMaterial,
-                             glglue.gl3.mesh.Material] = {}
+                             glglue.scene.material.Material] = {}
         self.meshes: Dict[glglue.gltf.GltfMesh,
-                          List[glglue.gl3.mesh.Mesh]] = {}
+                          List[glglue.scene.mesh.Mesh]] = {}
 
     def _load_material(self, src: glglue.gltf.GltfMaterial):
-        material = glglue.gl3.mesh.Material(src.name, VS, FS)
+        material = glglue.scene.material.Material(src.name, VS, FS)
         # to bitmap
         # material.color_texture = src.base_color_texture
         # material.color = *src.base_color_factor
@@ -80,7 +82,7 @@ class Loader:
             indices = None
             if prim.indices:
                 indices = glglue.gl3.vbo.TypedBytes(*prim.indices)
-            mesh = glglue.gl3.mesh.Mesh(
+            mesh = glglue.scene.mesh.Mesh(
                 src.name, glglue.gl3.vbo.Planar(attributes), indices)
 
             mesh.add_submesh(
@@ -89,9 +91,9 @@ class Loader:
 
         self.meshes[src] = meshes
 
-    def _load_node(self, src: List[glglue.gltf.GltfNode], dst: glglue.gl3.mesh.Node):
+    def _load_node(self, src: List[glglue.gltf.GltfNode], dst: glglue.scene.node.Node):
         for gltf_node in src:
-            node = glglue.gl3.mesh.Node(gltf_node.name)
+            node = glglue.scene.node.Node(gltf_node.name)
             dst.children.append(node)
 
             if gltf_node.mesh:
@@ -111,12 +113,12 @@ class Loader:
             self._load_mesh(gltf_mesh)
 
         # node
-        scene = glglue.gl3.mesh.Node('__scene__')
+        scene = glglue.scene.node.Node('__scene__')
         self._load_node(self.gltf.scene, scene)
         return scene
 
 
-def load_gltf(gltf: glglue.gltf.GltfData) -> glglue.gl3.mesh.Node:
+def load_gltf(gltf: glglue.gltf.GltfData) -> glglue.scene.node.Node:
     loader = Loader(gltf)
     return loader.load()
 
@@ -166,6 +168,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     window = Window()
+    window.resize(1600, 1200)
 
     if len(sys.argv) > 1:
         path = pathlib.Path(sys.argv[1])

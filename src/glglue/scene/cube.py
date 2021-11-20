@@ -2,10 +2,9 @@ import math
 import ctypes
 import array
 from OpenGL import GL
-import glglue.gl3.vbo
-import glglue.gl3.mesh
 from .mesh import Mesh
-
+from .material import Material
+from .vertices import Interleaved, TypedBytes
 
 CUBE_VS = '''
 #version 330
@@ -131,9 +130,9 @@ def create_cube(s: float) -> Mesh:
         4,
     ])
 
-    mesh = Mesh(f'cube {s}', glglue.gl3.vbo.Interleaved(
-        glglue.gl3.vbo.TypedBytes(memoryview(vertices).tobytes(), ctypes.c_float, 6), [0, 12]),
-        glglue.gl3.vbo.TypedBytes.create(indices))
-    material = glglue.gl3.mesh.Material('cube', CUBE_VS, CUBE_FS)
+    mesh = Mesh(f'cube {s}', Interleaved(
+        TypedBytes(memoryview(vertices).tobytes(), ctypes.c_float, 6), [0, 12]),
+        TypedBytes.create(indices))
+    material = Material('cube', CUBE_VS, CUBE_FS)
     mesh.add_submesh(material, [], GL.GL_TRIANGLES)
     return mesh

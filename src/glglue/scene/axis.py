@@ -1,9 +1,8 @@
-import glglue.gl3.vbo
-import glglue.gl3.mesh
 import ctypes
 from OpenGL import GL
 from .mesh import Mesh
-
+from .material import Material
+from .vertices import Planar, TypedBytes
 
 VS = '''
 # version 330
@@ -116,12 +115,12 @@ def create_axis(size: float) -> Mesh:
                0,
                0.5),
     )
-    mesh = Mesh(f'axis {size}', glglue.gl3.vbo.Planar([
-        glglue.gl3.vbo.TypedBytes(memoryview(
+    mesh = Mesh(f'axis {size}', Planar([
+        TypedBytes(memoryview(
             positions).tobytes(), ctypes.c_float, 3),
-        glglue.gl3.vbo.TypedBytes(memoryview(
+        TypedBytes(memoryview(
             colors).tobytes(), ctypes.c_float, 3),
     ]))
-    material = glglue.gl3.mesh.Material('axis', VS, FS)
+    material = Material('axis', VS, FS)
     mesh.add_submesh(material, [], GL.GL_LINES)
     return mesh
