@@ -26,7 +26,7 @@ class Mesh:
         self.name = name
         self.model_matrix = glglue.ctypesmath.Mat4.new_identity()
         self.is_initialized = False
-        self.vbo = None
+        self.vbo_list = []
         self.vbo_color = None
         self.ibo = None
         self.indices = indices
@@ -43,10 +43,10 @@ class Mesh:
         if self.is_initialized:
             return
 
-        self.vbo = glglue.gl3.vbo.create_vbo_from(self.vertices)
+        self.vbo_list = glglue.gl3.vbo.create_vbo_from(self.vertices)
         if self.indices:
             self.ibo = glglue.gl3.vbo.create_ibo_from(self.indices)
-        self.vao = glglue.gl3.vbo.create_vao_from(self.ibo, self.vbo)
+        self.vao = glglue.gl3.vbo.create_vao_from(self.ibo, self.vbo_list)
         self.is_initialized = True
 
     def update(self, delta):

@@ -53,6 +53,9 @@
             "request": "launch",
             "stopOnEntry": false,
             "program": "${workspaceFolder}/examples/gltf_sample.py",
+            "args": [
+                "${env:GLTF_SAMPLE_MODELS}/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
+            ],
             "cwd": "${workspaceRoot}",
         },
         {

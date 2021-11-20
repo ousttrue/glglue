@@ -1,6 +1,7 @@
 '''
 https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/
 '''
+from ctypes.wintypes import RGB
 from typing import NamedTuple, Optional, Tuple, List, Dict, Any, Type
 import struct
 import ctypes
@@ -34,6 +35,21 @@ TYPE_TO_ELEMENT_COUNT = {
 }
 
 
+class MimeType(Enum):
+    Jpg = "image/jpeg"
+    Png = "image/png"
+
+    @staticmethod
+    def from_name(name: str):
+        match pathlib.Path(name).suffix.lower():
+            case ".png":
+                return MimeType.Png
+            case ".jpg":
+                return MimeType.Jpg
+            case _:
+                raise GltfError(f'unknown image: {name}')
+
+
 def get_accessor_type(gltf_accessor) -> Tuple[Type[ctypes._SimpleCData], int]:
     return COMPONENT_TYPE_TO_ELEMENT_TYPE[gltf_accessor['componentType']], TYPE_TO_ELEMENT_COUNT[gltf_accessor['type']]
 
@@ -57,15 +73,7 @@ class GltfBufferReader:
         self.path = path
         self.uri_cache: Dict[str, bytes] = {}
 
-    def _buffer_bytes(self, buffer_index: int) -> bytes:
-        if self.bin and buffer_index == 0:
-            # glb bin_chunk
-            return self.bin
-
-        gltf_buffer = self.gltf['buffers'][buffer_index]
-        uri = gltf_buffer['uri']
-        if not isinstance(uri, str):
-            raise GltfError()
+    def uri_bytes(self, uri: str) -> bytes:
         data = self.uri_cache.get(uri)
         if not data:
             if self.path:
@@ -76,7 +84,19 @@ class GltfBufferReader:
         self.uri_cache[uri] = data
         return data
 
-    def _buffer_view_bytes(self, buffer_view_index: int) -> bytes:
+    def _buffer_bytes(self, buffer_index: int) -> bytes:
+        if self.bin and buffer_index == 0:
+            # glb bin_chunk
+            return self.bin
+
+        gltf_buffer = self.gltf['buffers'][buffer_index]
+        uri = gltf_buffer['uri']
+        if not isinstance(uri, str):
+            raise GltfError()
+
+        return self.uri_bytes(uri)
+
+    def buffer_view_bytes(self, buffer_view_index: int) -> bytes:
         gltf_buffer_view = self.gltf['bufferViews'][buffer_view_index]
         bin = self._buffer_bytes(gltf_buffer_view['buffer'])
         offset = gltf_buffer_view['byteOffset']
@@ -85,7 +105,7 @@ class GltfBufferReader:
 
     def read_accessor(self, accessor_index: int) -> TypedBytes:
         gltf_accessor = self.gltf['accessors'][accessor_index]
-        bin = self._buffer_view_bytes(gltf_accessor['bufferView'])
+        bin = self.buffer_view_bytes(gltf_accessor['bufferView'])
         offset = gltf_accessor.get('byteOffset', 0)
         count = gltf_accessor['count']
         element_type, element_count = get_accessor_type(gltf_accessor)
@@ -95,19 +115,39 @@ class GltfBufferReader:
 
 
 @dataclass
+class GltfImage:
+    name: str
+    data: bytes
+    mime: MimeType
+
+
+@dataclass
 class GltfTexture:
     name: str
+    image: GltfImage
+
+
+class RGBA(NamedTuple):
+    r: float
+    g: float
+    b: float
+    a: float
 
 
 @dataclass
 class GltfMaterial:
     name: str
+    base_color_texture: Optional[GltfTexture] = None
+    base_color_factor: RGBA = RGBA(1.0, 1.0, 1.0, 1.0)
+    metallic_factor: float = 0.0
 
 
 @dataclass
 class GltfPrimitive:
+    material: GltfMaterial
     position: TypedBytes
     normal: Optional[TypedBytes] = None
+    uv: Optional[TypedBytes] = None
     indices: Optional[TypedBytes] = None
 
 
@@ -127,6 +167,7 @@ class GltfNode:
 class GltfData:
     def __init__(self, gltf):
         self.gltf = gltf
+        self.images: List[GltfImage] = []
         self.textures: List[GltfTexture] = []
         self.materials: List[GltfMaterial] = []
         self.meshes: List[GltfMesh] = []
@@ -136,8 +177,35 @@ class GltfData:
     def __str__(self) -> str:
         return f'{len(self.materials)} materials, {len(self.meshes)} meshes, {len(self.nodes)} nodes'
 
+    def _parse_image(self, buffer_reader: GltfBufferReader, i: int, gltf_image) -> GltfImage:
+        name = gltf_image.get('name')
+        match gltf_image:
+            case {'bufferView': buffer_view_index, 'mimeType': mime}:
+                return GltfImage(name or f'{i}', buffer_reader.buffer_view_bytes(buffer_view_index), MimeType(mime))
+            case {'uri': uri}:
+                if uri.startswith('data:'):
+                    raise NotImplementedError()
+                else:
+                    return GltfImage(uri, buffer_reader.uri_bytes(uri), MimeType.from_name(uri))
+            case _:
+                raise GltfError()
+
+    def _parse_texture(self, i: int, gltf_texture) -> GltfTexture:
+        texture = GltfTexture(gltf_texture.get(
+            'name', f'{i}'), self.images[gltf_texture['source']])
+        return texture
+
     def _parse_material(self, i: int, gltf_material) -> GltfMaterial:
-        return GltfMaterial(gltf_material.get('name', f'{i}'))
+        material = GltfMaterial(gltf_material.get('name', f'{i}'))
+        pbr = gltf_material.get('pbrMetallicRoughness')
+        if pbr:
+            match gltf_material.get('baseColorTexture'):
+                case int() as texture_index:
+                    material.base_color_texture = self.textures[texture_index]
+            material.base_color_factor = RGBA(*pbr.get(
+                'baseColorFactor', [1, 1, 1, 1]))
+            material.metallic_factor = pbr.get('metallicFactor', 0.0)
+        return material
 
     def _parse_mesh(self, buffer_reader: GltfBufferReader, i: int, gltf_mesh) -> GltfMesh:
         mesh = GltfMesh(gltf_mesh.get('name', f'{i}'), [])
@@ -151,11 +219,16 @@ class GltfData:
                 case _:
                     raise GltfError()
 
-            prim = GltfPrimitive(positions)
+            prim = GltfPrimitive(
+                self.materials[gltf_prim['material']], positions)
 
             match gltf_attributes.get('NORMAL'):
                 case int() as accessor:
                     prim.normal = buffer_reader.read_accessor(accessor)
+
+            match gltf_attributes.get('TEXCOORD_0'):
+                case int() as accessor:
+                    prim.uv = buffer_reader.read_accessor(accessor)
 
             match gltf_prim.get('indices'):
                 case int() as accessor:
@@ -173,9 +246,15 @@ class GltfData:
         return node
 
     def parse(self, buffer_reader: GltfBufferReader):
+        # image
+        for i, gltf_image in enumerate(self.gltf.get('images', [])):
+            image = self._parse_image(buffer_reader, i, gltf_image)
+            self.images.append(image)
+
         # texture
-        for gltf_texture in self.gltf.get('textures', []):
-            print(gltf_texture)
+        for i, gltf_texture in enumerate(self.gltf.get('textures', [])):
+            texture = self._parse_texture(i, gltf_texture)
+            self.textures.append(texture)
 
         # material
         maetrials = self.gltf.get('materials')

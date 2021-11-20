@@ -198,19 +198,19 @@ def create_vao_from(ibo: Optional[IBO], vbo_list: List[VBO]) -> VAO:
     if ibo:
         ibo.bind()
 
-    match vbo_list:
-        case [vbo]:
-            # interleaved
+    if len(vbo_list) == 1 and len(vbo_list[0].attributes) > 1:
+        # interleaved
+        vbo = vbo_list[0]
+        vbo.bind()
+        for i, a in enumerate(vbo.attributes):
+            GL.glEnableVertexAttribArray(i)
+            GL.glVertexAttribPointer(i, a.component_count, GL.GL_FLOAT, GL.GL_FALSE,
+                                     a.stride,  ctypes.c_void_p(a.offset))
+    else:
+        # planar
+        for i, vbo in enumerate(vbo_list):
             vbo.bind()
-            for i, a in enumerate(vbo.attributes):
-                GL.glEnableVertexAttribArray(i)
-                GL.glVertexAttribPointer(i, a.component_count, GL.GL_FLOAT, GL.GL_FALSE,
-                                         a.stride,  ctypes.c_void_p(a.offset))
-        case [*_]:
-            # planar
-            for i, vbo in enumerate(vbo_list):
-                vbo.bind()
-                vbo.set_slot(i)
+            vbo.set_slot(i)
 
     vao.unbind()
     return vao
