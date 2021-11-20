@@ -114,15 +114,13 @@ class GltfBufferReader:
         return TypedBytes(bin, element_type, element_count)
 
 
-@dataclass
-class GltfImage:
+class GltfImage(NamedTuple):
     name: str
     data: bytes
     mime: MimeType
 
 
-@dataclass
-class GltfTexture:
+class GltfTexture(NamedTuple):
     name: str
     image: GltfImage
 

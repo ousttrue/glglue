@@ -41,7 +41,7 @@ class Renderer:
 
             shader.use()
             shader.set_uniform('vp', view * projection)
-            shader.set_uniform('m', model)
+            shader.set_uniform('m', model)            
 
             drawable.draw(submesh.topology, submesh.offset, submesh.draw_count)
 

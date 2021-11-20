@@ -3,6 +3,7 @@ import pathlib
 import logging
 from glglue.ctypesmath.mat4 import Mat4
 import glglue.gltf
+from glglue.scene.texture import Texture, Image32
 from glglue.scene.material import Material
 from glglue.scene.mesh import Mesh
 from glglue.scene.node import Node
@@ -55,11 +56,23 @@ void main()
 class Loader:
     def __init__(self, gltf: glglue.gltf.GltfData) -> None:
         self.gltf = gltf
+        self.images: Dict[glglue.gltf.GltfImage, Image32] = {}
+        self.textures: Dict[glglue.gltf.GltfTexture, Texture] = {}
         self.materials: Dict[glglue.gltf.GltfMaterial, Material] = {}
         self.meshes: Dict[glglue.gltf.GltfPrimitive, Mesh] = {}
 
+    def _load_image(self, src: glglue.gltf.GltfImage):
+        image = Image32.load(src.data)
+        self.images[src] = image
+
+    def _load_texture(self, src: glglue.gltf.GltfTexture):
+        texture = Texture(src.name, self.images[src.image])
+        self.textures[src] = texture
+
     def _load_material(self, src: glglue.gltf.GltfMaterial):
         material = Material(src.name, VS, FS)
+        if src.base_color_texture:
+            material.color_texture = self.textures[src.base_color_texture]
         self.materials[src] = material
 
     def _load_mesh(self, name: str, src: glglue.gltf.GltfPrimitive):
@@ -93,6 +106,10 @@ class Loader:
             self._load(gltf_node.children, node)
 
     def load(self) -> Node:
+        for image in self.gltf.images:
+            self._load_image(image)
+        for texture in self.gltf.textures:
+            self._load_texture(texture)
         for material in self.gltf.materials:
             self._load_material(material)
         for mesh in self.gltf.meshes:
