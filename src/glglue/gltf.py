@@ -2,7 +2,7 @@
 https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/
 '''
 from ctypes.wintypes import RGB
-from typing import NamedTuple, Optional, Tuple, List, Dict, Any, Type, Iterable
+from typing import NamedTuple, Optional, Tuple, List, Dict, Any, Type
 import struct
 import ctypes
 from enum import Enum
@@ -151,7 +151,7 @@ class GltfPrimitive(NamedTuple):
 
 class GltfMesh(NamedTuple):
     name: str
-    primitives: Iterable[GltfPrimitive]
+    primitives: Tuple[GltfPrimitive, ...]
 
 
 @dataclass

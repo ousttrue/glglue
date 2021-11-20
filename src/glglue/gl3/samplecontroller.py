@@ -1,11 +1,12 @@
 from logging import getLogger
-from typing import Any, List
-from OpenGL.GL import (glClear, glFlush, glEnable, glClearColor, glViewport,
-                       GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST)
+from typing import Any, List, NamedTuple
+from OpenGL import GL
 import glglue.basecontroller
 import glglue.ctypesmath
+import glglue.gl3.vbo
+import glglue.scene.material
 from ..scene import cube, axis
-
+from . renderer import Renderer
 logger = getLogger(__name__)
 
 
@@ -16,9 +17,10 @@ class SampleController(glglue.basecontroller.BaseController):
         self.drawables: List[Any] = [cube.create_cube(0.3)]
         self.camera = glglue.ctypesmath.Camera()
         self.isInitialized = False
+        self.renderer = Renderer()
 
     def onResize(self, w: int, h: int) -> bool:
-        glViewport(0, 0, w, h)
+        GL.glViewport(0, 0, w, h)
         return self.camera.onResize(w, h)
 
     def onLeftDown(self, x: int, y: int) -> bool:
@@ -65,19 +67,20 @@ class SampleController(glglue.basecontroller.BaseController):
         return False
 
     def initialize(self):
-        glEnable(GL_DEPTH_TEST)
+        GL.glEnable(GL.GL_DEPTH_TEST)
         self.isInitialized = True
 
     def draw(self):
         if not self.isInitialized:
             self.initialize()
-        glClearColor(*self.clear_color)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
+        GL.glClearColor(*self.clear_color)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT |
+                   GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
 
-        self.axis.draw(self.camera.projection.matrix, self.camera.view.matrix)
-
+        self.renderer.draw(
+            self.axis, self.camera.projection.matrix, self.camera.view.matrix)
         for drawable in self.drawables:
-            drawable.draw(self.camera.projection.matrix,
-                          self.camera.view.matrix)
+            self.renderer.draw(drawable, self.camera.projection.matrix,
+                               self.camera.view.matrix)
 
-        glFlush()
+        GL.glFlush()

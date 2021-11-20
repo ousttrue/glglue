@@ -12,10 +12,3 @@ class Node:
 
     def update(self, delta):
         pass
-
-    def draw(self, projection: Mat4, view: Mat4):
-        for mesh in self.meshes:
-            mesh.draw(projection, view, self.model_matrix)
-
-        for child in self.children:
-            child.draw(projection, view)

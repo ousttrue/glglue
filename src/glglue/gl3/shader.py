@@ -1,6 +1,6 @@
 from OpenGL import GL
 from glglue import ctypesmath
-from typing import Any, NamedTuple, List
+from typing import Any, NamedTuple, List, Tuple
 
 VS = '''
 #version 330
@@ -48,9 +48,9 @@ class UniformMat4:
 
 class ShaderSource(NamedTuple):
     vs: str
-    vs_macro: List[str]
+    vs_macro: Tuple[str, ...]
     fs: str
-    fs_macro: List[str]
+    fs_macro: Tuple[str, ...]
 
     def get_vs(self) -> str:
         return ''.join(f'{x}\n' for x in self.vs_macro) + self.vs

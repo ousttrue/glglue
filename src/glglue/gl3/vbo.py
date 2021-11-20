@@ -177,3 +177,21 @@ def create_vao_from(ibo: Optional[IBO], vbo_list: List[VBO]) -> VAO:
 
     vao.unbind()
     return vao
+
+
+class Drawable(NamedTuple):
+    vbo_list: List[VBO]
+    ibo: Optional[IBO]
+    vao: VAO
+
+    def draw(self, topology, offset: int, draw_count: int):
+        self.vao.draw(topology, offset, draw_count)
+
+
+def create(vertices: Union[Planar, Interleaved], indices: Optional[TypedBytes] = None):
+    vbo_list = create_vbo_from(vertices)
+    ibo = None
+    if indices:
+        ibo = create_ibo_from(indices)
+    vao = create_vao_from(ibo, vbo_list)
+    return Drawable(vbo_list, ibo, vao)
