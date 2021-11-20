@@ -47,30 +47,10 @@ void main()
 '''
 
 
-class Node:
-    def __init__(self, name: str):
-        self.name = name
-        self.children: List['Node'] = []
-        self.meshes: List[glglue.gl3.mesh.Mesh] = []
-
-    def add_child(self, child: 'Node'):
-        self.children.append(child)
-
-    def update(self, delta):
-        pass
-
-    def draw(self, projection, view):
-        for mesh in self.meshes:
-            mesh.draw(projection, view)
-
-        for child in self.children:
-            child.draw(projection, view)
-
-
-def _load_node(src: List[glglue.gltf.GltfNode], dst: Node):
+def _load_node(src: List[glglue.gltf.GltfNode], dst: glglue.gl3.mesh.Node):
     for gltf_node in src:
-        node = Node(gltf_node.name)
-        dst.add_child(node)
+        node = glglue.gl3.mesh.Node(gltf_node.name)
+        dst.children.append(node)
 
         # mesh
         if gltf_node.mesh:
@@ -95,8 +75,8 @@ def _load_node(src: List[glglue.gltf.GltfNode], dst: Node):
         _load_node(gltf_node.children, node)
 
 
-def load_gltf(gltf: glglue.gltf.GltfData) -> Node:
-    scene = Node('__scene__')
+def load_gltf(gltf: glglue.gltf.GltfData) -> glglue.gl3.mesh.Node:
+    scene = glglue.gl3.mesh.Node('__scene__')
     _load_node(gltf.scene, scene)
     return scene
 

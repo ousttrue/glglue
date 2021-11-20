@@ -24,7 +24,6 @@ class Submesh:
 class Mesh:
     def __init__(self, name: str, vertices: Union[glglue.gl3.vbo.Planar, glglue.gl3.vbo.Interleaved], indices: Optional[glglue.gl3.vbo.TypedBytes] = None) -> None:
         self.name = name
-        self.model_matrix = glglue.ctypesmath.Mat4.new_identity()
         self.is_initialized = False
         self.vbo_list = []
         self.vbo_color = None
@@ -52,9 +51,30 @@ class Mesh:
     def update(self, delta):
         pass
 
-    def draw(self, projection, view):
+    def draw(self, projection: glglue.ctypesmath.Mat4, view: glglue.ctypesmath.Mat4, model: glglue.ctypesmath.Mat4 = None):
         self.initialize()
 
+        if not model:
+            model = glglue.ctypesmath.Mat4.new_identity()
+
         for submesh in self.submeshes:
-            submesh.draw(projection, view, self.model_matrix)
+            submesh.draw(projection, view, model)
             self.vao.draw(submesh.topology, submesh.offset, submesh.draw_count)
+
+
+class Node:
+    def __init__(self, name: str):
+        self. name = name
+        self.model_matrix = glglue.ctypesmath.Mat4.new_identity()
+        self.children: List['Node'] = []
+        self.meshes: List[Mesh] = []
+
+    def update(self, delta):
+        pass
+
+    def draw(self, projection: glglue.ctypesmath.Mat4, view: glglue.ctypesmath.Mat4):
+        for mesh in self.meshes:
+            mesh.draw(projection, view, self.model_matrix)
+
+        for child in self.children:
+            child.draw(projection, view)

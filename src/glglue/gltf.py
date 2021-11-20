@@ -99,7 +99,7 @@ class GltfBufferReader:
     def buffer_view_bytes(self, buffer_view_index: int) -> bytes:
         gltf_buffer_view = self.gltf['bufferViews'][buffer_view_index]
         bin = self._buffer_bytes(gltf_buffer_view['buffer'])
-        offset = gltf_buffer_view['byteOffset']
+        offset = gltf_buffer_view.get('byteOffset', 0)
         length = gltf_buffer_view['byteLength']
         return bin[offset:offset+length]
 
