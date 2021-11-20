@@ -2,7 +2,7 @@
 https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/
 '''
 from ctypes.wintypes import RGB
-from typing import NamedTuple, Optional, Tuple, List, Dict, Any, Type
+from typing import NamedTuple, Optional, Tuple, List, Dict, Any, Type, Iterable
 import struct
 import ctypes
 from enum import Enum
@@ -134,27 +134,24 @@ class RGBA(NamedTuple):
     a: float
 
 
-@dataclass
-class GltfMaterial:
+class GltfMaterial(NamedTuple):
     name: str
-    base_color_texture: Optional[GltfTexture] = None
-    base_color_factor: RGBA = RGBA(1.0, 1.0, 1.0, 1.0)
-    metallic_factor: float = 0.0
+    base_color_texture: Optional[GltfTexture]
+    base_color_factor: RGBA
+    metallic_factor: float
 
 
-@dataclass
-class GltfPrimitive:
+class GltfPrimitive(NamedTuple):
     material: GltfMaterial
     position: TypedBytes
-    normal: Optional[TypedBytes] = None
-    uv: Optional[TypedBytes] = None
-    indices: Optional[TypedBytes] = None
+    normal: Optional[TypedBytes]
+    uv: Optional[TypedBytes]
+    indices: Optional[TypedBytes]
 
 
-@dataclass
-class GltfMesh:
+class GltfMesh(NamedTuple):
     name: str
-    primitives: List[GltfPrimitive]
+    primitives: Iterable[GltfPrimitive]
 
 
 @dataclass
@@ -196,20 +193,24 @@ class GltfData:
         return texture
 
     def _parse_material(self, i: int, gltf_material) -> GltfMaterial:
-        material = GltfMaterial(gltf_material.get('name', f'{i}'))
         pbr = gltf_material.get('pbrMetallicRoughness')
+        base_color_texture = None
+        base_color_factor = RGBA(1, 1, 1, 1)
+        metallic_factor = 0.0
         if pbr:
             match gltf_material.get('baseColorTexture'):
                 case int() as texture_index:
-                    material.base_color_texture = self.textures[texture_index]
-            material.base_color_factor = RGBA(*pbr.get(
+                    base_color_texture = self.textures[texture_index]
+            base_color_factor = RGBA(*pbr.get(
                 'baseColorFactor', [1, 1, 1, 1]))
-            material.metallic_factor = pbr.get('metallicFactor', 0.0)
+            metallic_factor = pbr.get('metallicFactor', 0.0)
+
+        material = GltfMaterial(gltf_material.get(
+            'name', f'{i}'), base_color_texture, base_color_factor, metallic_factor)
         return material
 
     def _parse_mesh(self, buffer_reader: GltfBufferReader, i: int, gltf_mesh) -> GltfMesh:
-        mesh = GltfMesh(gltf_mesh.get('name', f'{i}'), [])
-
+        primitives = []
         for gltf_prim in gltf_mesh['primitives']:
             gltf_attributes = gltf_prim['attributes']
 
@@ -219,23 +220,26 @@ class GltfData:
                 case _:
                     raise GltfError()
 
-            prim = GltfPrimitive(
-                self.materials[gltf_prim['material']], positions)
-
+            normal = None
             match gltf_attributes.get('NORMAL'):
                 case int() as accessor:
-                    prim.normal = buffer_reader.read_accessor(accessor)
+                    normal = buffer_reader.read_accessor(accessor)
 
+            uv = None
             match gltf_attributes.get('TEXCOORD_0'):
                 case int() as accessor:
-                    prim.uv = buffer_reader.read_accessor(accessor)
+                    uv = buffer_reader.read_accessor(accessor)
 
+            indices = None
             match gltf_prim.get('indices'):
                 case int() as accessor:
-                    prim.indices = buffer_reader.read_accessor(accessor)
+                    indices = buffer_reader.read_accessor(accessor)
 
-            mesh.primitives.append(prim)
+            prim = GltfPrimitive(
+                self.materials[gltf_prim['material']], positions, normal, uv, indices)
+            primitives.append(prim)
 
+        mesh = GltfMesh(gltf_mesh.get('name', f'{i}'), tuple(primitives))
         return mesh
 
     def _parse_node(self, i: int, gltf_node) -> GltfNode:

@@ -4,7 +4,8 @@ import logging
 import glglue.gltf
 import glglue.gl3.mesh
 import glglue.gl3.vbo
-from typing import List
+import glglue.gl3.shader
+from typing import Dict, List
 from OpenGL import GL
 
 logger = logging.getLogger(__name__)
@@ -47,38 +48,77 @@ void main()
 '''
 
 
-def _load_node(src: List[glglue.gltf.GltfNode], dst: glglue.gl3.mesh.Node):
-    for gltf_node in src:
-        node = glglue.gl3.mesh.Node(gltf_node.name)
-        dst.children.append(node)
+class Loader:
+    def __init__(self, gltf: glglue.gltf.GltfData) -> None:
+        self.gltf = gltf
+        # self.textures: Dict[glglue.gltf.GltfTexture, glglue.gl3.shader.T]= {}
+        self.materials: Dict[glglue.gltf.GltfMaterial,
+                             glglue.gl3.mesh.Material] = {}
+        self.meshes: Dict[glglue.gltf.GltfMesh,
+                          List[glglue.gl3.mesh.Mesh]] = {}
+
+    def _load_material(self, src: glglue.gltf.GltfMaterial):
+        material = glglue.gl3.mesh.Material(src.name, VS, FS)
+        # to bitmap
+        # material.color_texture = src.base_color_texture
+        # material.color = *src.base_color_factor
+        self.materials[src] = material
+
+    def _load_mesh(self, src: glglue.gltf.GltfMesh):
+        meshes = []
+
+        for prim in src.primitives:
+            macro = ['#version 330']
+            attributes: List[glglue.gl3.vbo.TypedBytes] = [
+                glglue.gl3.vbo.TypedBytes(*prim.position)]
+            # if prim.normal:
+            #     attributes.append(glglue.gl3.vbo.TypedBytes(*prim.normal))
+            #     macro += f'#define HAS_NORMAL 1\n'
+            if prim.uv:
+                attributes.append(glglue.gl3.vbo.TypedBytes(*prim.uv))
+                macro.append('#define HAS_UV 1')
+            indices = None
+            if prim.indices:
+                indices = glglue.gl3.vbo.TypedBytes(*prim.indices)
+            mesh = glglue.gl3.mesh.Mesh(
+                src.name, glglue.gl3.vbo.Planar(attributes), indices)
+
+            mesh.add_submesh(
+                self.materials[prim.material], macro, GL.GL_TRIANGLES)
+            meshes.append(mesh)
+
+        self.meshes[src] = meshes
+
+    def _load_node(self, src: List[glglue.gltf.GltfNode], dst: glglue.gl3.mesh.Node):
+        for gltf_node in src:
+            node = glglue.gl3.mesh.Node(gltf_node.name)
+            dst.children.append(node)
+
+            if gltf_node.mesh:
+                dst.meshes += self.meshes[gltf_node.mesh]
+
+            self._load_node(gltf_node.children, node)
+
+    def load(self):
+        # texture
+
+        # material
+        for gltf_material in self.gltf.materials:
+            self._load_material(gltf_material)
 
         # mesh
-        if gltf_node.mesh:
-            for prim in gltf_node.mesh.primitives:
-                macro = '#version 330\n'
-                attributes: List[glglue.gl3.vbo.TypedBytes] = [
-                    glglue.gl3.vbo.TypedBytes(*prim.position)]
-                # if prim.normal:
-                #     attributes.append(glglue.gl3.vbo.TypedBytes(*prim.normal))
-                #     macro += f'#define HAS_NORMAL 1\n'
-                if prim.uv:
-                    attributes.append(glglue.gl3.vbo.TypedBytes(*prim.uv))
-                    macro += f'#define HAS_UV 1\n'
-                indices = None
-                if prim.indices:
-                    indices = glglue.gl3.vbo.TypedBytes(*prim.indices)
-                mesh = glglue.gl3.mesh.Mesh(
-                    gltf_node.mesh.name, glglue.gl3.vbo.Planar(attributes), indices)
-                mesh.add_submesh(GL.GL_TRIANGLES, macro + VS, macro + FS)
-                dst.meshes.append(mesh)
+        for gltf_mesh in self.gltf.meshes:
+            self._load_mesh(gltf_mesh)
 
-        _load_node(gltf_node.children, node)
+        # node
+        scene = glglue.gl3.mesh.Node('__scene__')
+        self._load_node(self.gltf.scene, scene)
+        return scene
 
 
 def load_gltf(gltf: glglue.gltf.GltfData) -> glglue.gl3.mesh.Node:
-    scene = glglue.gl3.mesh.Node('__scene__')
-    _load_node(gltf.scene, scene)
-    return scene
+    loader = Loader(gltf)
+    return loader.load()
 
 
 class Window(QtWidgets.QMainWindow):

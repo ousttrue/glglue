@@ -1,4 +1,5 @@
 import glglue.gl3.vbo
+import glglue.gl3.mesh
 import ctypes
 from OpenGL import GL
 from .mesh import Mesh
@@ -121,5 +122,6 @@ def create_axis(size: float) -> Mesh:
         glglue.gl3.vbo.TypedBytes(memoryview(
             colors).tobytes(), ctypes.c_float, 3),
     ]))
-    mesh.add_submesh(GL.GL_LINES, VS, FS)
+    material = glglue.gl3.mesh.Material('axis', VS, FS)
+    mesh.add_submesh(material, [], GL.GL_LINES)
     return mesh

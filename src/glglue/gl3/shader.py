@@ -1,12 +1,6 @@
-from OpenGL.GL import (glCreateShader, glDeleteShader, glShaderSource,
-                       glCompileShader, glGetShaderInfoLog, glGetShaderiv,
-                       glCreateProgram, glDeleteProgram, glAttachShader,
-                       glLinkProgram, glGetProgramiv, glUseProgram,
-                       glGetUniformLocation, glUniformMatrix4fv, GL_TRUE,
-                       GL_COMPILE_STATUS, GL_VERTEX_SHADER, GL_FRAGMENT_SHADER,
-                       GL_LINK_STATUS)
+from OpenGL import GL
 from glglue import ctypesmath
-from typing import Any
+from typing import Any, NamedTuple, List
 
 VS = '''
 #version 330
@@ -28,65 +22,78 @@ void main()
 '''
 
 
-def compile_shader(src: str, shader_type: int) -> int:
-    shader = glCreateShader(shader_type)
-    glShaderSource(shader, src)
-    glCompileShader(shader)
-    error = glGetShaderiv(shader, GL_COMPILE_STATUS)
-    if error != GL_TRUE:
-        info = glGetShaderInfoLog(shader)
-        glDeleteShader(shader)
+def compile_shader(src: str, shader_type):
+    shader = GL.glCreateShader(shader_type)
+    GL.glShaderSource(shader, src)
+    GL.glCompileShader(shader)
+    error = GL.glGetShaderiv(shader, GL.GL_COMPILE_STATUS)
+    if error != GL.GL_TRUE:
+        info = GL.glGetShaderInfoLog(shader)
+        GL.glDeleteShader(shader)
         raise Exception(info)
     return shader
 
 
 class UniformMat4:
-    def __init__(self, program: int, name: str) -> None:
+    def __init__(self, program, name: str) -> None:
         self.program = program
         self.name = name
         self.location = -1
 
     def set(self, value: ctypesmath.Mat4) -> None:
         if self.location < 0:
-            self.location = glGetUniformLocation(self.program, self.name)
-        glUniformMatrix4fv(self.location, 1, GL_TRUE, value.to_array())
+            self.location = GL.glGetUniformLocation(self.program, self.name)
+        GL.glUniformMatrix4fv(self.location, 1, GL.GL_TRUE, value.to_array())
+
+
+class ShaderSource(NamedTuple):
+    vs: str
+    vs_macro: List[str]
+    fs: str
+    fs_macro: List[str]
+
+    def get_vs(self) -> str:
+        return ''.join(f'{x}\n' for x in self.vs_macro) + self.vs
+
+    def get_fs(self) -> str:
+        return ''.join(f'{x}\n' for x in self.fs_macro) + self.fs
 
 
 class Shader:
     def __init__(self) -> None:
-        self.program = glCreateProgram()
+        self.program = GL.glCreateProgram()
         self.uniforms = {
             'm': UniformMat4(self.program, 'm'),
             'vp': UniformMat4(self.program, 'vp'),
         }
 
     def __del__(self) -> None:
-        glDeleteProgram(self.program)
+        GL.glDeleteProgram(self.program)
 
-    def compile(self, vs_src: str, fs_src: str) -> bool:
-        vs = compile_shader(vs_src, GL_VERTEX_SHADER)
+    def compile(self, shader_source: ShaderSource):
+        vs = compile_shader(shader_source.get_vs(), GL.GL_VERTEX_SHADER)
         if not vs:
             raise Exception('compile_shader: GL_VERTEX_SHADER')
 
-        fs = compile_shader(fs_src, GL_FRAGMENT_SHADER)
+        fs = compile_shader(shader_source.get_fs(), GL.GL_FRAGMENT_SHADER)
         if not fs:
             raise Exception('compile_shader: GL_FRAGMENT_SHADER')
 
-        glAttachShader(self.program, vs)
-        glAttachShader(self.program, fs)
-        glLinkProgram(self.program)
-        error = glGetProgramiv(self.program, GL_LINK_STATUS)
-        glDeleteShader(vs)
-        glDeleteShader(fs)
-        if error != GL_TRUE:
-            info = glGetShaderInfoLog(self.program)
+        GL.glAttachShader(self.program, vs)
+        GL.glAttachShader(self.program, fs)
+        GL.glLinkProgram(self.program)
+        error = GL.glGetProgramiv(self.program, GL.GL_LINK_STATUS)
+        GL.glDeleteShader(vs)
+        GL.glDeleteShader(fs)
+        if error != GL.GL_TRUE:
+            info = GL.glGetShaderInfoLog(self.program)
             raise Exception(info)
 
     def use(self):
-        glUseProgram(self.program)
+        GL.glUseProgram(self.program)
 
     def unuse(self):
-        glUseProgram(0)
+        GL.glUseProgram(0)
 
     def set_uniform(self, name: str, value: Any):
         u = self.uniforms.get(name)
@@ -94,7 +101,7 @@ class Shader:
             u.set(value)
 
 
-def create_from(vs: str, fs: str) -> Shader:
+def create_from(shader_source: ShaderSource) -> Shader:
     shader = Shader()
-    shader.compile(vs, fs)
+    shader.compile(shader_source)
     return shader

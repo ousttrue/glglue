@@ -4,18 +4,28 @@ import glglue.gl3.shader
 import glglue.gl3.vbo
 
 
-class Submesh:
-    def __init__(self, topology: int, offset: int, draw_count: int, vs: str, fs: str) -> None:
-        self.shader: Optional[glglue.gl3.shader.Shader] = None
-        self.topology = topology
-        self.offset = offset
-        self.draw_count = draw_count
+class Material:
+    def __init__(self, name: str, vs: str, fs: str) -> None:
+        self.name = name
         self.vs = vs
         self.fs = fs
 
-    def draw(self, projection, view, m):
+
+class Submesh:
+    def __init__(self, material: Material, macro: List[str], topology: int, offset: int, draw_count: int) -> None:
+        self.material = material
+        self.macro = macro
+        self.shader: Optional[glglue.gl3.shader.Shader] = None
+
+        self.topology = topology
+        self.offset = offset
+        self.draw_count = draw_count
+
+    def activate(self, projection, view, m):
         if not self.shader:
-            self.shader = glglue.gl3.shader.create_from(self.vs, self.fs)
+            shader_source = glglue.gl3.shader.ShaderSource(
+                self.material.vs, self.macro, self.material.fs, self.macro)
+            self.shader = glglue.gl3.shader.create_from(shader_source)
         self.shader.use()
         self.shader.set_uniform('vp', view * projection)
         self.shader.set_uniform('m', m)
@@ -32,11 +42,12 @@ class Mesh:
         self.vertices = vertices
         self.submeshes: List[Submesh] = []
 
-    def add_submesh(self, topology, vs: str, fs: str):
+    def add_submesh(self, material: Material, macro: List[str], topology):
         draw_count = self.vertices.count()
         if self.indices:
             draw_count = self.indices.count()
-        self.submeshes.append(Submesh(topology, 0, draw_count, vs, fs))
+        self.submeshes.append(
+            Submesh(material, macro, topology, 0, draw_count))
 
     def initialize(self):
         if self.is_initialized:
@@ -58,7 +69,7 @@ class Mesh:
             model = glglue.ctypesmath.Mat4.new_identity()
 
         for submesh in self.submeshes:
-            submesh.draw(projection, view, model)
+            submesh.activate(projection, view, model)
             self.vao.draw(submesh.topology, submesh.offset, submesh.draw_count)
 
 
