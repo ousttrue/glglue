@@ -117,7 +117,9 @@ def create_axis(size: float) -> Mesh:
     )
     mesh = Mesh(f'axis {size}', glglue.gl3.vbo.Planar([
         glglue.gl3.vbo.TypedBytes(memoryview(
-            positions).tobytes(), GL.GL_FLOAT, 3),
-        glglue.gl3.vbo.TypedBytes(memoryview(colors).tobytes(), GL.GL_FLOAT, 3)]))
+            positions).tobytes(), ctypes.c_float, 3),
+        glglue.gl3.vbo.TypedBytes(memoryview(
+            colors).tobytes(), ctypes.c_float, 3),
+    ]))
     mesh.add_submesh(GL.GL_LINES, VS, FS)
     return mesh

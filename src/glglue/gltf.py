@@ -1,8 +1,9 @@
 '''
 https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/
 '''
-from typing import NamedTuple, Optional, Tuple, List, Dict
+from typing import NamedTuple, Optional, Tuple, List, Dict, Any, Type
 import struct
+import ctypes
 from enum import Enum
 import json
 import pathlib
@@ -13,31 +14,14 @@ class GltfError(RuntimeError):
     pass
 
 
-class ElementType(Enum):
-    Int8 = 5120
-    UInt8 = 5121
-    Int16 = 5122
-    UInt16 = 5123
-    UInt32 = 5125
-    Float = 5126
-
-    def get_byte_length(self):
-        match self:
-            case ElementType.Int8:
-                return 1
-            case ElementType.UInt8:
-                return 1
-            case ElementType.Int16:
-                return 2
-            case ElementType.UInt16:
-                return 2
-            case ElementType.UInt32:
-                return 4
-            case ElementType.Float:
-                return 4
-            case _:
-                raise NotImplementedError()
-
+COMPONENT_TYPE_TO_ELEMENT_TYPE = {
+    5120: ctypes.c_char,
+    5121: ctypes.c_byte,
+    5122: ctypes.c_short,
+    5123: ctypes.c_ushort,
+    5125: ctypes.c_uint,
+    5126: ctypes.c_float,
+}
 
 TYPE_TO_ELEMENT_COUNT = {
     'SCALAR': 1,
@@ -50,17 +34,17 @@ TYPE_TO_ELEMENT_COUNT = {
 }
 
 
-def get_accessor_type(gltf_accessor) -> Tuple[ElementType, int]:
-    return ElementType(gltf_accessor['componentType']), TYPE_TO_ELEMENT_COUNT[gltf_accessor['type']]
+def get_accessor_type(gltf_accessor) -> Tuple[Type[ctypes._SimpleCData], int]:
+    return COMPONENT_TYPE_TO_ELEMENT_TYPE[gltf_accessor['componentType']], TYPE_TO_ELEMENT_COUNT[gltf_accessor['type']]
 
 
 class TypedBytes(NamedTuple):
     data: bytes
-    element_type: ElementType
+    element_type: Type[ctypes._SimpleCData]
     element_count: int = 1
 
     def stride(self) -> int:
-        return self.element_type.get_byte_length() * self.element_count
+        return ctypes.sizeof(self.element_type) * self.element_count
 
     def count(self) -> int:
         return len(self.data) // self.stride()
@@ -105,7 +89,7 @@ class GltfBufferReader:
         offset = gltf_accessor.get('byteOffset', 0)
         count = gltf_accessor['count']
         element_type, element_count = get_accessor_type(gltf_accessor)
-        bin = bin[offset:offset+element_type.get_byte_length() *
+        bin = bin[offset:offset+ctypes.sizeof(element_type) *
                   element_count*count]
         return TypedBytes(bin, element_type, element_count)
 

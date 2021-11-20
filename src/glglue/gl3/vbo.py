@@ -1,7 +1,7 @@
 import ctypes
 import array
 from sys import version
-from typing import List, NamedTuple, Optional, Union, Any
+from typing import List, NamedTuple, Optional, Union, Any, Type
 from OpenGL import GL
 
 
@@ -65,19 +65,9 @@ class VBO:
         GL.glDrawArrays(GL.GL_LINES, 0, self.vertex_count)
 
 
-def get_byte_length(element_type) -> int:
-    match element_type:
-        case GL.GL_FLOAT:
-            return 4
-        case GL.GL_UNSIGNED_SHORT:
-            return 2
-        case _:
-            raise NotImplementedError()
-
-
 class TypedBytes(NamedTuple):
     data: bytes
-    element_type: Any
+    element_type: Type[ctypes._SimpleCData]
     element_count: int = 1
 
     @staticmethod
@@ -86,11 +76,11 @@ class TypedBytes(NamedTuple):
             case array.array() as a:
                 match a.typecode:
                     case 'H':
-                        return TypedBytes(memoryview(a).tobytes(), GL.GL_UNSIGNED_SHORT)
+                        return TypedBytes(memoryview(a).tobytes(), ctypes.c_ushort)
         raise RuntimeError()
 
     def stride(self) -> int:
-        return get_byte_length(self.element_type) * self.element_count
+        return ctypes.sizeof(self.element_type) * self.element_count
 
     def count(self) -> int:
         return len(self.data) // self.stride()

@@ -131,7 +131,7 @@ def create_cube(s: float) -> Mesh:
     ])
 
     mesh = Mesh(f'cube {s}', glglue.gl3.vbo.Interleaved(
-        glglue.gl3.vbo.TypedBytes(memoryview(vertices).tobytes(), GL.GL_FLOAT, 6), [0, 12]),
+        glglue.gl3.vbo.TypedBytes(memoryview(vertices).tobytes(), ctypes.c_float, 6), [0, 12]),
         glglue.gl3.vbo.TypedBytes.create(indices))
     mesh.add_submesh(GL.GL_TRIANGLES, CUBE_VS, CUBE_FS)
     return mesh

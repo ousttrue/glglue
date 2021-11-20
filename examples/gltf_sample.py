@@ -1,3 +1,4 @@
+import ctypes
 from PySide6 import QtWidgets, QtGui, QtCore
 import pathlib
 import logging
@@ -59,16 +60,6 @@ class Node:
             child.draw(projection, view)
 
 
-def _typed_bytes(src: glglue.gltf.TypedBytes) -> glglue.gl3.vbo.TypedBytes:
-    match src:
-        case glglue.gltf.TypedBytes(data, glglue.gltf.ElementType.Float, count):
-            return glglue.gl3.vbo.TypedBytes(data, GL.GL_FLOAT, count)
-        case glglue.gltf.TypedBytes(data, glglue.gltf.ElementType.UInt16, count):
-            return glglue.gl3.vbo.TypedBytes(data, GL.GL_UNSIGNED_SHORT, count)
-        case _:
-            raise NotImplementedError()
-
-
 def _load_node(src: List[glglue.gltf.GltfNode], dst: Node):
     for gltf_node in src:
         node = Node(gltf_node.name)
@@ -79,13 +70,13 @@ def _load_node(src: List[glglue.gltf.GltfNode], dst: Node):
             for prim in gltf_node.mesh.primitives:
                 macro = '#version 330\n'
                 attributes: List[glglue.gl3.vbo.TypedBytes] = [
-                    _typed_bytes(prim.position)]
+                    glglue.gl3.vbo.TypedBytes(*prim.position)]
                 if prim.normal:
-                    attributes.append(_typed_bytes(prim.normal))
+                    glglue.gl3.vbo.TypedBytes(*prim.normal)
                     macro += f'#define HAS_NORMAL 1\n'
                 indices = None
                 if prim.indices:
-                    indices = _typed_bytes(prim.indices)
+                    indices = glglue.gl3.vbo.TypedBytes(*prim.indices)
                 mesh = glglue.gl3.mesh.Mesh(
                     gltf_node.mesh.name, glglue.gl3.vbo.Planar(attributes), indices)
                 mesh.add_submesh(GL.GL_TRIANGLES, macro + VS, FS)
