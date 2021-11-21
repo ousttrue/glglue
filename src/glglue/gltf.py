@@ -228,20 +228,32 @@ class GltfData:
         return texture
 
     def _parse_material(self, i: int, gltf_material) -> GltfMaterial:
-        pbr = gltf_material.get('pbrMetallicRoughness')
+        name = f'{i}'
         base_color_texture = None
         base_color_factor = RGBA(1, 1, 1, 1)
         metallic_factor = 0.0
-        if pbr:
-            match pbr.get('baseColorTexture'):
-                case {'index': texture_index}:
-                    base_color_texture = self.textures[texture_index]
-            base_color_factor = RGBA(*pbr.get(
-                'baseColorFactor', [1, 1, 1, 1]))
-            metallic_factor = pbr.get('metallicFactor', 0.0)
-
-        material = GltfMaterial(gltf_material.get(
-            'name', f'{i}'), base_color_texture, base_color_factor, metallic_factor)
+        for k, v in gltf_material.items():
+            match k:
+                case 'name':
+                    name = v
+                case 'pbrMetallicRoughness':
+                    for kk, vv in v.items():
+                        match kk:
+                            case 'baseColorTexture':
+                                match vv:
+                                    case {'index': texture_index}:
+                                        base_color_texture = self.textures[texture_index]
+                            case 'baseColorFactor':
+                                base_color_factor = RGBA(*vv)
+                            case 'metallicFactor':
+                                metallic_factor = vv
+                            case _:
+                                raise NotImplementedError()
+                        pass
+                case _:
+                    raise NotImplementedError()
+        material = GltfMaterial(name, base_color_texture,
+                                base_color_factor, metallic_factor)
         return material
 
     def _parse_mesh(self, i: int, gltf_mesh) -> GltfMesh:
