@@ -50,8 +50,8 @@ class GltfLoader:
         # if prim.normal:
         #     attributes.append(glglue.gl3.vbo.TypedBytes(*prim.normal))
         #     macro += f'#define HAS_NORMAL 1\n'
-        if src.uv:
-            attributes.append(glglue.gl3.vbo.TypedBytes(*src.uv))
+        if src.uv0:
+            attributes.append(glglue.gl3.vbo.TypedBytes(*src.uv0))
             macro.append('#define HAS_UV 1')
         indices = None
         if src.indices:

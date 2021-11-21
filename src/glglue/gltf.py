@@ -5,10 +5,13 @@ from ctypes.wintypes import RGB
 from typing import NamedTuple, Optional, Tuple, List, Dict, Any, Type
 import struct
 import ctypes
+import re
 from enum import Enum
 import json
 import pathlib
 from dataclasses import dataclass
+
+from OpenGL.error import Error
 
 
 class GltfError(RuntimeError):
@@ -38,6 +41,7 @@ TYPE_TO_ELEMENT_COUNT = {
 class MimeType(Enum):
     Jpg = "image/jpeg"
     Png = "image/png"
+    Ktx2 = "image/ktx2"
 
     @staticmethod
     def from_name(name: str):
@@ -46,6 +50,8 @@ class MimeType(Enum):
                 return MimeType.Png
             case ".jpg":
                 return MimeType.Jpg
+            case ".ktx2":
+                return MimeType.Ktx2
             case _:
                 raise GltfError(f'unknown image: {name}')
 
@@ -80,6 +86,9 @@ class TypedBytes(NamedTuple):
         return memoryview(self.data).cast(CTYPES_FORMAT_MAP[self.element_type])[begin:begin+self.element_count]
 
 
+DATA_URI = re.compile(r'^data:([^;]*);base64,(.*)')
+
+
 class GltfBufferReader:
     def __init__(self, gltf, path: Optional[pathlib.Path], bin: Optional[bytes]):
         self.gltf = gltf
@@ -90,8 +99,15 @@ class GltfBufferReader:
     def uri_bytes(self, uri: str) -> bytes:
         data = self.uri_cache.get(uri)
         if not data:
-            if self.path:
-                path = self.path.parent / uri
+            if uri.startswith('data:'):
+                m = DATA_URI.match(uri)
+                if not m:
+                    raise RuntimeError()
+                import base64
+                data = base64.urlsafe_b64decode(m[2])
+            elif self.path:
+                import urllib.parse
+                path = self.path.parent / urllib.parse.unquote(uri)
                 data = path.read_bytes()
             else:
                 raise NotImplementedError()
@@ -119,13 +135,18 @@ class GltfBufferReader:
 
     def read_accessor(self, accessor_index: int) -> TypedBytes:
         gltf_accessor = self.gltf['accessors'][accessor_index]
-        bin = self.buffer_view_bytes(gltf_accessor['bufferView'])
+        buffer_view_index = gltf_accessor.get('bufferView')
         offset = gltf_accessor.get('byteOffset', 0)
         count = gltf_accessor['count']
         element_type, element_count = get_accessor_type(gltf_accessor)
-        bin = bin[offset:offset+ctypes.sizeof(element_type) *
-                  element_count*count]
-        return TypedBytes(bin, element_type, element_count)
+        length = ctypes.sizeof(element_type) * element_count*count
+        if buffer_view_index:
+            bin = self.buffer_view_bytes(buffer_view_index)
+            bin = bin[offset:offset+length]
+            return TypedBytes(bin, element_type, element_count)
+        else:
+            # zefo filled
+            return TypedBytes(b'\0' * length, element_type, element_count)
 
 
 class GltfImage(NamedTuple):
@@ -139,6 +160,12 @@ class GltfTexture(NamedTuple):
     image: GltfImage
 
 
+class RGB(NamedTuple):
+    r: float
+    g: float
+    b: float
+
+
 class RGBA(NamedTuple):
     r: float
     g: float
@@ -146,18 +173,43 @@ class RGBA(NamedTuple):
     a: float
 
 
+class AlphaMode(Enum):
+    OPAQUE = 'OPAQUE'
+    MASK = 'MASK'
+    BLEND = 'BLEND'
+
+
 class GltfMaterial(NamedTuple):
     name: str
     base_color_texture: Optional[GltfTexture]
     base_color_factor: RGBA
+    metallic_roughness_texture: Optional[GltfTexture]
     metallic_factor: float
+    roughness_factor: float
+    emissive_texture: Optional[GltfTexture]
+    emissive_factor: RGB
+    normal_texture: Optional[GltfTexture]
+    occlusion_texture: Optional[GltfTexture]
+    alpha_mode: AlphaMode
+    alpha_cutoff: float
+    double_sided: bool
+
+    @staticmethod
+    def default() -> 'GltfMaterial':
+        return GltfMaterial('__default__', None, RGBA(1, 1, 1, 1), None, 0, 1, None, RGB(0, 0, 0), None, None, AlphaMode.OPAQUE, 0.5, False)
 
 
 class GltfPrimitive(NamedTuple):
     material: GltfMaterial
     position: TypedBytes
     normal: Optional[TypedBytes]
-    uv: Optional[TypedBytes]
+    uv0: Optional[TypedBytes]
+    uv1: Optional[TypedBytes]
+    uv2: Optional[TypedBytes]
+    tangent: Optional[TypedBytes]
+    color: Optional[TypedBytes]
+    joints: Optional[TypedBytes]
+    weights: Optional[TypedBytes]
     indices: Optional[TypedBytes]
 
 
@@ -185,12 +237,28 @@ class Mat4(NamedTuple):
     m44: float
 
 
+class Vec3(NamedTuple):
+    x: float
+    y: float
+    z: float
+
+
+class Vec4(NamedTuple):
+    x: float
+    y: float
+    z: float
+    w: float
+
+
 @dataclass
 class GltfNode:
     name: str
     children: List['GltfNode']
     mesh: Optional[GltfMesh] = None
     matrix: Optional[Mat4] = None
+    translation: Optional[Vec3] = Vec3(0, 0, 0)
+    rotation: Optional[Vec4] = Vec4(0, 0, 0, 1)
+    scale: Optional[Vec3] = Vec3(1, 1, 1)
 
 
 class GltfData:
@@ -216,22 +284,44 @@ class GltfData:
                 return GltfImage(name or f'{i}', self.buffer_reader.buffer_view_bytes(buffer_view_index), MimeType(mime))
             case {'uri': uri}:
                 if uri.startswith('data:'):
-                    raise NotImplementedError()
+                    m = DATA_URI.match(uri)
+                    if not m:
+                        raise RuntimeError()
+                    return GltfImage(uri, self.buffer_reader.uri_bytes(uri), MimeType(m[1]))
                 else:
                     return GltfImage(uri, self.buffer_reader.uri_bytes(uri), MimeType.from_name(uri))
             case _:
                 raise GltfError()
 
     def _parse_texture(self, i: int, gltf_texture) -> GltfTexture:
-        texture = GltfTexture(gltf_texture.get(
-            'name', f'{i}'), self.images[gltf_texture['source']])
-        return texture
+        match gltf_texture:
+            case {'source': image_index}:
+                texture = GltfTexture(gltf_texture.get(
+                    'name', f'{i}'), self.images[image_index])
+                return texture
+            case {'extensions': {
+                'KHR_texture_basisu': {'source': image_index}
+            }}:
+                texture = GltfTexture(gltf_texture.get(
+                    'name', f'{i}'), self.images[image_index])
+                return texture
+            case _:
+                raise Exception()
 
     def _parse_material(self, i: int, gltf_material) -> GltfMaterial:
         name = f'{i}'
         base_color_texture = None
         base_color_factor = RGBA(1, 1, 1, 1)
+        metallic_roughness_texture = None
         metallic_factor = 0.0
+        roughness_factor = 0.0
+        emissive_texture = None
+        emissive_factor = RGB(0, 0, 0)
+        normal_texture = None
+        occlusion_texture = None
+        alpha_mode = AlphaMode.OPAQUE
+        alpha_cutoff = 0.5
+        double_sided = False
         for k, v in gltf_material.items():
             match k:
                 case 'name':
@@ -243,17 +333,55 @@ class GltfData:
                                 match vv:
                                     case {'index': texture_index}:
                                         base_color_texture = self.textures[texture_index]
+                                    case _:
+                                        raise GltfError()
                             case 'baseColorFactor':
                                 base_color_factor = RGBA(*vv)
                             case 'metallicFactor':
                                 metallic_factor = vv
+                            case 'roughnessFactor':
+                                roughness_factor = vv
+                            case 'metallicRoughnessTexture':
+                                match vv:
+                                    case {'index': texture_index}:
+                                        metallic_roughness_texture = self.textures[texture_index]
                             case _:
                                 raise NotImplementedError()
                         pass
+                case 'emissiveTexture':
+                    match v:
+                        case {'index': texture_index}:
+                            emissive_texture = self.textures[texture_index]
+                case 'emissiveFactor':
+                    emissive_factor = RGB(*v)
+                case 'alphaMode':
+                    alpha_mode = AlphaMode(v)
+                case 'alphaCutoff':
+                    alpha_cutoff = v
+                case 'doubleSided':
+                    double_sided = v
+                case 'normalTexture':
+                    match v:
+                        case {'index': texture_index}:
+                            normal_texture = self.textures[texture_index]
+                        case _:
+                            raise GltfError()
+                case 'occlusionTexture':
+                    match v:
+                        case {'index': texture_index}:
+                            occlusion_texture = self.textures[texture_index]
+                        case _:
+                            raise GltfError()
+
+                case 'extensions':
+                    # TODO:
+                    pass
+
                 case _:
                     raise NotImplementedError()
         material = GltfMaterial(name, base_color_texture,
-                                base_color_factor, metallic_factor)
+                                base_color_factor, metallic_roughness_texture, metallic_factor, roughness_factor,
+                                emissive_texture, emissive_factor, normal_texture, occlusion_texture, alpha_mode, alpha_cutoff, double_sided)
         return material
 
     def _parse_mesh(self, i: int, gltf_mesh) -> GltfMesh:
@@ -262,7 +390,13 @@ class GltfData:
             gltf_attributes = gltf_prim['attributes']
             positions = None
             normal = None
-            uv = None
+            uv0 = None
+            uv1 = None
+            uv2 = None
+            tangent = None
+            color = None
+            joints = None
+            weights = None
             for k, v in gltf_attributes.items():
                 match k:
                     case 'POSITION':
@@ -270,7 +404,19 @@ class GltfData:
                     case 'NORMAL':
                         normal = self.buffer_reader.read_accessor(v)
                     case 'TEXCOORD_0':
-                        uv = self.buffer_reader.read_accessor(v)
+                        uv0 = self.buffer_reader.read_accessor(v)
+                    case 'TEXCOORD_1':
+                        uv1 = self.buffer_reader.read_accessor(v)
+                    case 'TEXCOORD_2':
+                        uv2 = self.buffer_reader.read_accessor(v)
+                    case 'TANGENT':
+                        tangent = self.buffer_reader.read_accessor(v)
+                    case 'COLOR_0':
+                        color = self.buffer_reader.read_accessor(v)
+                    case 'JOINTS_0':
+                        joints = self.buffer_reader.read_accessor(v)
+                    case 'WEIGHTS_0':
+                        weights = self.buffer_reader.read_accessor(v)
                     case _:
                         raise NotImplementedError()
             if not positions:
@@ -281,23 +427,52 @@ class GltfData:
                 case {'indices': accessor}:
                     indices = self.buffer_reader.read_accessor(accessor)
 
-            prim = GltfPrimitive(
-                self.materials[gltf_prim['material']], positions, normal, uv, indices)
+            match gltf_prim:
+                case {'material': material_index}:
+                    material = self.materials[material_index]
+                case _:
+                    # use default material
+                    material = GltfMaterial.default()
+            prim = GltfPrimitive(material, positions, normal,
+                                 uv0, uv1, uv2,
+                                 tangent, color,
+                                 joints, weights,
+                                 indices)
             primitives.append(prim)
 
         mesh = GltfMesh(gltf_mesh.get('name', f'{i}'), tuple(primitives))
         return mesh
 
     def _parse_node(self, i: int, gltf_node) -> GltfNode:
-        node = GltfNode(gltf_node.get('name', f'{i}'), [])
+        node = GltfNode(f'{i}', [])
         for k, v in gltf_node.items():
             match k:
+                case 'name':
+                    node.name = v
                 case 'mesh':
                     node.mesh = self.meshes[v]
                 case 'children':
                     pass
                 case 'matrix':
                     node.matrix = v
+                case 'translation':
+                    node.translation = Vec3(*v)
+                case 'rotation':
+                    node.rotation = Vec4(*v)
+                case 'scale':
+                    node.scale = Vec3(*v)
+                case 'skin':
+                    # TODO:
+                    pass
+                case 'camera':
+                    # TODO:
+                    pass
+                case 'extensions':
+                    # TODO:
+                    pass
+                case 'extras':
+                    # TODO
+                    pass
                 case _:
                     raise NotImplementedError()
         return node
@@ -343,7 +518,7 @@ class GltfData:
 
         # scene
         self.scene += [self.nodes[node_index]
-                       for node_index in self.gltf['scenes'][self.gltf['scene']]['nodes']]
+                       for node_index in self.gltf['scenes'][self.gltf.get('scene', 0)]['nodes']]
 
 
 def parse_gltf(json_chunk: bytes, *, path: Optional[pathlib.Path] = None, bin: Optional[bytes] = None) -> GltfData:
