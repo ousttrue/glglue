@@ -1,18 +1,28 @@
-from typing import Dict, Union, NamedTuple, List, Tuple
-
+from typing import Dict, Union, Tuple
 from ..scene.node import Node
 from ..scene.mesh import Mesh
-from ..scene.material import Material
+from ..scene.material import Material, Texture
 from ..ctypesmath.mat4 import Mat4
 import glglue.gl3.vbo
 import glglue.gl3.shader
+import glglue.gl3.texture
 
 
 class Renderer:
     def __init__(self) -> None:
+        self.textures: Dict[Texture, glglue.gl3.texture.Texture] = {}
         self.shaders: Dict[glglue.gl3.shader.ShaderSource,
                            glglue.gl3.shader.Shader] = {}
         self.meshes: Dict[Mesh, glglue.gl3.vbo.Drawable] = {}
+
+    def _get_or_create_texture(self, src: Texture) -> glglue.gl3.texture.Texture:
+        texture = self.textures.get(src)
+        if not texture:
+            texture = glglue.gl3.texture.Texture()
+            image = src.image
+            texture.set_image(image.data, image.width, image.height)
+            self.textures[src] = texture
+        return texture
 
     def _get_or_create_shader(self, src: Material, macro: Tuple[str, ...]) -> glglue.gl3.shader.Shader:
         shader_source = glglue.gl3.shader.ShaderSource(
@@ -41,7 +51,12 @@ class Renderer:
 
             shader.use()
             shader.set_uniform('vp', view * projection)
-            shader.set_uniform('m', model)            
+            shader.set_uniform('m', model)
+
+            if submesh.material.color_texture:
+                texture = self._get_or_create_texture(
+                    submesh.material.color_texture)
+                shader.set_texture('COLOR_TEXTURE', 0, texture)
 
             drawable.draw(submesh.topology, submesh.offset, submesh.draw_count)
 

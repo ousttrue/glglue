@@ -1,16 +1,15 @@
 from PySide6 import QtWidgets, QtGui, QtCore
 import pathlib
 import logging
-from glglue.ctypesmath.mat4 import Mat4
 import glglue.gltf
 from glglue.scene.texture import Texture, Image32
 from glglue.scene.material import Material
 from glglue.scene.mesh import Mesh
 from glglue.scene.node import Node
-from glglue.scene.vertices import Interleaved, Planar, TypedBytes
+from glglue.scene.vertices import Planar
 import glglue.gl3.vbo
 import glglue.gl3.shader
-from typing import Dict, List, NamedTuple, Optional
+from typing import Dict, List
 from OpenGL import GL
 
 logger = logging.getLogger(__name__)
@@ -42,13 +41,16 @@ FS = '''
 #ifdef HAS_UV
 in vec2 vUV;
 #else
-vec2 uUV = vec2(1, 1);
+vec2 vUV = vec2(1, 1);
 #endif
+
+uniform sampler2D COLOR_TEXTURE;
 
 out vec4 fColor;
 void main()
 {
-    fColor = vec4(vUV, 0, 1);
+    vec4 tex = texture(COLOR_TEXTURE, vUV);
+    fColor = tex;
 }
 '''
 

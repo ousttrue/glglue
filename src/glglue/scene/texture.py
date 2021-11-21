@@ -9,11 +9,12 @@ class Image32(NamedTuple):
     height: int
 
     @staticmethod
-    def load(data: bytes) -> 'Image32':
-        image = Image.open(io.BytesIO(data))
+    def load(src: bytes) -> 'Image32':
+        image = Image.open(io.BytesIO(src))
         if image.mode != 'RGBA':
-            image = image.convert('RGBA')
-        return Image32(image.getdata(), image.width, image.height)
+            image = image.convert('RGBA')        
+        data = image.tobytes('raw')
+        return Image32(data, image.width, image.height)
 
 
 class Texture:

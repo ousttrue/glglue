@@ -196,8 +196,8 @@ class GltfData:
         base_color_factor = RGBA(1, 1, 1, 1)
         metallic_factor = 0.0
         if pbr:
-            match gltf_material.get('baseColorTexture'):
-                case int() as texture_index:
+            match pbr.get('baseColorTexture'):
+                case {'index': texture_index}:
                     base_color_texture = self.textures[texture_index]
             base_color_factor = RGBA(*pbr.get(
                 'baseColorFactor', [1, 1, 1, 1]))

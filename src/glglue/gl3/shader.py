@@ -1,6 +1,7 @@
 from OpenGL import GL
 from glglue import ctypesmath
 from typing import Any, NamedTuple, List, Tuple
+from .texture import Texture
 
 VS = '''
 #version 330
@@ -99,6 +100,10 @@ class Shader:
         u = self.uniforms.get(name)
         if u:
             u.set(value)
+
+    def set_texture(self, name: str, slot: int, texture: Texture):
+        location = GL.glGetUniformLocation(self.program, name)
+        texture.activate(location, slot)
 
 
 def create_from(shader_source: ShaderSource) -> Shader:
