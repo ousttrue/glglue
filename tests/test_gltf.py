@@ -18,9 +18,9 @@ class TestGltf(unittest.TestCase):
         self.assertEqual(1, len(gltf_data.materials))
         self.assertEqual(1, len(gltf_data.meshes))
         self.assertEqual(
-            24, gltf_data.meshes[0].primitives[0].position.count())
-        self.assertEqual(24, gltf_data.meshes[0].primitives[0].normal.count())
-        self.assertEqual(36, gltf_data.meshes[0].primitives[0].indices.count())
+            24, gltf_data.meshes[0].primitives[0].position.get_count())
+        self.assertEqual(24, gltf_data.meshes[0].primitives[0].normal.get_count())
+        self.assertEqual(36, gltf_data.meshes[0].primitives[0].indices.get_count())
         self.assertEqual(
             'Red', gltf_data.meshes[0].primitives[0].material.name)
         self.assertEqual(2, len(gltf_data.nodes))
@@ -31,10 +31,10 @@ class TestGltf(unittest.TestCase):
         self.assertEqual(1, len(gltf_data.materials))
         self.assertEqual(1, len(gltf_data.meshes))
         self.assertEqual(
-            24, gltf_data.meshes[0].primitives[0].position.count())
-        self.assertEqual(24, gltf_data.meshes[0].primitives[0].normal.count())
-        self.assertEqual(24, gltf_data.meshes[0].primitives[0].uv.count())
-        self.assertEqual(36, gltf_data.meshes[0].primitives[0].indices.count())
+            24, gltf_data.meshes[0].primitives[0].position.get_count())
+        self.assertEqual(24, gltf_data.meshes[0].primitives[0].normal.get_count())
+        self.assertEqual(24, gltf_data.meshes[0].primitives[0].uv.get_count())
+        self.assertEqual(36, gltf_data.meshes[0].primitives[0].indices.get_count())
         self.assertEqual(
             'Texture', gltf_data.meshes[0].primitives[0].material.name)
         self.assertEqual('CesiumLogoFlat.png',
