@@ -166,11 +166,31 @@ class GltfMesh(NamedTuple):
     primitives: Tuple[GltfPrimitive, ...]
 
 
+class Mat4(NamedTuple):
+    m11: float
+    m12: float
+    m13: float
+    m14: float
+    m21: float
+    m22: float
+    m23: float
+    m24: float
+    m31: float
+    m32: float
+    m33: float
+    m34: float
+    m41: float
+    m42: float
+    m43: float
+    m44: float
+
+
 @dataclass
 class GltfNode:
     name: str
     children: List['GltfNode']
-    mesh: Optional[GltfMesh]
+    mesh: Optional[GltfMesh] = None
+    matrix: Optional[Mat4] = None
 
 
 class GltfData:
@@ -228,26 +248,25 @@ class GltfData:
         primitives = []
         for gltf_prim in gltf_mesh['primitives']:
             gltf_attributes = gltf_prim['attributes']
-
-            match gltf_attributes['POSITION']:
-                case int() as accessor:
-                    positions = self.buffer_reader.read_accessor(accessor)
-                case _:
-                    raise GltfError()
-
+            positions = None
             normal = None
-            match gltf_attributes.get('NORMAL'):
-                case int() as accessor:
-                    normal = self.buffer_reader.read_accessor(accessor)
-
             uv = None
-            match gltf_attributes.get('TEXCOORD_0'):
-                case int() as accessor:
-                    uv = self.buffer_reader.read_accessor(accessor)
+            for k, v in gltf_attributes.items():
+                match k:
+                    case 'POSITION':
+                        positions = self.buffer_reader.read_accessor(v)
+                    case 'NORMAL':
+                        normal = self.buffer_reader.read_accessor(v)
+                    case 'TEXCOORD_0':
+                        uv = self.buffer_reader.read_accessor(v)
+                    case _:
+                        raise NotImplementedError()
+            if not positions:
+                raise GltfError('no POSITIONS')
 
             indices = None
-            match gltf_prim.get('indices'):
-                case int() as accessor:
+            match gltf_prim:
+                case {'indices': accessor}:
                     indices = self.buffer_reader.read_accessor(accessor)
 
             prim = GltfPrimitive(
@@ -258,10 +277,17 @@ class GltfData:
         return mesh
 
     def _parse_node(self, i: int, gltf_node) -> GltfNode:
-        node = GltfNode(gltf_node.get('name', f'{i}'), [], None)
-        match gltf_node.get('mesh'):
-            case int() as mesh_index:
-                node.mesh = self.meshes[mesh_index]
+        node = GltfNode(gltf_node.get('name', f'{i}'), [])
+        for k, v in gltf_node.items():
+            match k:
+                case 'mesh':
+                    node.mesh = self.meshes[v]
+                case 'children':
+                    pass
+                case 'matrix':
+                    node.matrix = v
+                case _:
+                    raise NotImplementedError()
         return node
 
     def parse(self):
