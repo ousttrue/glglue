@@ -20,6 +20,9 @@ class Mesh:
         self.vertices = vertices
         self.submeshes: List[Submesh] = []
 
+    def update(self, delta):
+        pass
+
     def add_submesh(self, material: Material, macro: List[str], topology):
         draw_count = self.vertices.count()
         if self.indices:

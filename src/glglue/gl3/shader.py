@@ -3,25 +3,6 @@ from glglue import ctypesmath
 from typing import Any, NamedTuple, List, Tuple
 from .texture import Texture
 
-VS = '''
-#version 330
-in vec3 aPosition;
-uniform mediump mat4 m;
-void main ()
-{
-    gl_Position = vec4(aPosition, 1) * m;
-}
-'''
-
-FS = '''
-#version 330
-out vec4 FragColor;
-void main()
-{
-    FragColor = vec4(1, 1, 1, 1);
-}
-'''
-
 
 def compile_shader(src: str, shader_type):
     shader = GL.glCreateShader(shader_type)
