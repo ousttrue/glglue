@@ -135,18 +135,18 @@ class GltfBufferReader:
 
     def read_accessor(self, accessor_index: int) -> TypedBytes:
         gltf_accessor = self.gltf['accessors'][accessor_index]
-        buffer_view_index = gltf_accessor.get('bufferView')
         offset = gltf_accessor.get('byteOffset', 0)
         count = gltf_accessor['count']
         element_type, element_count = get_accessor_type(gltf_accessor)
         length = ctypes.sizeof(element_type) * element_count*count
-        if buffer_view_index:
-            bin = self.buffer_view_bytes(buffer_view_index)
-            bin = bin[offset:offset+length]
-            return TypedBytes(bin, element_type, element_count)
-        else:
-            # zefo filled
-            return TypedBytes(b'\0' * length, element_type, element_count)
+        match gltf_accessor:
+            case {'bufferView': buffer_view_index}:
+                bin = self.buffer_view_bytes(buffer_view_index)
+                bin = bin[offset:offset+length]
+                return TypedBytes(bin, element_type, element_count)
+            case _:
+                # zefo filled
+                return TypedBytes(b'\0' * length, element_type, element_count)
 
 
 class GltfImage(NamedTuple):
