@@ -50,25 +50,27 @@
 </ul>
 <div class="literal-block-wrapper docutils container" id="id1">
 <div class="code-block-caption"><span class="caption-text">HEAD examples/pyside6_sample.py</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#</span>
+<span class="c1"># pip install pyside6</span>
+<span class="c1">#</span>
+<span class="kn">from</span> <span class="nn">PySide6.QtWidgets</span> <span class="kn">import</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QApplication</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(levelname)s</span><span class="s1">:</span><span class="si">%(name)s</span><span class="s1">:</span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span>
                     <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
-
-<span class="c1"># pip install pyside6</span>
-<span class="kn">from</span> <span class="nn">PySide6.QtWidgets</span> <span class="kn">import</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QApplication</span>
-<span class="kn">from</span> <span class="nn">OpenGL.GL</span> <span class="kn">import</span> <span class="o">*</span>
 
 
 <span class="k">class</span> <span class="nc">Window</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
         <span class="c1"># setup opengl widget</span>
-        <span class="kn">import</span> <span class="nn">glglue.gl3</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">glglue</span><span class="o">.</span><span class="n">gl3</span><span class="o">.</span><span class="n">SampleController</span><span class="p">()</span>
+        <span class="kn">import</span> <span class="nn">glglue.gl3.samplecontroller</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">glglue</span><span class="o">.</span><span class="n">gl3</span><span class="o">.</span><span class="n">samplecontroller</span><span class="o">.</span><span class="n">SampleController</span><span class="p">()</span>
         <span class="kn">import</span> <span class="nn">glglue.pyside6</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">glwidget</span> <span class="o">=</span> <span class="n">glglue</span><span class="o">.</span><span class="n">pyside6</span><span class="o">.</span><span class="n">Widget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="p">)</span>
+        <span class="kn">import</span> <span class="nn">glglue.utils</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">glwidget</span> <span class="o">=</span> <span class="n">glglue</span><span class="o">.</span><span class="n">pyside6</span><span class="o">.</span><span class="n">Widget</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="p">,</span> <span class="n">glglue</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_desktop_scaling_factor</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">glwidget</span><span class="p">)</span>
 
 

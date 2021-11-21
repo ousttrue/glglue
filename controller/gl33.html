@@ -52,25 +52,28 @@
 <div class="literal-block-wrapper docutils container" id="id1">
 <div class="code-block-caption"><span class="caption-text">HEAD src/glglue/gl3/samplecontroller.py</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
-<span class="kn">from</span> <span class="nn">OpenGL.GL</span> <span class="kn">import</span> <span class="p">(</span><span class="n">glClear</span><span class="p">,</span> <span class="n">glFlush</span><span class="p">,</span> <span class="n">glEnable</span><span class="p">,</span> <span class="n">glClearColor</span><span class="p">,</span> <span class="n">glViewport</span><span class="p">,</span>
-                       <span class="n">GL_COLOR_BUFFER_BIT</span><span class="p">,</span> <span class="n">GL_DEPTH_BUFFER_BIT</span><span class="p">,</span> <span class="n">GL_DEPTH_TEST</span><span class="p">)</span>
-<span class="kn">import</span> <span class="nn">glglue</span>
-<span class="kn">from</span> <span class="nn">.cube</span> <span class="kn">import</span> <span class="n">Cube</span>
-<span class="kn">from</span> <span class="nn">.axis</span> <span class="kn">import</span> <span class="n">Axis</span>
-
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">NamedTuple</span>
+<span class="kn">from</span> <span class="nn">OpenGL</span> <span class="kn">import</span> <span class="n">GL</span>
+<span class="kn">import</span> <span class="nn">glglue.basecontroller</span>
+<span class="kn">import</span> <span class="nn">glglue.ctypesmath</span>
+<span class="kn">import</span> <span class="nn">glglue.gl3.vbo</span>
+<span class="kn">import</span> <span class="nn">glglue.scene.material</span>
+<span class="kn">from</span> <span class="nn">..scene</span> <span class="kn">import</span> <span class="n">cube</span><span class="p">,</span> <span class="n">axis</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="nn">renderer</span> <span class="kn">import</span> <span class="n">Renderer</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">SampleController</span><span class="p">(</span><span class="n">glglue</span><span class="o">.</span><span class="n">basecontroller</span><span class="o">.</span><span class="n">BaseController</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clear_color</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="n">Axis</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cube</span> <span class="o">=</span> <span class="n">Cube</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">create_axis</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drawables</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">cube</span><span class="o">.</span><span class="n">create_cube</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">camera</span> <span class="o">=</span> <span class="n">glglue</span><span class="o">.</span><span class="n">ctypesmath</span><span class="o">.</span><span class="n">Camera</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">isInitialized</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span> <span class="o">=</span> <span class="n">Renderer</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">onResize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="n">glViewport</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glViewport</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">onResize</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">onLeftDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -112,23 +115,28 @@
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        milliseconds</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cube</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">drawable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">drawables</span><span class="p">:</span>
+            <span class="n">drawable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">False</span>
 
     <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">glEnable</span><span class="p">(</span><span class="n">GL_DEPTH_TEST</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glEnable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_DEPTH_TEST</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">isInitialized</span> <span class="o">=</span> <span class="bp">True</span>
 
     <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isInitialized</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
-        <span class="n">glClearColor</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">clear_color</span><span class="p">)</span>
-        <span class="n">glClear</span><span class="p">(</span><span class="n">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="n">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glClearColor</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">clear_color</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glClear</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span>
+                   <span class="n">GL</span><span class="o">.</span><span class="n">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">projection</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cube</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">projection</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">projection</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">drawable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">drawables</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">drawable</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">projection</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
 
-        <span class="n">glFlush</span><span class="p">()</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glFlush</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
