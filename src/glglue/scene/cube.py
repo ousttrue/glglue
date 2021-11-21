@@ -5,32 +5,7 @@ from OpenGL import GL
 from .mesh import Mesh
 from .material import Material
 from .vertices import Interleaved, TypedBytes
-
-CUBE_VS = '''
-#version 330
-in vec3 aPosition;
-in vec3 aColor;
-out vec3 vColor;
-uniform mediump mat4 m;
-uniform mediump mat4 vp;
-
-
-void main ()
-{
-    gl_Position = vec4(aPosition, 1) * m * vp;
-    vColor = aColor;
-}
-'''
-
-CUBE_FS = '''
-#version 330
-in vec3 vColor;
-out vec4 fColor;
-void main()
-{
-    fColor = vec4(vColor, 1);
-}
-'''
+import pkgutil
 
 
 class Vertex(ctypes.Structure):
@@ -133,6 +108,12 @@ def create_cube(s: float) -> Mesh:
     mesh = Mesh(f'cube {s}', Interleaved(
         TypedBytes(memoryview(vertices).tobytes(), ctypes.c_float, 6), [0, 12]),
         TypedBytes.create(indices))
-    material = Material('cube', CUBE_VS, CUBE_FS)
+    vs = pkgutil.get_data('glglue', 'assets/cube.vs')
+    if not vs:
+        raise Exception()
+    fs = pkgutil.get_data('glglue', 'assets/cube.fs')
+    if not fs:
+        raise Exception()
+    material = Material('cube', vs.decode('utf-8'), fs.decode('utf-8'))
     mesh.add_submesh(material, [], GL.GL_TRIANGLES)
     return mesh
