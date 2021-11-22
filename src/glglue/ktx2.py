@@ -4,7 +4,7 @@ https://github.khronos.org/KTX-Specification/
 '''
 import pathlib
 import struct
-from typing import NamedTuple, List, Dict
+from typing import NamedTuple, List, Dict, Any
 from enum import Enum
 
 
@@ -475,11 +475,32 @@ class Ktx2(NamedTuple):
 
     levelIndices: List[LevelIndex]
 
+    dfd: Any
+
     kv: Dict[int, bytes]
 
     supercompressionGlobalData: bytes
 
     levelImages: List[bytes]
+
+
+class DFDBasicFlags(NamedTuple):
+    colorModel: int
+    colorPrimaries: int
+    transferFunction: int
+    flags: int
+    texelBlockDimension0: int
+    texelBlockDimension1: int
+    texelBlockDimension2: int
+    texelBlockDimension3: int
+    bytesPlane0: int
+    bytesPlane1: int
+    bytesPlane2: int
+    bytesPlane3: int
+    bytesPlane4: int
+    bytesPlane5: int
+    bytesPlane6: int
+    bytesPlane7: int
 
 
 def parse_dfd(data: bytes):
@@ -489,7 +510,20 @@ def parse_dfd(data: bytes):
     if descriptorType_vendorId != 0:
         raise NotImplementedError()
     versionNumber = r.read_uint16()
-    descriptorBlockSize  = r.read_uint16()
+    descriptorBlockSize = r.read_uint16()
+    match descriptorType_vendorId:
+        case 0:
+            # Basic
+            dfd = DFDBasicFlags(*r.read(16))
+            sample_count = (descriptorBlockSize - 24)//16
+            samples = [r.read(16) for _ in range(sample_count)]
+            return dfd, samples
+
+        case _:
+            raise NotImplementedError()
+
+
+def parse_level_image(data: bytes, layer_count: int, face_count: int):
     pass
 
 
@@ -524,24 +558,28 @@ def parse_bytes(data: bytes) -> Ktx2:
                     for _ in range(levelCount)]
 
     # Data Format Descriptor
-    dfd = r.read(dfdByteLength)
-    parse_dfd(dfd)
+    dfd, samples = parse_dfd(r.read(dfdByteLength))
 
     # Key/Value Data
     assert r.pos == kvdByteOffset
     # skip
     # r.read(kvdByteLength)
     kvdEnd = kvdByteOffset + kvdByteLength
-    kv: Dict[int, bytes] = {}
+    kv: Dict[str, bytes] = {}
     while r.pos < kvdEnd:
         keyAndValueByteLength = r.read_uint32()
-        keyAndValue = r.read(keyAndValueByteLength)
+        if keyAndValueByteLength >= 2:
+            keyAndValue = r.read(keyAndValueByteLength)
+            pos = keyAndValue.find(0)
+            key = keyAndValue[:pos].decode('utf-8')
+            kv[key] = keyAndValue[pos+1:]
+        # skip padding
         padding = r.get_padding_size(4)
         _ = r.read(padding)
 
     if (sgdByteLength > 0):
+        # skip padding
         padding = r.get_padding_size(8)
-        # skip
         _ = r.read(padding)
 
     # Supercompression Global Data
@@ -550,7 +588,7 @@ def parse_bytes(data: bytes) -> Ktx2:
     # Mip Level Array
     if levelCount == 0:
         levelCount = 1
-    levelImages = [r.read(levelIndices[i].byteLength)
+    levelImages = [parse_level_image(r.read(levelIndices[i].byteLength), layerCount, faceCount)
                    for i in range(levelCount)]
 
     assert r.is_end()
@@ -572,6 +610,7 @@ def parse_bytes(data: bytes) -> Ktx2:
         sgdByteOffset,
         sgdByteLength,
         levelIndices,
+        (dfd, samples),
         kv,
         supercompressionGlobalData,
         levelImages)
