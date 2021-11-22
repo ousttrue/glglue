@@ -1,9 +1,10 @@
 '''
 https://github.khronos.org/KTX-Specification/
+* https://www.khronos.org/registry/DataFormat/specs/1.3/dataformat.1.3.html#_anchor_id_basicdescriptor_xreflabel_basicdescriptor_khronos_basic_data_format_descriptor_block
 '''
 import pathlib
 import struct
-from typing import NamedTuple, List
+from typing import NamedTuple, List, Dict
 from enum import Enum
 
 
@@ -390,6 +391,13 @@ class VkFormat(Enum):
     VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM_KHR = VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM
 
 
+class SupercompressionScheme(Enum):
+    NONE = 0
+    BasisLZ = 1
+    Zstandard = 2
+    ZLIB = 3
+
+
 class Const:
     # IDENTIFIER = bytes((0xAB,0x4B,0x54,0x58,0x20,0x32,0x30,0xBB,0x0D,0x0A,0x1A,0x0A))
     IDENTIFIER = b'\xABKTX 20\xBB\r\n\x1A\n'
@@ -416,6 +424,8 @@ class BytesReader:
         return alignment-mod
 
     def read(self, size: int) -> bytes:
+        if size == 0:
+            return b''
         if self.pos+size > len(self.data):
             raise IOError()
         data = self.data[self.pos:self.pos+size]
@@ -450,7 +460,7 @@ class Ktx2(NamedTuple):
     layerCount: int
     faceCount: int
     levelCount: int
-    supercompressionScheme: int
+    supercompressionScheme: SupercompressionScheme
 
     dfdByteOffset: int
     dfdByteLength: int
@@ -460,6 +470,8 @@ class Ktx2(NamedTuple):
     sgdByteLength: int
 
     levelIndices: List[LevelIndex]
+
+    kv: Dict[int, bytes]
 
     supercompressionGlobalData: bytes
 
@@ -482,7 +494,7 @@ def parse_bytes(data: bytes) -> Ktx2:
     layerCount = r.read_uint32()
     faceCount = r.read_uint32()
     levelCount = r.read_uint32()
-    supercompressionScheme = r.read_uint32()
+    supercompressionScheme = SupercompressionScheme(r.read_uint32())
 
     # Index
     dfdByteOffset = r.read_uint32()
@@ -504,7 +516,14 @@ def parse_bytes(data: bytes) -> Ktx2:
     # Key/Value Data
     assert r.pos == kvdByteOffset
     # skip
-    r.read(kvdByteLength)
+    # r.read(kvdByteLength)
+    kvdEnd = kvdByteOffset + kvdByteLength
+    kv: Dict[int, bytes] = {}
+    while r.pos < kvdEnd:
+        keyAndValueByteLength = r.read_uint32()
+        keyAndValue = r.read(keyAndValueByteLength)
+        padding = r.get_padding_size(4)
+        _ = r.read(padding)
 
     if (sgdByteLength > 0):
         padding = r.get_padding_size(8)
@@ -539,6 +558,7 @@ def parse_bytes(data: bytes) -> Ktx2:
         sgdByteOffset,
         sgdByteLength,
         levelIndices,
+        kv,
         supercompressionGlobalData,
         levelImages)
 
