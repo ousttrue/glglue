@@ -436,6 +436,10 @@ class BytesReader:
         data = self.read(4)
         return struct.unpack('i', data)[0]
 
+    def read_uint16(self) -> int:
+        data = self.read(2)
+        return struct.unpack('H', data)[0]
+
     def read_uint32(self) -> int:
         data = self.read(4)
         return struct.unpack('I', data)[0]
@@ -478,6 +482,17 @@ class Ktx2(NamedTuple):
     levelImages: List[bytes]
 
 
+def parse_dfd(data: bytes):
+    r = BytesReader(data)
+    dfdTotalSize = r.read_uint32()
+    descriptorType_vendorId = r.read_uint32()
+    if descriptorType_vendorId != 0:
+        raise NotImplementedError()
+    versionNumber = r.read_uint16()
+    descriptorBlockSize  = r.read_uint16()
+    pass
+
+
 def parse_bytes(data: bytes) -> Ktx2:
     r = BytesReader(data)
     match r.read(12):
@@ -509,9 +524,8 @@ def parse_bytes(data: bytes) -> Ktx2:
                     for _ in range(levelCount)]
 
     # Data Format Descriptor
-    # dfdTotalSize = r.read_uint32()
-    # skip
-    r.read(dfdByteLength)
+    dfd = r.read(dfdByteLength)
+    parse_dfd(dfd)
 
     # Key/Value Data
     assert r.pos == kvdByteOffset
