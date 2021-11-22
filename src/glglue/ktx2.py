@@ -1,6 +1,7 @@
 '''
 https://github.khronos.org/KTX-Specification/
-* https://www.khronos.org/registry/DataFormat/specs/1.3/dataformat.1.3.html#_anchor_id_basicdescriptor_xreflabel_basicdescriptor_khronos_basic_data_format_descriptor_block
+# _anchor_id_basicdescriptor_xreflabel_basicdescriptor_khronos_basic_data_format_descriptor_block
+* https://www.khronos.org/registry/DataFormat/specs/1.3/dataformat.1.3.html
 '''
 import pathlib
 import struct
@@ -477,11 +478,11 @@ class Ktx2(NamedTuple):
 
     dfd: Any
 
-    kv: Dict[int, bytes]
+    kv: Dict[str, bytes]
 
     supercompressionGlobalData: bytes
 
-    levelImages: List[bytes]
+    levelImages: List[Any]
 
 
 class DFDBasicFlags(NamedTuple):
@@ -523,8 +524,46 @@ def parse_dfd(data: bytes):
             raise NotImplementedError()
 
 
-def parse_level_image(data: bytes, layer_count: int, face_count: int):
-    pass
+class Image(NamedTuple):
+    data: bytes
+    width: int
+    height: int
+
+
+class CubeMap(NamedTuple):
+    X_positive: Image
+    x_negative: Image
+    y_positive: Image
+    y_negative: Image
+    z_positive: Image
+    z_negative: Image
+
+
+def get_stride(format: VkFormat) -> int:
+    match format:
+        case VkFormat.VK_FORMAT_R16G16B16A16_SFLOAT:
+            return 8
+        case _:
+            raise NotImplementedError()
+
+
+def parse_cubemap(level: int, data: bytes, width: int, height: int, format: VkFormat) -> CubeMap:
+
+    stride = get_stride(format)
+
+    factor = 1
+    if level > 0:
+        factor = pow(2, level)
+
+    width = width//factor
+    height = height//factor
+    image_size = width * height * stride
+    assert image_size * 6 == len(data)
+
+    r = BytesReader(data)
+    cubemap = CubeMap(
+        *[Image(r.read(image_size), width, height) for _ in range(6)])
+    return cubemap
 
 
 def parse_bytes(data: bytes) -> Ktx2:
@@ -588,8 +627,24 @@ def parse_bytes(data: bytes) -> Ktx2:
     # Mip Level Array
     if levelCount == 0:
         levelCount = 1
-    levelImages = [parse_level_image(r.read(levelIndices[i].byteLength), layerCount, faceCount)
-                   for i in range(levelCount)]
+    if layerCount == 0:
+        layerCount = 1
+    if pixelDepth == 0:
+        pixelDepth = 1
+    match layerCount, pixelDepth:
+        case 1, 1:
+            if faceCount == 6:
+                levelImages = []
+                for level in range(levelCount):
+                    level_width = pixelWidth
+                    level_height = pixelHeight
+                    levelImages.append(parse_cubemap(level,
+                                                     r.read(levelIndices[level].byteLength), level_width, level_height, vkFormat))
+
+            else:
+                raise NotImplementedError()
+        case _:
+            raise NotImplementedError()
 
     assert r.is_end()
 
