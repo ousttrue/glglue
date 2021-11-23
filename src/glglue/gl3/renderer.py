@@ -1,16 +1,20 @@
 from typing import Dict, Union, Tuple
+
+
 from ..scene.node import Node
 from ..scene.mesh import Mesh
-from ..scene.material import Material, Texture
+from ..scene.material import Material, Texture, CubeMap
 from ..ctypesmath.mat4 import Mat4
 import glglue.gl3.vbo
 import glglue.gl3.shader
 import glglue.gl3.texture
+from OpenGL import GL
 
 
 class Renderer:
     def __init__(self) -> None:
         self.textures: Dict[Texture, glglue.gl3.texture.Texture] = {}
+        self.cubemaps: Dict[CubeMap, glglue.gl3.texture.CubeMap] = {}
         self.shaders: Dict[glglue.gl3.shader.ShaderSource,
                            glglue.gl3.shader.Shader] = {}
         self.meshes: Dict[Mesh, glglue.gl3.vbo.Drawable] = {}
@@ -20,9 +24,17 @@ class Renderer:
         if not texture:
             texture = glglue.gl3.texture.Texture()
             image = src.image
-            texture.set_image(image.data, image.width, image.height)
+            texture.load(image.data, image.width, image.height)
             self.textures[src] = texture
         return texture
+
+    def _get_or_create_cubemap(self, src: CubeMap) -> glglue.gl3.texture.CubeMap:
+        cubemap = self.cubemaps.get(src)
+        if not cubemap:
+            cubemap = glglue.gl3.texture.CubeMap()
+            cubemap.load(*src)
+            self.cubemaps[src] = cubemap
+        return cubemap
 
     def _get_or_create_shader(self, src: Material, macro: Tuple[str, ...]) -> glglue.gl3.shader.Shader:
         shader_source = glglue.gl3.shader.ShaderSource(
@@ -50,15 +62,34 @@ class Renderer:
                 submesh.material, tuple(submesh.macro))
 
             shader.use()
-            shader.set_uniform('vp', view * projection)
-            shader.set_uniform('m', model)
 
-            if submesh.material.color_texture:
-                texture = self._get_or_create_texture(
-                    submesh.material.color_texture)
-                shader.set_texture('COLOR_TEXTURE', 0, texture)
+            material = submesh.material
+            if material.cubemap:
 
-            drawable.draw(submesh.topology, submesh.offset, submesh.draw_count)
+                shader.set_uniform('V', view, False)
+                shader.set_uniform('P', projection, False)
+
+                GL.glEnable(GL.GL_CULL_FACE)
+                GL.glDepthMask(GL.GL_FALSE)
+                cubemap = self._get_or_create_cubemap(material.cubemap)
+                cubemap.bind()
+                GL.glActiveTexture(GL.GL_TEXTURE0)
+                drawable.draw(submesh.topology, submesh.offset,
+                              submesh.draw_count)
+                GL.glDepthMask(GL.GL_TRUE)
+
+            else:
+
+                shader.set_uniform('vp', view * projection)
+                shader.set_uniform('m', model)
+
+                if submesh.material.color_texture:
+                    texture = self._get_or_create_texture(
+                        submesh.material.color_texture)
+                    shader.set_texture('COLOR_TEXTURE', 0, texture)
+
+                drawable.draw(submesh.topology, submesh.offset,
+                              submesh.draw_count)
 
     def _draw_node(self, node: Node, projection: Mat4, view: Mat4, parent: Mat4):
         m = node.model_matrix * parent

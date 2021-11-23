@@ -13,7 +13,7 @@ logger = getLogger(__name__)
 class SampleController(glglue.basecontroller.BaseController):
     def __init__(self):
         self.clear_color = (0.6, 0.6, 0.4, 0.0)
-        self.axis = axis.create_axis(1.0)
+        self.env: List[Any] = [axis.create_axis(1.0)]
         self.drawables: List[Any] = [cube.create_cube(0.3)]
         self.camera = glglue.ctypesmath.Camera()
         self.isInitialized = False
@@ -67,6 +67,8 @@ class SampleController(glglue.basecontroller.BaseController):
         return False
 
     def initialize(self):
+        import glglue
+        print(glglue.get_info())
         GL.glEnable(GL.GL_DEPTH_TEST)
         self.isInitialized = True
 
@@ -77,8 +79,9 @@ class SampleController(glglue.basecontroller.BaseController):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT |
                    GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
 
-        self.renderer.draw(
-            self.axis, self.camera.projection.matrix, self.camera.view.matrix)
+        for e in self.env:
+            self.renderer.draw(
+                e, self.camera.projection.matrix, self.camera.view.matrix)
         for drawable in self.drawables:
             self.renderer.draw(drawable, self.camera.projection.matrix,
                                self.camera.view.matrix)

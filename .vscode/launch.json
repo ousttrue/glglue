@@ -54,9 +54,13 @@
             "stopOnEntry": false,
             "program": "${workspaceFolder}/examples/gltf_sample.py",
             "args": [
-                "${env:GLTF_SAMPLE_MODELS}/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
+                "--cubemap",
+                "${env:GLTF_SAMPLE_ENVIRONMENTS}/chromatic/ggx/specular.ktx2",
+                "--load",
+                "${env:GLTF_SAMPLE_MODELS}/2.0/BoxTextured/glTF-Binary/BoxTextured.glb",
             ],
             "cwd": "${workspaceRoot}",
+            "justMyCode": false,
         },
         {
             "name": "imgui_sample",
