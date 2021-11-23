@@ -69,6 +69,7 @@ class Renderer:
                 shader.set_uniform('V', view, False)
                 shader.set_uniform('P', projection, False)
 
+                GL.glEnable(GL.GL_CULL_FACE)
                 GL.glDepthMask(GL.GL_FALSE)
                 cubemap = self._get_or_create_cubemap(material.cubemap)
                 cubemap.bind()

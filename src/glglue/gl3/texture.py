@@ -2,6 +2,10 @@ from OpenGL import GL
 from OpenGL.raw.GL.VERSION.GL_1_0 import glTexImage2D
 
 
+import OpenGL.images
+OpenGL.images.TYPE_TO_ARRAYTYPE[GL.GL_HALF_FLOAT] = GL.GL_UNSIGNED_SHORT
+
+
 class Texture:
     def __init__(self) -> None:
         self.texture = GL.glGenTextures(1)
@@ -51,7 +55,7 @@ class CubeMap:
             height,
             0,
             GL.GL_RGBA,
-            GL.GL_UNSIGNED_BYTE,
+            GL.GL_HALF_FLOAT,
             data)
 
     def load(self, xp, xn, yp, yn, zp, zn):

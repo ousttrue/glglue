@@ -3,7 +3,7 @@ import pathlib
 import logging
 import glglue.gltf
 import glglue.gltf_loader
-import glglue.ktx2
+import pyktx2.parser
 import glglue.gl3.vbo
 import glglue.gl3.shader
 import glglue.gl3.texture
@@ -59,14 +59,24 @@ class Window(QtWidgets.QMainWindow):
         self.glwidget.repaint()
 
     def load_cubemap(self, path: pathlib.Path):
-        ktx2 = glglue.ktx2.parse_path(path)
+        ktx2 = pyktx2.parser.parse_path(path)
 
-        match ktx2.levelImages[0]:
-            case glglue.ktx2.CubeMap() as cubemap_data:
-                cubemap = glglue.scene.cubemap.create_cubemap(
-                    CubeMap(*cubemap_data))
-                self.controller.env.insert(0, cubemap)
+        def get_level_image(ktx2: pyktx2.parser.Ktx2, level=-1, layer=0, depth=0):
+            if level == -1:
+                level = max(1, ktx2.levelCount) - 1
+            it = iter(ktx2.levelImages)
+            for i in range(max(1, ktx2.levelCount)):
+                for j in range(max(1, ktx2.layerCount)):
+                    for k in range(max(1, ktx2.faceCount)):
+                        for l in range(max(1, ktx2.pixelDepth)):
+                            image = next(it)
+                            if i == level and j == layer and l == depth:
+                                yield image
 
+        cubemap_data = CubeMap(*get_level_image(ktx2, 0))
+
+        cubemap = glglue.scene.cubemap.create_cubemap(cubemap_data)
+        self.controller.env.insert(0, cubemap)
         self.glwidget.repaint()
 
 
