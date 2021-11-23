@@ -1,6 +1,8 @@
 from typing import NamedTuple
 import io
 from PIL import Image
+import logging
+logging.getLogger('PIL').setLevel(logging.WARNING)
 
 
 class Image32(NamedTuple):
@@ -12,7 +14,7 @@ class Image32(NamedTuple):
     def load(src: bytes) -> 'Image32':
         image = Image.open(io.BytesIO(src))
         if image.mode != 'RGBA':
-            image = image.convert('RGBA')        
+            image = image.convert('RGBA')
         data = image.tobytes('raw')
         return Image32(data, image.width, image.height)
 
