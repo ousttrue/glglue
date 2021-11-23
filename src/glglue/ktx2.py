@@ -531,7 +531,7 @@ class Image(NamedTuple):
 
 
 class CubeMap(NamedTuple):
-    X_positive: Image
+    x_positive: Image
     x_negative: Image
     y_positive: Image
     y_negative: Image

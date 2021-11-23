@@ -22,10 +22,11 @@ class UniformMat4:
         self.name = name
         self.location = -1
 
-    def set(self, value: ctypesmath.Mat4) -> None:
+    def set(self, value: ctypesmath.Mat4, transpose=True) -> None:
         if self.location < 0:
             self.location = GL.glGetUniformLocation(self.program, self.name)
-        GL.glUniformMatrix4fv(self.location, 1, GL.GL_TRUE, value.to_array())
+        GL.glUniformMatrix4fv(
+            self.location, 1, GL.GL_TRUE if transpose else GL.GL_FALSE, value.to_array())
 
 
 class ShaderSource(NamedTuple):
@@ -44,10 +45,7 @@ class ShaderSource(NamedTuple):
 class Shader:
     def __init__(self) -> None:
         self.program = GL.glCreateProgram()
-        self.uniforms = {
-            'm': UniformMat4(self.program, 'm'),
-            'vp': UniformMat4(self.program, 'vp'),
-        }
+        self.uniforms = {}
 
     def __del__(self) -> None:
         GL.glDeleteProgram(self.program)
@@ -77,10 +75,12 @@ class Shader:
     def unuse(self):
         GL.glUseProgram(0)
 
-    def set_uniform(self, name: str, value: Any):
+    def set_uniform(self, name: str, value: Any, transpose=True):
         u = self.uniforms.get(name)
-        if u:
-            u.set(value)
+        if not u:
+            u = UniformMat4(self.program, name)
+            self.uniforms[name] = u
+        u.set(value, transpose)
 
     def set_texture(self, name: str, slot: int, texture: Texture):
         location = GL.glGetUniformLocation(self.program, name)

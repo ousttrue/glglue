@@ -1,6 +1,6 @@
 from typing import Optional
 from typing import Optional
-from .texture import Texture
+from .texture import Texture, CubeMap
 
 
 class Material:
@@ -9,3 +9,4 @@ class Material:
         self.vs = vs
         self.fs = fs
         self.color_texture: Optional[Texture] = None
+        self.cubemap: Optional[CubeMap] = None
