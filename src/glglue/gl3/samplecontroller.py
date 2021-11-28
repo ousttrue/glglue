@@ -68,7 +68,7 @@ class SampleController(glglue.basecontroller.BaseController):
 
     def initialize(self):
         import glglue
-        print(glglue.get_info())
+        logger.info(glglue.get_info())
         GL.glEnable(GL.GL_DEPTH_TEST)
         self.isInitialized = True
 

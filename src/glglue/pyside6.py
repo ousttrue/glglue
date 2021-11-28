@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from PySide6 import QtCore
-from PySide6 import QtOpenGLWidgets
-from PySide6.QtGui import QSurfaceFormat
+import logging
+from PySide6 import QtCore, QtGui, QtOpenGLWidgets, QtWidgets
 from .basecontroller import BaseController
 
 
@@ -17,13 +16,13 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
         self.dpi_Scale = dpi_scale
 
         if core_profile:
-            format = QSurfaceFormat()
+            format = QtGui.QSurfaceFormat()
             format.setDepthBufferSize(24)
             format.setStencilBufferSize(8)
             format.setVersion(3, 2)
-            format.setProfile(QSurfaceFormat.CoreProfile)
+            format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
             # self.setFormat(format)
-            QSurfaceFormat.setDefaultFormat(format)
+            QtGui.QSurfaceFormat.setDefaultFormat(format)
             # must be called before the widget or its parent window gets shown
 
     def minimumSizeHint(self):
@@ -68,3 +67,29 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
     def wheelEvent(self, event):
         if self.controller.onWheel(-event.angleDelta().y()):
             self.repaint()
+
+
+class QPlainTextEditLogHandler(QtWidgets.QPlainTextEdit, logging.Handler):
+    def __init__(self, parent):
+        super().__init__(parent)
+        logging.Handler.__init__(self)
+
+        self.setReadOnly(True)
+
+    def emit(self, record):
+        msg = self.format(record)
+
+        if record.levelno == logging.DEBUG:
+            msg = f'<font color="gray">{msg}</font><br>'
+        elif record.levelno == logging.WARNING:
+            msg = f'<font color="orange">{msg}</font><br>'
+        elif record.levelno == logging.ERROR:
+            msg = f'<font color="red">{msg}</font><br>'
+        else:
+            msg = f'{msg}<br>'
+
+        self.textCursor().movePosition(QtGui.QTextCursor.Start)
+        self.textCursor().insertHtml(msg)
+
+    def write(self, m):
+        pass

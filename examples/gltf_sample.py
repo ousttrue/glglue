@@ -35,6 +35,13 @@ class Window(QtWidgets.QMainWindow):
         open_action.triggered.connect(self.open_dialog)  # type: ignore
         file_menu.addAction(open_action)
 
+        # logger
+        self.log_handler = glglue.pyside6.QPlainTextEditLogHandler(self)
+        logging.getLogger('').addHandler(self.log_handler)
+        self.dock_bottom = QtWidgets.QDockWidget("logger", self)
+        self.addDockWidget(QtGui.Qt.BottomDockWidgetArea, self.dock_bottom)
+        self.dock_bottom.setWidget(self.log_handler)
+
     @QtCore.Slot()  # type: ignore
     def open_dialog(self):
         dialog = QtWidgets.QFileDialog(self, caption="open bvh")
@@ -50,6 +57,7 @@ class Window(QtWidgets.QMainWindow):
         self.load(path)
 
     def load(self, path: pathlib.Path):
+        logger.info(f'load: {path}')
         gltf = gltfio.parse_path(path)
 
         # create mesh

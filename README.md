@@ -27,7 +27,7 @@ GUI                         OpenGL controller
 ## TODO
 
 * [x] scene: node transform
-* [ ] pyside6: logger
+* [x] pyside6: logger
 * [ ] camera fit on load
 
 ## History
