@@ -29,6 +29,8 @@ GUI                         OpenGL controller
 * [x] scene: node transform
 * [x] pyside6: logger
 * [ ] camera fit on load
+* [ ] join submesh
+* [ ] loop framerate
 
 ## History
 

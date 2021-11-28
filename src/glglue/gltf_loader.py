@@ -24,8 +24,6 @@ FS = get_shader('gltf.fs')
 
 
 def get_transform(gltf_node: GltfNode) -> Union[ctypesmath.Mat4, ctypesmath.TRS]:
-    return ctypesmath.Mat4.new_identity()
-
     if gltf_node.matrix:
         return ctypesmath.Mat4(*gltf_node.matrix)
 

@@ -87,4 +87,29 @@ class Gizmo:
         self._add_line(Float4(0, 0, 0.5, 1), origin, Float3(0, 0, -size))
 
     def aabb(self, aabb: AABB):
-        pass
+        color = Float4(1, 1, 1, 1)
+        match aabb:
+            case AABB(Float3(nx, ny, nz), Float3(px, py, pz)):
+                t0 = Float3(nx, py, nz)
+                t1 = Float3(px, py, nz)
+                t2 = Float3(px, py, pz)
+                t3 = Float3(nx, py, pz)
+                b0 = Float3(nx, ny, nz)
+                b1 = Float3(px, ny, nz)
+                b2 = Float3(px, ny, pz)
+                b3 = Float3(nx, ny, pz)
+                # top
+                self._add_line(color, t0, t1)
+                self._add_line(color, t1, t2)
+                self._add_line(color, t2, t3)
+                self._add_line(color, t3, t0)
+                # bottom
+                self._add_line(color, b0, b1)
+                self._add_line(color, b1, b2)
+                self._add_line(color, b2, b3)
+                self._add_line(color, b3, b0)
+                # side
+                self._add_line(color, t0, b0)
+                self._add_line(color, t1, b1)
+                self._add_line(color, t2, b2)
+                self._add_line(color, t3, b3)
