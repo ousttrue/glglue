@@ -25,7 +25,7 @@ class Node:
     def expand_aabb(self, aabb: AABB, parent: Optional[Mat4] = None) -> AABB:
         if not parent:
             parent = Mat4.new_identity()
-        m = parent * self.get_local_matrix()
+        m = self.get_local_matrix() * parent
 
         if self.meshes:
             local_aabb = AABB.new_empty()
