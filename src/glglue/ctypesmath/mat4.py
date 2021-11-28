@@ -2,6 +2,8 @@ import ctypes
 import math
 from typing import Tuple
 
+from glglue.ctypesmath.float3 import Float3
+
 
 class Mat4(ctypes.Structure):
     _fields_ = [("_11", ctypes.c_float), ("_12", ctypes.c_float),
@@ -55,8 +57,16 @@ class Mat4(ctypes.Structure):
             self._43 * rhs._34 + self._44 * rhs._44
         return m
 
-    def apply(self, x: float, y: float, z: float) -> Tuple[float, float, float]:
-        return (
+    def transposed(self) -> 'Mat4':
+        return Mat4(
+            self._11, self._21, self._31, self._41,
+            self._12, self._22, self._32, self._42,
+            self._13, self._23, self._33, self._43,
+            self._14, self._24, self._34, self._44
+        )
+
+    def apply(self, x: float, y: float, z: float) -> Float3:
+        return Float3(
             x * self._11 + y * self._21 + z * self._31 + self._41,
             x * self._12 + y * self._22 + z * self._32 + self._42,
             x * self._13 + y * self._23 + z * self._33 + self._43
@@ -184,6 +194,12 @@ class Mat4(ctypes.Structure):
             2*zx+2*wy, 2*yz-2*wx, 1-2*xx-2*yy, 0,
             0, 0, 0, 1
         )
+        # return Mat4(
+        #     1-2*yy-2*xx, 2*xy-2*wz, 2*zx+2*wy, 0,
+        #     2*xy+2*wz, 1-2*xx-2*zz, 2*yz-2*wx, 0 ,
+        #     2*zx-2*wy, 2*yz+2*wx, 1-2*xx-2*yy, 0,
+        #     0, 0, 0, 1
+        # )
 
 
 class Float4(ctypes.Structure):

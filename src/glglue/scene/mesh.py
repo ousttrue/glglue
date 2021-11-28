@@ -1,6 +1,7 @@
 from typing import List, Optional, Union
 from .material import Material
 from .vertices import Planar, Interleaved, TypedBytes
+from glglue import ctypesmath
 
 
 class Submesh:
@@ -19,6 +20,8 @@ class Mesh:
         self.indices = indices
         self.vertices = vertices
         self.submeshes: List[Submesh] = []
+        # without skinning.
+        self.aabb = ctypesmath.AABB.new_empty()
 
     def update(self, delta):
         pass

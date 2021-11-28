@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Optional, Union
 from ..ctypesmath import *
 from . import mesh
 
@@ -21,3 +21,20 @@ class Node:
                 return trs.to_matrix()
             case _:
                 raise RuntimeError()
+
+    def expand_aabb(self, aabb: AABB, parent: Optional[Mat4] = None) -> AABB:
+        if not parent:
+            parent = Mat4.new_identity()
+        m = parent * self.get_local_matrix()
+
+        if self.meshes:
+            local_aabb = AABB.new_empty()
+            for mesh in self.meshes:
+                local_aabb = local_aabb.expand(mesh.aabb)
+            world_aabb = local_aabb.transform(m)
+            aabb = aabb.expand(world_aabb)
+            
+        for child in self.children:
+            aabb = child.expand_aabb(aabb, m)
+
+        return aabb

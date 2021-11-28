@@ -3,6 +3,7 @@ import pathlib
 import logging
 import gltfio
 import glglue.gltf_loader
+import glglue.ctypesmath
 import pyktx2.parser
 import glglue.gl3.vbo
 import glglue.gl3.shader
@@ -64,8 +65,9 @@ class Window(QtWidgets.QMainWindow):
         loader = glglue.gltf_loader.GltfLoader(gltf)
         scene = loader.load()
         self.controller.drawables = [scene]
-        bb = scene.get_aabb()
-        logger.info(bb)
+        aabb = glglue.ctypesmath.AABB.new_empty()
+        aabb = scene.expand_aabb(aabb)
+        logger.info(aabb)
         # self.controller.camera.fit(scene)
         self.glwidget.repaint()
 

@@ -24,6 +24,8 @@ FS = get_shader('gltf.fs')
 
 
 def get_transform(gltf_node: GltfNode) -> Union[ctypesmath.Mat4, ctypesmath.TRS]:
+    return ctypesmath.Mat4.new_identity()
+
     if gltf_node.matrix:
         return ctypesmath.Mat4(*gltf_node.matrix)
 
@@ -79,6 +81,8 @@ class GltfLoader:
             indices = glglue.gl3.vbo.TypedBytes(*src.indices)
 
         mesh = Mesh(name, Planar(attributes), indices)
+        mesh.aabb = ctypesmath.AABB(ctypesmath.Float3(
+            *src.position_min), ctypesmath.Float3(*src.position_max))
         mesh.add_submesh(self.materials[src.material], macro, GL.GL_TRIANGLES)
         self.meshes[src] = mesh
 
@@ -106,6 +110,6 @@ class GltfLoader:
             for i, prim in enumerate(mesh.primitives):
                 self._load_mesh(f'{mesh.name}:{i}', prim)
 
-        scene = Node('__scene__', glglue.ctypesmath.Mat4.new_identity())
+        scene = Node('__scene__', ctypesmath.Mat4.new_identity())
         self._load(self.gltf.scene, scene)
         return scene
