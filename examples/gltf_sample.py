@@ -36,11 +36,11 @@ class Window(QtWidgets.QMainWindow):
         file_menu.addAction(open_action)
 
         # logger
-        self.log_handler = glglue.pyside6.QPlainTextEditLogHandler(self)
-        logging.getLogger('').addHandler(self.log_handler)
+        self.logger = glglue.pyside6.QPlainTextEditLogger(self)
+        logging.getLogger('').addHandler(self.logger.log_handler)
         self.dock_bottom = QtWidgets.QDockWidget("logger", self)
         self.addDockWidget(QtGui.Qt.BottomDockWidgetArea, self.dock_bottom)
-        self.dock_bottom.setWidget(self.log_handler)
+        self.dock_bottom.setWidget(self.logger)
 
     @QtCore.Slot()  # type: ignore
     def open_dialog(self):
@@ -64,6 +64,9 @@ class Window(QtWidgets.QMainWindow):
         loader = glglue.gltf_loader.GltfLoader(gltf)
         scene = loader.load()
         self.controller.drawables = [scene]
+        bb = scene.get_aabb()
+        logger.info(bb)
+        # self.controller.camera.fit(scene)
         self.glwidget.repaint()
 
     def load_cubemap(self, path: pathlib.Path):

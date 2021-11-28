@@ -21,13 +21,6 @@ class Window(QtWidgets.QMainWindow):
             self, self.controller, glglue.utils.get_desktop_scaling_factor())
         self.setCentralWidget(self.glwidget)
 
-        # logger
-        self.log_handler = glglue.pyside6.QPlainTextEditLogHandler(self)
-        logging.getLogger('').addHandler(self.log_handler)
-        self.dock_bottom = QtWidgets.QDockWidget("logger", self)
-        self.addDockWidget(QtGui.Qt.BottomDockWidgetArea, self.dock_bottom)
-        self.dock_bottom.setWidget(self.log_handler)
-
 
 if __name__ == "__main__":
     import sys

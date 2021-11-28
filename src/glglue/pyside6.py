@@ -69,12 +69,10 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
             self.repaint()
 
 
-class QPlainTextEditLogHandler(QtWidgets.QPlainTextEdit, logging.Handler):
-    def __init__(self, parent):
-        super().__init__(parent)
-        logging.Handler.__init__(self)
-
-        self.setReadOnly(True)
+class CustomLogger(logging.Handler):
+    def __init__(self, widget):
+        super().__init__()
+        self.widget = widget
 
     def emit(self, record):
         msg = self.format(record)
@@ -88,8 +86,14 @@ class QPlainTextEditLogHandler(QtWidgets.QPlainTextEdit, logging.Handler):
         else:
             msg = f'{msg}<br>'
 
-        self.textCursor().movePosition(QtGui.QTextCursor.Start)
-        self.textCursor().insertHtml(msg)
+        self.widget.textCursor().movePosition(QtGui.QTextCursor.Start)
+        self.widget.textCursor().insertHtml(msg)
 
     def write(self, m):
         pass
+
+class QPlainTextEditLogger(QtWidgets.QPlainTextEdit):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setReadOnly(True)
+        self.log_handler = CustomLogger(self)
