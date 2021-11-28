@@ -1,7 +1,7 @@
 from PySide6 import QtWidgets, QtGui, QtCore
 import pathlib
 import logging
-import glglue.gltf
+import gltfio
 import glglue.gltf_loader
 import pyktx2.parser
 import glglue.gl3.vbo
@@ -50,7 +50,7 @@ class Window(QtWidgets.QMainWindow):
         self.load(path)
 
     def load(self, path: pathlib.Path):
-        gltf = glglue.gltf.parse_path(path)
+        gltf = gltfio.parse_path(path)
 
         # create mesh
         loader = glglue.gltf_loader.GltfLoader(gltf)

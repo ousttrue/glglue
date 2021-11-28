@@ -1,7 +1,8 @@
 from typing import Dict, List
 import pkgutil
 from OpenGL import GL
-import glglue.gltf
+from gltfio.types import *
+from gltfio.parser import GltfData
 import glglue.gl3.vbo
 from .scene.texture import Image32, Texture
 from .scene.material import Material
@@ -22,28 +23,28 @@ FS = get_shader('gltf.fs')
 
 
 class GltfLoader:
-    def __init__(self, gltf: glglue.gltf.GltfData) -> None:
+    def __init__(self, gltf: GltfData) -> None:
         self.gltf = gltf
-        self.images: Dict[glglue.gltf.GltfImage, Image32] = {}
-        self.textures: Dict[glglue.gltf.GltfTexture, Texture] = {}
-        self.materials: Dict[glglue.gltf.GltfMaterial, Material] = {}
-        self.meshes: Dict[glglue.gltf.GltfPrimitive, Mesh] = {}
+        self.images: Dict[GltfImage, Image32] = {}
+        self.textures: Dict[GltfTexture, Texture] = {}
+        self.materials: Dict[GltfMaterial, Material] = {}
+        self.meshes: Dict[GltfPrimitive, Mesh] = {}
 
-    def _load_image(self, src: glglue.gltf.GltfImage):
+    def _load_image(self, src: GltfImage):
         image = Image32.load(src.data)
         self.images[src] = image
 
-    def _load_texture(self, src: glglue.gltf.GltfTexture):
+    def _load_texture(self, src: GltfTexture):
         texture = Texture(src.name, self.images[src.image])
         self.textures[src] = texture
 
-    def _load_material(self, src: glglue.gltf.GltfMaterial):
+    def _load_material(self, src: GltfMaterial):
         material = Material(src.name, VS, FS)
         if src.base_color_texture:
             material.color_texture = self.textures[src.base_color_texture]
         self.materials[src] = material
 
-    def _load_mesh(self, name: str, src: glglue.gltf.GltfPrimitive):
+    def _load_mesh(self, name: str, src: GltfPrimitive):
         macro = ['#version 330']
         attributes: List[glglue.gl3.vbo.TypedBytes] = [
             glglue.gl3.vbo.TypedBytes(*src.position)]
@@ -61,7 +62,7 @@ class GltfLoader:
         mesh.add_submesh(self.materials[src.material], macro, GL.GL_TRIANGLES)
         self.meshes[src] = mesh
 
-    def _load(self, src: List[glglue.gltf.GltfNode], dst: Node):
+    def _load(self, src: List[GltfNode], dst: Node):
         for gltf_node in src:
             node = Node(gltf_node.name)
             dst.children.append(node)
