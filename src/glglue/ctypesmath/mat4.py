@@ -113,9 +113,18 @@ class Mat4(ctypes.Structure):
             1.0  #
         )
 
-    @classmethod
-    def new_translation(cls, x, y, z):
-        return cls(
+    @staticmethod
+    def new_scale(x: float, y: float, z: float) -> 'Mat4':
+        return Mat4(
+            x, 0, 0, 0,
+            0, y, 0, 0,
+            0, 0, z, 0,
+            0, 0, 0, 1,
+        )
+
+    @staticmethod
+    def new_translation(x: float, y: float, z: float) -> 'Mat4':
+        return Mat4(
             1, 0, 0, 0,  #
             0, 1, 0, 0,  #
             0, 0, 1, 0,  #
@@ -155,13 +164,34 @@ class Mat4(ctypes.Structure):
             0, 0, 0, 1  #
         )
 
+    @staticmethod
+    def new_from_quaternion(x: float, y: float, z: float, w: float) -> 'Mat4':
+        xx = x * x
+        yy = y * y
+        zz = z * z
 
-class Vec4(ctypes.Structure):
+        xy = x * y
+        yz = y * z
+        zx = z * w
+
+        wx = w * x
+        wy = w * y
+        wz = w * z
+
+        return Mat4(
+            1-2*yy-2*xx, 2*xy+2*wz, 2*zx-2*wy, 0,
+            2*xy-2*wz, 1-2*xx-2*zz, 2*yz+2*wx, 0,
+            2*zx+2*wy, 2*yz-2*wx, 1-2*xx-2*yy, 0,
+            0, 0, 0, 1
+        )
+
+
+class Float4(ctypes.Structure):
     _fields_ = [("x", ctypes.c_float), ("y", ctypes.c_float),
                 ("z", ctypes.c_float), ("w", ctypes.c_float)]
 
-    def __mul__(self, m: Mat4) -> None:
-        v = Vec4()
+    def __mul__(self, m: Mat4) -> 'Float4':
+        v = Float4()
         v.x = self.x * m._11 + self.y * m._21 + self.z * m._31 + self.w * m._41
         v.y = self.x * m._12 + self.y * m._22 + self.z * m._32 + self.w * m._42
         v.z = self.x * m._13 + self.y * m._23 + self.z * m._33 + self.w * m._43

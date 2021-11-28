@@ -1,9 +1,10 @@
-from typing import Dict, List
+from typing import Dict, List, Union
 import pkgutil
 from OpenGL import GL
 from gltfio.types import *
 from gltfio.parser import GltfData
 import glglue.gl3.vbo
+from glglue import ctypesmath
 from .scene.texture import Image32, Texture
 from .scene.material import Material
 from .scene.mesh import Mesh
@@ -20,6 +21,25 @@ def get_shader(name: str) -> str:
 
 VS = get_shader('gltf.vs')
 FS = get_shader('gltf.fs')
+
+
+def get_transform(gltf_node: GltfNode) -> Union[ctypesmath.Mat4, ctypesmath.TRS]:
+    if gltf_node.matrix:
+        return ctypesmath.Mat4(*gltf_node.matrix)
+
+    t = ctypesmath.Float3(0, 0, 0)
+    if gltf_node.translation:
+        t = ctypesmath.Float3(*gltf_node.translation)
+
+    r = ctypesmath.Quaternion(0, 0, 0, 1)
+    if gltf_node.rotation:
+        r = ctypesmath.Quaternion(*gltf_node.rotation)
+
+    s = ctypesmath.Float3(1, 1, 1)
+    if gltf_node.scale:
+        s = ctypesmath.Float3(*gltf_node.scale)
+
+    return ctypesmath.TRS(t, r, s)
 
 
 class GltfLoader:
@@ -64,7 +84,8 @@ class GltfLoader:
 
     def _load(self, src: List[GltfNode], dst: Node):
         for gltf_node in src:
-            node = Node(gltf_node.name)
+            t = get_transform(gltf_node)
+            node = Node(gltf_node.name, t)
             dst.children.append(node)
 
             if gltf_node.mesh:
@@ -85,6 +106,6 @@ class GltfLoader:
             for i, prim in enumerate(mesh.primitives):
                 self._load_mesh(f'{mesh.name}:{i}', prim)
 
-        scene = Node('__scene__')
+        scene = Node('__scene__', glglue.ctypesmath.Mat4.new_identity())
         self._load(self.gltf.scene, scene)
         return scene

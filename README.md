@@ -24,6 +24,12 @@ GUI                         OpenGL controller
 * <https://ousttrue.github.io/glglue/>
 * <https://pypi.python.org/pypi/glglue/>
 
+## TODO
+
+* [x] scene: node transform
+* [ ] pyside6: logger
+* [ ] camera fit on load
+
 ## History
 
 * 20211121 1.5.0 scene and renderer. planar and interleaved VBO.

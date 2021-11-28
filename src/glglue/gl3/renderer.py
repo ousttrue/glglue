@@ -92,7 +92,7 @@ class Renderer:
                               submesh.draw_count)
 
     def _draw_node(self, node: Node, projection: Mat4, view: Mat4, parent: Mat4):
-        m = node.model_matrix * parent
+        m = node.get_local_matrix() * parent
 
         for mesh in node.meshes:
             self._draw_mesh(mesh, projection, view, m)
