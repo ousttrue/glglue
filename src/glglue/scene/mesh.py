@@ -32,3 +32,6 @@ class Mesh:
             draw_count = self.indices.count()
         self.submeshes.append(
             Submesh(material, macro, topology, 0, draw_count))
+
+    def expand_aabb(self, aabb):
+        return aabb.expand(self.aabb)

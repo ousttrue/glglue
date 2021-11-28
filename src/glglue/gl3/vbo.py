@@ -188,8 +188,8 @@ class Drawable(NamedTuple):
         self.vao.draw(topology, offset, draw_count)
 
 
-def create(vertices: Union[Planar, Interleaved], indices: Optional[TypedBytes] = None):
-    vbo_list = create_vbo_from(vertices)
+def create(vertices: Union[Planar, Interleaved], indices: Optional[TypedBytes] = None, *, is_dynamic=False):
+    vbo_list = create_vbo_from(vertices, is_dynamic=is_dynamic)
     ibo = None
     if indices:
         ibo = create_ibo_from(indices)

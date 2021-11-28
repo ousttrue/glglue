@@ -8,7 +8,7 @@ class Perspective:
         self.fov_y = math.pi * 30 / 180
         self.aspect = 1.0
         self.z_near = 0.1
-        self.z_far = 50
+        self.z_far = 1000
         self.update_matrix()
 
     def update_matrix(self) -> None:
