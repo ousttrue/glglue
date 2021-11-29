@@ -2,11 +2,9 @@
 https://antongerdelan.net/opengl/cubemaps.html
 '''
 import array
-import ctypes
 import pkgutil
-from typing import NamedTuple
 from OpenGL import GL
-from .vertices import Planar, TypedBytes
+from .vertices import Planar, VectorView
 from .mesh import Mesh
 from .material import Material
 from .texture import CubeMap
@@ -58,7 +56,7 @@ def create_cubemap(cubemap: CubeMap, size: float = 10.0):
     ])
 
     mesh = Mesh(f'cubemap', Planar(
-        [TypedBytes(memoryview(vertices).tobytes(), ctypes.c_float, 3)]))
+        [VectorView(memoryview(vertices).cast('f'), 3)]))
 
     vs = pkgutil.get_data('glglue', 'assets/cubemap.vs')
     if not vs:
