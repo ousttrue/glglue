@@ -58,12 +58,10 @@ class Gizmo:
 
         # vertices
         if self.drawable:
-            # OpenGL.plugins.FormatHandler
-            self.drawable.vbo_list[0].update(self.lines)
+            self.drawable.vbo_list[0].update(memoryview(self.lines))
         else:
-            # TODO: tobytes make
-            typed = glglue.scene.vertices.TypedBytes(
-                memoryview(self.lines).tobytes(), ctypes.c_float, 7)
+            typed = glglue.scene.vertices.VectorView(
+                memoryview(self.lines), ctypes.c_float, 7)
             self.drawable = glglue.gl3.vbo.create(
                 glglue.gl3.vbo.Interleaved(typed, [0, 12]), is_dynamic=True)
         self.drawable.draw(GL.GL_LINES, 0, self.line_count)

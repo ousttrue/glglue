@@ -4,7 +4,7 @@ import array
 from OpenGL import GL
 from .mesh import Mesh
 from .material import Material
-from .vertices import Interleaved, TypedBytes
+from .vertices import Interleaved, VectorView
 import pkgutil
 
 
@@ -82,8 +82,8 @@ def create_cube(s: float) -> Mesh:
     ])
 
     mesh = Mesh(f'cube {s}', Interleaved(
-        TypedBytes(memoryview(vertices).tobytes(), ctypes.c_float, 6), [0, 12]),
-        TypedBytes.create(indices))
+        VectorView(memoryview(vertices), ctypes.c_float, 6), [0, 12]),
+        VectorView.create(indices))
     vs = pkgutil.get_data('glglue', 'assets/cube.vs')
     if not vs:
         raise Exception()

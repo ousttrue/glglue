@@ -46,6 +46,7 @@
             "stopOnEntry": false,
             "program": "${workspaceFolder}/examples/pyside6_sample.py",
             "cwd": "${workspaceRoot}",
+            "justMyCode": false
         },
         {
             "name": "imgui_sample",

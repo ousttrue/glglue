@@ -1,7 +1,33 @@
+import OpenGL.arrays.buffers
 import ctypes
 from typing import List, NamedTuple, Optional, Union
 from OpenGL import GL
-from ..scene.vertices import Planar, Interleaved, TypedBytes
+from ..scene.vertices import Planar, Interleaved, VectorView
+
+
+class MemoryViewHandler:
+    def __init__(self) -> None:
+        pass
+
+    @classmethod
+    def asArray(cls, value: memoryview, type_code=None):
+        match value.obj:
+            case ctypes.Array() as a:
+                return a
+            case _:
+                if value.contiguous:
+                    buffer = (ctypes.c_byte * value.nbytes).from_buffer(value)
+                    return buffer
+                else:
+                    raise RuntimeError()
+
+    @classmethod
+    def from_param(cls, value: memoryview, typeCode=None):
+        return cls.asArray(value)
+
+
+# override builtins.memoryview handler
+OpenGL.arrays.buffers.BufferHandler = MemoryViewHandler
 
 
 class VertexAttribute(NamedTuple):
@@ -26,12 +52,12 @@ class VBO:
     def unbind(self) -> None:
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
-    def set_vertex_attribute(self, data: bytes, stride: int, offsets: List[int], is_dynamic: bool) -> None:
+    def set_vertex_attribute(self, data: memoryview, stride: int, offsets: List[int], is_dynamic: bool) -> None:
         ''' float2, 3, 4'''
         self.stride = stride
         self.vertex_count = len(data) // stride
         self.bind()
-        GL.glBufferData(GL.GL_ARRAY_BUFFER, len(data), data,
+        GL.glBufferData(GL.GL_ARRAY_BUFFER, data.nbytes, data,
                         GL.GL_DYNAMIC_DRAW if is_dynamic else GL.GL_STATIC_DRAW)
         self.unbind()
         if offsets:
@@ -44,9 +70,9 @@ class VBO:
         else:
             self.attributes.append(VertexAttribute(0, stride, stride // 4))
 
-    def update(self, data: bytes) -> None:
+    def update(self, data: memoryview) -> None:
         self.bind()
-        GL.glBufferSubData(GL.GL_ARRAY_BUFFER, 0, len(data), data)
+        GL.glBufferSubData(GL.GL_ARRAY_BUFFER, 0, data.nbytes, data)
         self.unbind()
 
     def set_slot(self, slot: int) -> None:
@@ -71,12 +97,12 @@ def create_vbo_from(src: Union[Planar, Interleaved], is_dynamic=False) -> List[V
             for a in attributes:
                 vbo = VBO()
                 vbo.set_vertex_attribute(
-                    a.data, a.stride(), [], is_dynamic)
+                    a.data, a.get_stride(), [], is_dynamic)
                 vbo_list.append(vbo)
         case Interleaved(vertices, offsets):
             vbo = VBO()
             vbo.set_vertex_attribute(
-                vertices.data, vertices.stride(), offsets, is_dynamic)
+                vertices.data, vertices.get_stride(), offsets, is_dynamic)
             vbo_list.append(vbo)
         case _:
             raise RuntimeError()
@@ -99,7 +125,7 @@ class IBO:
     def unbind(self) -> None:
         GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0)
 
-    def set_indices(self, data: bytes, stride: int) -> None:
+    def set_indices(self, data: memoryview, stride: int) -> None:
         self.index_count = len(data) // stride
         self.bind()
         if stride == 1:
@@ -109,7 +135,7 @@ class IBO:
         elif stride == 4:
             self.index_type = GL.GL_UNSIGNED_INT
         GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER,
-                        len(data), data, GL.GL_STATIC_DRAW)
+                        data.nbytes, data, GL.GL_STATIC_DRAW)
         self.unbind()
 
     def draw(self) -> None:
@@ -118,9 +144,9 @@ class IBO:
                           self.index_type, None)
 
 
-def create_ibo_from(src: TypedBytes) -> IBO:
+def create_ibo_from(src: VectorView) -> IBO:
     ibo = IBO()
-    ibo.set_indices(src.data, src.stride())
+    ibo.set_indices(src.data, src.get_stride())
     return ibo
 
 
@@ -188,7 +214,7 @@ class Drawable(NamedTuple):
         self.vao.draw(topology, offset, draw_count)
 
 
-def create(vertices: Union[Planar, Interleaved], indices: Optional[TypedBytes] = None, *, is_dynamic=False):
+def create(vertices: Union[Planar, Interleaved], indices: Optional[VectorView] = None, *, is_dynamic=False):
     vbo_list = create_vbo_from(vertices, is_dynamic=is_dynamic)
     ibo = None
     if indices:
