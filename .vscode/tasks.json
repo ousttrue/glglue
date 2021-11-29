@@ -6,14 +6,14 @@
         {
             "label": "sphinx-autobuild",
             "type": "shell",
-            "command": "./.venv/Scripts/sphinx-autobuild docs build --open-browser",
+            "command": "sphinx-autobuild docs build --open-browser",
             "problemMatcher": [],
             "isBackground": true
         },
         {
             "label": "api",
             "type": "shell",
-            "command": "./.venv/Scripts/sphinx-apidoc src -o docs/api",
+            "command": "sphinx-apidoc src -o docs/api",
             "problemMatcher": [],
         }
     ]

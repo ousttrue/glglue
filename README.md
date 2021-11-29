@@ -17,7 +17,7 @@ GUI                         OpenGL controller
 
 ## Requirements
 
-* Python 3.2
+* Python 3.10
 
 ## Site
 
@@ -28,9 +28,7 @@ GUI                         OpenGL controller
 
 * [x] scene: node transform
 * [x] pyside6: logger
-* [ ] camera fit on load
-* [ ] join submesh
-* [ ] loop framerate
+* [ ] pyside6: loop framerate
 
 ## History
 

@@ -48,22 +48,6 @@
             "cwd": "${workspaceRoot}",
         },
         {
-            "name": "gltf_sample",
-            "type": "python",
-            "request": "launch",
-            "stopOnEntry": false,
-            "program": "${workspaceFolder}/examples/gltf_sample.py",
-            "args": [
-                "--cubemap",
-                "${env:GLTF_SAMPLE_ENVIRONMENTS}/chromatic/ggx/specular.ktx2",
-                "--load",
-                // "${env:GLTF_SAMPLE_MODELS}/2.0/BoxTextured/glTF-Binary/BoxTextured.glb",
-                "${env:GLTF_SAMPLE_MODELS}/2.0/CesiumMan/glTF-Binary/CesiumMan.glb"
-            ],
-            "cwd": "${workspaceRoot}",
-            "justMyCode": false,
-        },
-        {
             "name": "imgui_sample",
             "type": "python",
             "request": "launch",
