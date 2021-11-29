@@ -12,9 +12,10 @@ class MemoryViewHandler:
     @classmethod
     def asArray(cls, value: memoryview, type_code=None):
         match value.obj:
-            case ctypes.Array() as a:
+            case ctypes.Array() | bytes() | bytearray() as a:
                 return a
             case _:
+                # array.array
                 if value.contiguous:
                     buffer = (ctypes.c_byte * value.nbytes).from_buffer(value)
                     return buffer
