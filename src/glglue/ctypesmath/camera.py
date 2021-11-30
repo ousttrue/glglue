@@ -1,5 +1,8 @@
 import math
 from .mat4 import Mat4
+from .float3 import Float3
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Perspective:
@@ -25,6 +28,9 @@ class Orbit:
         self.yaw = 0.0
         self.pitch = 0.0
         self.update_matrix()
+
+    def __str__(self) -> str:
+        return f'({self.x:.3f}, {self.y:.3f}, {self.distance:.3f})'
 
     def update_matrix(self) -> None:
         t = Mat4.new_translation(self.x, self.y, -self.distance)
@@ -141,3 +147,17 @@ class Camera:
             self.view.update_matrix()
             return True
         return False
+
+    def fit(self, p0: Float3, p1: Float3):
+        self.view.x = 0
+        self.view.y = -(p1.y+p0.y)/2
+        self.view.distance = (p1.y-p0.y) / \
+            math.tan(self.projection.fov_y / 2)
+        self.view.yaw = 0
+        self.view.pitch = 0
+        self.view.update_matrix()
+        logger.info(self.view)
+
+        if self.view.distance*2 > self.projection.z_far:
+            self.projection.z_far = self.view.distance*2
+            self.projection.update_matrix()
