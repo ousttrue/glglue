@@ -97,7 +97,10 @@ class Gizmo:
         self._add_line(Float4(0, 0, 0.5, 1), origin,
                        Float3(0, 0, -size), matrix)
 
-    def aabb(self, aabb: AABB):
+    def aabb(self, aabb: AABB, matrix: Optional[Mat4] = None):
+        if not matrix:
+            matrix = Mat4.new_identity()
+
         color = Float4(1, 1, 1, 1)
         match aabb:
             case AABB(Float3(nx, ny, nz), Float3(px, py, pz)):
@@ -110,17 +113,17 @@ class Gizmo:
                 b2 = Float3(px, ny, pz)
                 b3 = Float3(nx, ny, pz)
                 # top
-                self._add_line(color, t0, t1)
-                self._add_line(color, t1, t2)
-                self._add_line(color, t2, t3)
-                self._add_line(color, t3, t0)
+                self._add_line(color, t0, t1, matrix)
+                self._add_line(color, t1, t2, matrix)
+                self._add_line(color, t2, t3, matrix)
+                self._add_line(color, t3, t0, matrix)
                 # bottom
-                self._add_line(color, b0, b1)
-                self._add_line(color, b1, b2)
-                self._add_line(color, b2, b3)
-                self._add_line(color, b3, b0)
+                self._add_line(color, b0, b1, matrix)
+                self._add_line(color, b1, b2, matrix)
+                self._add_line(color, b2, b3, matrix)
+                self._add_line(color, b3, b0, matrix)
                 # side
-                self._add_line(color, t0, b0)
-                self._add_line(color, t1, b1)
-                self._add_line(color, t2, b2)
-                self._add_line(color, t3, b3)
+                self._add_line(color, t0, b0, matrix)
+                self._add_line(color, t1, b1, matrix)
+                self._add_line(color, t2, b2, matrix)
+                self._add_line(color, t3, b3, matrix)
