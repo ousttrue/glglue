@@ -179,6 +179,7 @@ class Mat4(ctypes.Structure):
         xx = x * x
         yy = y * y
         zz = z * z
+        ww = w * w
 
         xy = x * y
         yz = y * z
@@ -189,9 +190,9 @@ class Mat4(ctypes.Structure):
         wz = w * z
 
         return Mat4(
-            1-2*yy-2*xx, 2*xy+2*wz, 2*zx-2*wy, 0,
-            2*xy-2*wz, 1-2*xx-2*zz, 2*yz+2*wx, 0,
-            2*zx+2*wy, 2*yz-2*wx, 1-2*xx-2*yy, 0,
+            xx-yy-zz+ww, 2*xy+2*wz, 2*zx-2*wy, 0,
+            2*xy-2*wz, -xx+yy-zz+ww, 2*yz+2*wx, 0,
+            2*zx+2*wy, 2*yz-2*wx, -xx-yy+zz+ww, 0,
             0, 0, 0, 1
         )
 
