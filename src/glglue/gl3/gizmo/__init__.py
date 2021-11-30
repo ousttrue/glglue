@@ -1,9 +1,10 @@
-from glglue.ctypesmath import *
+from typing import Optional, Union
 import ctypes
+from OpenGL import GL
+from glglue.ctypesmath import *
 import glglue.scene.vertices
 import glglue.gl3.shader
 import glglue.gl3.vbo
-from OpenGL import GL
 
 
 class LineVertex(ctypes.Structure):
@@ -43,9 +44,13 @@ class Gizmo:
         self.shader = None
         self.drawable = None
 
-    def begin(self, camera: Camera):
+    def begin(self, camera_or_vp: Union[Camera, Mat4]):
         self.line_count = 0
-        self.vp = camera.view.matrix * camera.projection.matrix
+        match camera_or_vp:
+            case Camera() as camera:
+                self.vp = camera.view.matrix * camera.projection.matrix
+            case Mat4() as vp:
+                self.vp = vp
 
     def end(self):
         # material
@@ -66,23 +71,31 @@ class Gizmo:
                 glglue.gl3.vbo.Interleaved(typed, [0, 12]), is_dynamic=True)
         self.drawable.draw(GL.GL_LINES, 0, self.line_count)
 
-    def _add_line(self, color: Float4, p0: Float3, p1: Float3):
+    def _add_line(self, color: Float4, p0: Float3, p1: Float3, matrix: Mat4):
+        p0 = matrix.apply(*p0)
         self.lines[self.line_count] = LineVertex(p0, color)
         self.line_count += 1
+
+        p1 = matrix.apply(*p1)
         self.lines[self.line_count] = LineVertex(p1, color)
         self.line_count += 1
 
-    def axis(self, size: float):
+    def axis(self, size: float, matrix: Optional[Mat4] = None):
+        if not matrix:
+            matrix = Mat4.new_identity()
         origin = Float3(0, 0, 0)
         # X
-        self._add_line(Float4(1, 0, 0, 1), origin, Float3(size, 0, 0))
-        self._add_line(Float4(0.5, 0, 0, 1), origin, Float3(-size, 0, 0))
+        self._add_line(Float4(1, 0, 0, 1), origin, Float3(size, 0, 0), matrix)
+        self._add_line(Float4(0.5, 0, 0, 1), origin,
+                       Float3(-size, 0, 0), matrix)
         # Y
-        self._add_line(Float4(0, 1, 0, 1), origin, Float3(0, size, 0))
-        self._add_line(Float4(0, 0.5, 0, 1), origin, Float3(0, -size, 0))
+        self._add_line(Float4(0, 1, 0, 1), origin, Float3(0, size, 0), matrix)
+        self._add_line(Float4(0, 0.5, 0, 1), origin,
+                       Float3(0, -size, 0), matrix)
         # Z
-        self._add_line(Float4(0, 0, 1, 1), origin, Float3(0, 0, size))
-        self._add_line(Float4(0, 0, 0.5, 1), origin, Float3(0, 0, -size))
+        self._add_line(Float4(0, 0, 1, 1), origin, Float3(0, 0, size), matrix)
+        self._add_line(Float4(0, 0, 0.5, 1), origin,
+                       Float3(0, 0, -size), matrix)
 
     def aabb(self, aabb: AABB):
         color = Float4(1, 1, 1, 1)
