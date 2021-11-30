@@ -149,6 +149,11 @@ class Camera:
         return False
 
     def fit(self, p0: Float3, p1: Float3):
+        if math.isnan(p0.x) or math.isnan(p0.y) or math.isnan(p0.z) or math.isnan(p1.x) or math.isnan(p1.y) or math.isnan(p1.z):
+            return
+        if math.isinf(p0.x) or math.isinf(p0.y) or math.isinf(p0.z) or math.isinf(p1.x) or math.isinf(p1.y) or math.isinf(p1.z):
+            return
+
         self.view.x = 0
         self.view.y = -(p1.y+p0.y)/2
         self.view.distance = (p1.y-p0.y) / \
