@@ -182,7 +182,7 @@ class Mat4(ctypes.Structure):
 
         xy = x * y
         yz = y * z
-        zx = z * w
+        zx = z * x
 
         wx = w * x
         wy = w * y
@@ -194,12 +194,6 @@ class Mat4(ctypes.Structure):
             2*zx+2*wy, 2*yz-2*wx, 1-2*xx-2*yy, 0,
             0, 0, 0, 1
         )
-        # return Mat4(
-        #     1-2*yy-2*xx, 2*xy-2*wz, 2*zx+2*wy, 0,
-        #     2*xy+2*wz, 1-2*xx-2*zz, 2*yz-2*wx, 0 ,
-        #     2*zx-2*wy, 2*yz+2*wx, 1-2*xx-2*yy, 0,
-        #     0, 0, 0, 1
-        # )
 
 
 class Float4(ctypes.Structure):
