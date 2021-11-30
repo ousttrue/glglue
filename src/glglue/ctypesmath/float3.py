@@ -1,4 +1,5 @@
 import ctypes
+import math
 
 
 class Float3(ctypes.Structure):
@@ -13,6 +14,30 @@ class Float3(ctypes.Structure):
         dst = type(self)()
         ctypes.pointer(dst)[0] = self
         return dst
+
+    def get_length(self) -> float:
+        return math.sqrt(Float3.dot(self, self))
+
+    def normalized(self) -> 'Float3':
+        f = 1 / self.get_length()
+        return Float3(self.x * f, self.y * f, self.z * f)
+
+    @staticmethod
+    def dot(lhs, rhs) -> float:
+        match lhs, rhs:
+            case Float3(lx, ly, lz), Float3(rx, ry, rz):
+                return lx*rx + ly*ry + lz*rz
+        raise NotImplementedError()
+
+    @staticmethod
+    def cross(lhs, rhs):
+        match lhs, rhs:
+            case Float3(lx, ly, lz), Float3(rx, ry, rz):
+                return Float3(
+                    ly * rz - lz * ry,
+                    lz * rx - lx * rz,
+                    lx * ry - ly * rx)
+        raise NotImplementedError()
 
     def __str__(self) -> str:
         return f'({self.x:.3f}, {self.y:.3f}, {self.z:.3f})'
@@ -33,6 +58,12 @@ class Float3(ctypes.Structure):
         match rhs:
             case Float3(x, y, z) | (x, y, z):
                 return Float3(self.x + x, self.y + y, self.z + z)
+        raise RuntimeError()
+
+    def __sub__(self, rhs) -> 'Float3':
+        match rhs:
+            case Float3(x, y, z) | (x, y, z):
+                return Float3(self.x - x, self.y - y, self.z - z)
         raise RuntimeError()
 
     @staticmethod
