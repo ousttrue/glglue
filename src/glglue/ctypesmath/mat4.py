@@ -196,6 +196,15 @@ class Mat4(ctypes.Structure):
             0, 0, 0, 1
         )
 
+    @staticmethod
+    def new_coords(x: Float3, y: Float3, z: Float3, t: Float3):
+        return Mat4(
+            x.x, x.y, x.z, 0,
+            y.x, y.y, y.z, 0,
+            z.x, z.y, z.z, 0,
+            t.x, t.y, t.z, 1,
+        )
+
 
 class Float4(ctypes.Structure):
     _fields_ = [("x", ctypes.c_float), ("y", ctypes.c_float),

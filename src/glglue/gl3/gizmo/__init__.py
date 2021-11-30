@@ -1,9 +1,10 @@
-from glglue.ctypesmath import *
+from typing import Union
 import ctypes
+from OpenGL import GL
+from glglue.ctypesmath import *
 import glglue.scene.vertices
 import glglue.gl3.shader
 import glglue.gl3.vbo
-from OpenGL import GL
 
 
 class LineVertex(ctypes.Structure):
@@ -39,13 +40,16 @@ class Gizmo:
         self.vp = Mat4.new_identity()
         self.lines = (LineVertex * 65535)()
         self.line_count = 0
+        # state
+        self.matrix = Mat4.new_identity()
+        self.color = Float4(1, 1, 1, 1)
         #
         self.shader = None
         self.drawable = None
 
-    def begin(self, camera: Camera):
+    def begin(self, view: Mat4, projection: Mat4):
         self.line_count = 0
-        self.vp = camera.view.matrix * camera.projection.matrix
+        self.vp = view * projection
 
     def end(self):
         # material
@@ -66,26 +70,35 @@ class Gizmo:
                 glglue.gl3.vbo.Interleaved(typed, [0, 12]), is_dynamic=True)
         self.drawable.draw(GL.GL_LINES, 0, self.line_count)
 
-    def _add_line(self, color: Float4, p0: Float3, p1: Float3):
-        self.lines[self.line_count] = LineVertex(p0, color)
+    def line(self, p0: Float3, p1: Float3):
+        p0 = self.matrix.apply(*p0)
+        self.lines[self.line_count] = LineVertex(p0, self.color)
         self.line_count += 1
-        self.lines[self.line_count] = LineVertex(p1, color)
+
+        p1 = self.matrix.apply(*p1)
+        self.lines[self.line_count] = LineVertex(p1, self.color)
         self.line_count += 1
 
     def axis(self, size: float):
         origin = Float3(0, 0, 0)
         # X
-        self._add_line(Float4(1, 0, 0, 1), origin, Float3(size, 0, 0))
-        self._add_line(Float4(0.5, 0, 0, 1), origin, Float3(-size, 0, 0))
+        self.color = Float4(1, 0, 0, 1)
+        self.line(origin, Float3(size, 0, 0))
+        self.color = Float4(0.5, 0, 0, 1)
+        self.line(origin, Float3(-size, 0, 0))
         # Y
-        self._add_line(Float4(0, 1, 0, 1), origin, Float3(0, size, 0))
-        self._add_line(Float4(0, 0.5, 0, 1), origin, Float3(0, -size, 0))
+        self.color = Float4(0, 1, 0, 1)
+        self.line(origin, Float3(0, size, 0))
+        self.color = Float4(0, 0.5, 0, 1)
+        self.line(origin, Float3(0, -size, 0))
         # Z
-        self._add_line(Float4(0, 0, 1, 1), origin, Float3(0, 0, size))
-        self._add_line(Float4(0, 0, 0.5, 1), origin, Float3(0, 0, -size))
+        self.color = Float4(0, 0, 1, 1)
+        self.line(origin, Float3(0, 0, size))
+        self.color = Float4(0, 0, 0.5, 1)
+        self.line(origin, Float3(0, 0, -size))
 
     def aabb(self, aabb: AABB):
-        color = Float4(1, 1, 1, 1)
+        self.color = Float4(1, 1, 1, 1)
         match aabb:
             case AABB(Float3(nx, ny, nz), Float3(px, py, pz)):
                 t0 = Float3(nx, py, nz)
@@ -97,17 +110,17 @@ class Gizmo:
                 b2 = Float3(px, ny, pz)
                 b3 = Float3(nx, ny, pz)
                 # top
-                self._add_line(color, t0, t1)
-                self._add_line(color, t1, t2)
-                self._add_line(color, t2, t3)
-                self._add_line(color, t3, t0)
+                self.line(t0, t1)
+                self.line(t1, t2)
+                self.line(t2, t3)
+                self.line(t3, t0)
                 # bottom
-                self._add_line(color, b0, b1)
-                self._add_line(color, b1, b2)
-                self._add_line(color, b2, b3)
-                self._add_line(color, b3, b0)
+                self.line(b0, b1)
+                self.line(b1, b2)
+                self.line(b2, b3)
+                self.line(b3, b0)
                 # side
-                self._add_line(color, t0, b0)
-                self._add_line(color, t1, b1)
-                self._add_line(color, t2, b2)
-                self._add_line(color, t3, b3)
+                self.line(t0, b0)
+                self.line(t1, b1)
+                self.line(t2, b2)
+                self.line(t3, b3)
