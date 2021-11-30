@@ -23,7 +23,7 @@ class Scene:
             drawable.update(d)
 
     def draw(self, camera: ctypesmath.Camera):
-        self.gizmo.begin(camera)
+        self.gizmo.begin(camera.view.matrix, camera.projection.matrix)
 
         for e in self.env:
             self.renderer.draw(
@@ -110,7 +110,8 @@ class SampleController(glglue.basecontroller.BaseController):
         if self.scene:
             self.scene.draw(self.camera)
 
-        self.gizmo.begin(self.camera)
+        self.gizmo.begin(self.camera.view.matrix,
+                         self.camera.projection.matrix)
         self.gizmo.axis(10)
         self.gizmo.end()
         GL.glFlush()
