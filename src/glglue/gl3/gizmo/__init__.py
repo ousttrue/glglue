@@ -50,6 +50,7 @@ class Gizmo:
     def begin(self, view: Mat4, projection: Mat4):
         self.line_count = 0
         self.vp = view * projection
+        self.matrix = Mat4.new_identity()
 
     def end(self):
         # material

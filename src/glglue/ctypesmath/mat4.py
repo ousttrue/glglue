@@ -5,6 +5,13 @@ from typing import Tuple
 from glglue.ctypesmath.float3 import Float3
 
 
+def dot(l, r):
+    value = 0
+    for ll, rr in zip(l, r):
+        value += ll * rr
+    return value
+
+
 class Mat4(ctypes.Structure):
     _fields_ = [("_11", ctypes.c_float), ("_12", ctypes.c_float),
                 ("_13", ctypes.c_float), ("_14", ctypes.c_float),
@@ -20,50 +27,70 @@ class Mat4(ctypes.Structure):
 
     def __mul__(self, rhs: 'Mat4') -> 'Mat4':
         m = Mat4()
-        m._11 = self._11 * rhs._11 + self._12 * rhs._21 + \
-            self._13 * rhs._31 + self._14 * rhs._41
-        m._12 = self._11 * rhs._12 + self._12 * rhs._22 + \
-            self._13 * rhs._32 + self._14 * rhs._42
-        m._13 = self._11 * rhs._13 + self._12 * rhs._23 + \
-            self._13 * rhs._33 + self._14 * rhs._43
-        m._14 = self._11 * rhs._14 + self._12 * rhs._24 + \
-            self._13 * rhs._34 + self._14 * rhs._44
 
-        m._21 = self._21 * rhs._11 + self._22 * rhs._21 + \
-            self._23 * rhs._31 + self._24 * rhs._41
-        m._22 = self._21 * rhs._12 + self._22 * rhs._22 + \
-            self._23 * rhs._32 + self._24 * rhs._42
-        m._23 = self._21 * rhs._13 + self._22 * rhs._23 + \
-            self._23 * rhs._33 + self._24 * rhs._43
-        m._24 = self._21 * rhs._14 + self._22 * rhs._24 + \
-            self._23 * rhs._34 + self._24 * rhs._44
+        def row(row):
+            match row:
+                case 1:
+                    return self._11, self._12, self._13, self._14
+                case 2:
+                    return self._21, self._22, self._23, self._24
+                case 3:
+                    return self._31, self._32, self._33, self._34
+                case 4:
+                    return self._41, self._42, self._43, self._44
+                case _:
+                    raise RuntimeError()
 
-        m._31 = self._31 * rhs._11 + self._32 * rhs._21 + \
-            self._33 * rhs._31 + self._34 * rhs._41
-        m._32 = self._31 * rhs._12 + self._32 * rhs._22 + \
-            self._33 * rhs._32 + self._34 * rhs._42
-        m._33 = self._31 * rhs._13 + self._32 * rhs._23 + \
-            self._33 * rhs._33 + self._34 * rhs._43
-        m._34 = self._31 * rhs._14 + self._32 * rhs._24 + \
-            self._33 * rhs._34 + self._34 * rhs._44
+        def col(col):
+            match col:
+                case 1:
+                    return rhs._11, rhs._21, rhs._31, rhs._41
+                case 2:
+                    return rhs._12, rhs._22, rhs._32, rhs._42
+                case 3:
+                    return rhs._13, rhs._23, rhs._33, rhs._43
+                case 4:
+                    return rhs._14, rhs._24, rhs._34, rhs._44
+                case _:
+                    return RuntimeError()
 
-        m._41 = self._41 * rhs._11 + self._42 * rhs._21 + \
-            self._43 * rhs._31 + self._44 * rhs._41
-        m._42 = self._41 * rhs._12 + self._42 * rhs._22 + \
-            self._43 * rhs._32 + self._44 * rhs._42
-        m._43 = self._41 * rhs._13 + self._42 * rhs._23 + \
-            self._43 * rhs._33 + self._44 * rhs._43
-        m._44 = self._41 * rhs._14 + self._42 * rhs._24 + \
-            self._43 * rhs._34 + self._44 * rhs._44
+        m._11 = dot(row(1), col(1))
+        m._12 = dot(row(1), col(2))
+        m._13 = dot(row(1), col(3))
+        m._14 = dot(row(1), col(4))
+
+        m._21 = dot(row(2), col(1))
+        m._22 = dot(row(2), col(2))
+        m._23 = dot(row(2), col(3))
+        m._24 = dot(row(2), col(4))
+
+        m._31 = dot(row(3), col(1))
+        m._32 = dot(row(3), col(2))
+        m._33 = dot(row(3), col(3))
+        m._34 = dot(row(3), col(4))
+
+        m._41 = dot(row(4), col(1))
+        m._42 = dot(row(4), col(2))
+        m._43 = dot(row(4), col(3))
+        m._44 = dot(row(4), col(4))
+
         return m
 
-    def transposed(self) -> 'Mat4':
-        return Mat4(
-            self._11, self._21, self._31, self._41,
-            self._12, self._22, self._32, self._42,
-            self._13, self._23, self._33, self._43,
-            self._14, self._24, self._34, self._44
-        )
+    def transposed(self, *, no_translation=False) -> 'Mat4':
+        if no_translation:
+            return Mat4(
+                self._11, self._21, self._31, 0,
+                self._12, self._22, self._32, 0,
+                self._13, self._23, self._33, 0,
+                0, 0, 0, 1
+            )
+        else:
+            return Mat4(
+                self._11, self._21, self._31, self._41,
+                self._12, self._22, self._32, self._42,
+                self._13, self._23, self._33, self._43,
+                self._14, self._24, self._34, self._44
+            )
 
     def apply(self, x: float, y: float, z: float) -> Float3:
         return Float3(
@@ -95,6 +122,14 @@ class Mat4(ctypes.Structure):
         self._42 = 0
         self._43 = -2 * z_far * z_near / (z_far - z_near)
         self._44 = 0
+
+    def inverse_rigidbody(self) -> 'Mat4':
+        '''
+        inverse only rotation + translation. no scale
+
+        (R x T)^-1 = T^-1 * R^-1
+        '''
+        return Mat4.new_translation(-self._41, -self._42, -self._43) * self.transposed(no_translation=True)
 
     @classmethod
     def new_perspective(cls, fov_y, aspect, z_near, z_far) -> 'Mat4':
