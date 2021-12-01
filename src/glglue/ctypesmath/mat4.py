@@ -25,6 +25,13 @@ class Mat4(ctypes.Structure):
     def __str__(self) -> str:
         return f'[{self._11}, {self._12}, {self._13}, {self._14}]' + f'[{self._21}, {self._22}, {self._23}, {self._24}]' + f'[{self._31}, {self._32}, {self._33}, {self._34}]' + f'[{self._41}, {self._42}, {self._43}, {self._44}]'
 
+    def __eq__(self, rhs: 'Mat4') -> bool:
+        return (self._11 == rhs._11 and self._12 == rhs._12 and self._13 == rhs._13 and self._14 == rhs._14
+                and self._21 == rhs._21 and self._22 == rhs._22 and self._23 == rhs._23 and self._24 == rhs._24
+                and self._31 == rhs._31 and self._32 == rhs._32 and self._33 == rhs._33 and self._34 == rhs._34
+                and self._41 == rhs._41 and self._42 == rhs._42 and self._43 == rhs._43 and self._44 == rhs._44
+                )
+
     def __mul__(self, rhs: 'Mat4') -> 'Mat4':
         m = Mat4()
 
@@ -228,6 +235,29 @@ class Mat4(ctypes.Structure):
             xx-yy-zz+ww, 2*xy+2*wz, 2*zx-2*wy, 0,
             2*xy-2*wz, -xx+yy-zz+ww, 2*yz+2*wx, 0,
             2*zx+2*wy, 2*yz-2*wx, -xx-yy+zz+ww, 0,
+            0, 0, 0, 1
+        )
+
+    @staticmethod
+    def new_axis_angle(axis, angle) -> 'Mat4':
+        if angle == 0:
+            return Mat4.new_identity()
+
+        c = math.cos(angle)
+        s = math.sin(angle)
+        xx = axis.x * axis.x
+        yy = axis.y * axis.y
+        zz = axis.z * axis.z
+        xy = axis.x * axis.y
+        yz = axis.y * axis.z
+        zx = axis.z * axis.x
+        xs = axis.x * s
+        ys = axis.y * s
+        zs = axis.z * s
+        return Mat4(
+            c + xx * (1-c),  xy * (1-c) - zs, zx * (1-c) + ys, 0,
+            xy * (1-c) + zs, c + yy * (1-c), yz * (1-c) - xs, 0,
+            zx * (1-c) - ys, yz * (1-c) + xs, c + zz*(1-c), 0,
             0, 0, 0, 1
         )
 
