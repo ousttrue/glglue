@@ -125,3 +125,47 @@ class Gizmo:
                 self.line(t1, b1)
                 self.line(t2, b2)
                 self.line(t3, b3)
+
+    def bone(self, length: float, is_selected: bool):
+        s = length * 0.1
+        # head-tail
+        #      0, -1(p1)
+        # (p2)  |
+        # -1, 0 |
+        #     --+--->
+        #       |    1, 0(p0)
+        #       v
+        #      0, +1(p3)
+        self.color = Float4(1, 0.0, 1, 1)
+        h = Float3(0, 0, 0)
+        t = Float3(0, length, 0)
+        # self.line(h, t, bone.world_matrix)
+        p0 = Float3(s, s, 0)
+        p1 = Float3(0, s, -s)
+        p2 = Float3(-s, s, 0)
+        p3 = Float3(0, s, s)
+
+        self.line(p0, p1)
+        self.line(p1, p2)
+        self.line(p2, p3)
+        self.line(p3, p0)
+
+        # self.line(p2, p0, bone.world_matrix)
+        self.color = Float4(1, 0, 0, 1)
+        self.line(h, p0)
+        self.line(p0, t)
+        self.color = Float4(0.1, 0, 0, 1)
+        if is_selected:
+            self.color = Float4(0.1, 1, 0, 1)
+        self.line(h, p2)
+        self.line(p2, t)
+
+        # self.line(p1, p3, bone.world_matrix)
+        self.color = Float4(0, 0, 1, 1)
+        self.line(h, p3)
+        self.line(p3, t)
+        self.color = Float4(0, 0, 0.1, 1)
+        if is_selected:
+            self.color = Float4(0, 1, 0.1, 1)
+        self.line(h, p1)
+        self.line(p1, t)
