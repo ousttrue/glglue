@@ -42,6 +42,8 @@ class Window(QtWidgets.QMainWindow):
         self.glwidget = glglue.pyside6.Widget(
             self, self.controller, glglue.utils.get_desktop_scaling_factor())
         self.setCentralWidget(self.glwidget)
+
+        # render loop
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.glwidget.update)
         self.timer.start(33)
