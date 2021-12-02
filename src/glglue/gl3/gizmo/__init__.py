@@ -190,7 +190,7 @@ class Gizmo:
                 self.line(t2, b2)
                 self.line(t3, b3)
 
-    def bone(self, key, length: float, is_selected: bool = False):
+    def bone(self, key, length: float, is_selected: bool = False) -> bool:
         '''
         return True if mouse clicked
         '''
@@ -238,9 +238,12 @@ class Gizmo:
         self.line(p1, t)
 
         # triangles
+        clicked = False
         self.color = Float4(0.5, 0.5, 0.5, 0.2)
         if self.hover_last == key:
             self.color = Float4(0, 0.7, 0, 0.7)
+            if self.click_left:
+                clicked = True
 
         triangles = (
             (p0, h, p1),
@@ -260,3 +263,5 @@ class Gizmo:
                 hit = self.state.ray.intersect(*t)
         if hit:
             self.hover = key
+
+        return clicked

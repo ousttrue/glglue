@@ -22,7 +22,8 @@ class Scene(glglue.gl3.samplecontroller.BaseScene):
         self.gizmo.begin(state)
         self.gizmo.axis(10)
 
-        self.gizmo.bone('bone1', 1)
+        if self.gizmo.bone('bone1', 1):
+            logger.info('bone clicked')
 
         self.gizmo.end()
 
