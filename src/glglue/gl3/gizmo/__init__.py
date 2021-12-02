@@ -1,4 +1,3 @@
-from typing import Union
 import ctypes
 from OpenGL import GL
 from glglue.ctypesmath import *
@@ -54,7 +53,8 @@ class Gizmo:
 
     def begin(self, state: FrameState):
         self.line_count = 0
-        self.vp = state.camera_view * state.camera_projection
+        self.triangle_count = 0
+        self.state = state
         self.matrix = Mat4.new_identity()
         self.color = Float4(1, 1, 1, 1)
 
@@ -65,9 +65,13 @@ class Gizmo:
                 VS, (), FS, ())
             self.line_shader = glglue.gl3.shader.create_from(shader_source)
         self.line_shader.use()
-        self.line_shader.set_uniform('vp', self.vp)
+        vp = self.state.camera_view * self.state.camera_projection
+        self.line_shader.set_uniform('vp', vp)
 
-        # vertices
+        self._draw_triangles()
+        self._draw_lines()
+
+    def _draw_lines(self):
         if self.line_drawable:
             self.line_drawable.vbo_list[0].update(memoryview(self.lines))
         else:
@@ -77,6 +81,23 @@ class Gizmo:
                 glglue.gl3.vbo.Interleaved(typed, [0, 12]), is_dynamic=True)
         self.line_drawable.draw(GL.GL_LINES, 0, self.line_count)
 
+    def _draw_triangles(self):
+        if self.triangle_drawable:
+            self.triangle_drawable.vbo_list[0].update(
+                memoryview(self.triangles))
+        else:
+            typed = glglue.scene.vertices.VectorView(
+                memoryview(self.triangles), ctypes.c_float, 7)
+            self.triangle_drawable = glglue.gl3.vbo.create(
+                glglue.gl3.vbo.Interleaved(typed, [0, 12]), is_dynamic=True)
+
+        GL.glDisable(GL.GL_DEPTH_TEST)
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+        GL.glEnable(GL.GL_BLEND)
+        self.triangle_drawable.draw(GL.GL_TRIANGLES, 0, self.triangle_count)
+        GL.glDisable(GL.GL_BLEND)
+        GL.glEnable(GL.GL_DEPTH_TEST)
+
     def line(self, p0: Float3, p1: Float3):
         p0 = self.matrix.apply(*p0)
         self.lines[self.line_count] = Vertex(p0, self.color)
@@ -85,6 +106,23 @@ class Gizmo:
         p1 = self.matrix.apply(*p1)
         self.lines[self.line_count] = Vertex(p1, self.color)
         self.line_count += 1
+
+    def triangle(self, p0: Float3, p1: Float3, p2: Float3):
+        p0 = self.matrix.apply(*p0)
+        self.triangles[self.triangle_count] = Vertex(p0, self.color)
+        self.triangle_count += 1
+
+        p1 = self.matrix.apply(*p1)
+        self.triangles[self.triangle_count] = Vertex(p1, self.color)
+        self.triangle_count += 1
+
+        p2 = self.matrix.apply(*p2)
+        self.triangles[self.triangle_count] = Vertex(p2, self.color)
+        self.triangle_count += 1
+
+    def quad(self, p0: Float3, p1: Float3, p2: Float3, p3: Float3):
+        self.triangle(p0, p1, p2)
+        self.triangle(p2, p3, p0)
 
     def axis(self, size: float):
         origin = Float3(0, 0, 0)
@@ -132,7 +170,10 @@ class Gizmo:
                 self.line(t2, b2)
                 self.line(t3, b3)
 
-    def bone(self, length: float, is_selected: bool):
+    def bone(self, length: float, is_selected: bool = False) -> bool:
+        '''
+        return True if mouse clicked
+        '''
         s = length * 0.1
         # head-tail
         #      0, -1(p1)
@@ -175,3 +216,16 @@ class Gizmo:
             self.color = Float4(0, 1, 0.1, 1)
         self.line(h, p1)
         self.line(p1, t)
+
+        # triangles
+        self.color = Float4(1, 1, 1, 0.2)
+        self.triangle(p0, h, p1)
+        self.triangle(p1, h, p2)
+        self.triangle(p2, h, p3)
+        self.triangle(p3, h, p0)
+        self.triangle(p0, t, p1)
+        self.triangle(p1, t, p2)
+        self.triangle(p2, t, p3)
+        self.triangle(p3, t, p0)
+
+        return False

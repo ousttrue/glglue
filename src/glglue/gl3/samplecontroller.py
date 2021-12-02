@@ -1,3 +1,4 @@
+from abc import ABCMeta, abstractmethod
 from logging import getLogger
 from typing import Any, List
 from OpenGL import GL
@@ -11,7 +12,20 @@ from . renderer import Renderer
 logger = getLogger(__name__)
 
 
-class Scene:
+class BaseScene(metaclass=ABCMeta):
+    def __init__(self):
+        pass
+
+    @abstractmethod
+    def update(self, d: int):
+        pass
+
+    @abstractmethod
+    def draw(self, state: FrameState):
+        pass
+
+
+class Scene(BaseScene):
     def __init__(self) -> None:
         self.env: List[Any] = []
         self.drawables: List[Any] = [cube.create_cube(0.3)]
@@ -41,7 +55,7 @@ class SampleController(glglue.basecontroller.BaseController):
         self.clear_color = (0.6, 0.6, 0.4, 0.0)
         self.camera = Camera()
         self.gizmo = gizmo.Gizmo()
-        self.scene = Scene()
+        self.scene: BaseScene = Scene()
         self.isInitialized = False
 
     def onResize(self, w: int, h: int) -> bool:
@@ -93,7 +107,6 @@ class SampleController(glglue.basecontroller.BaseController):
     def initialize(self):
         import glglue
         logger.info(glglue.get_info())
-        GL.glEnable(GL.GL_DEPTH_TEST)
         self.isInitialized = True
 
     def draw(self):
