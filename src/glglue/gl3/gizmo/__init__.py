@@ -264,7 +264,6 @@ class Gizmo:
         any_hit = False
         for t in triangles:
             hit = self.triangle(*t, intersect=(not any_hit))
-            logger.info(hit)
             if hit:
                 self.hover = key
                 any_hit = True
