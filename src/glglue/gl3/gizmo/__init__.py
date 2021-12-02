@@ -58,6 +58,10 @@ class Gizmo:
         self.triangle_shader = None
         self.triangle_drawable = None
 
+        # hover selectable
+        self.hover = None
+        self.hover_last = None
+
     def begin(self, state: FrameState):
         # clear
         self.line_count = 0
@@ -69,6 +73,9 @@ class Gizmo:
         self.click_right = self.state.mouse_right_down and not state.mouse_right_down
         self.click_middle = self.state.mouse_middle_down and not state.mouse_middle_down
         self.state = state
+
+        self.hover_last = self.hover
+        self.hover = None
 
     def end(self):
         # material
@@ -119,24 +126,18 @@ class Gizmo:
         self.lines[self.line_count] = Vertex(p1, self.color)
         self.line_count += 1
 
-    def triangle(self, p0: Float3, p1: Float3, p2: Float3, *, hittest=False):
+    def triangle(self, p0: Float3, p1: Float3, p2: Float3):
         p0 = self.matrix.apply(*p0)
         p1 = self.matrix.apply(*p1)
         p2 = self.matrix.apply(*p2)
-        color = self.color
-        if hittest:
-            hit = self.state.ray.intersect(p0, p1, p2)
-            if hit:
-                color = Float4(0, 1, 0, 1)
-                logger.info(hit)
 
-        self.triangles[self.triangle_count] = Vertex(p0, color)
+        self.triangles[self.triangle_count] = Vertex(p0, self.color)
         self.triangle_count += 1
 
-        self.triangles[self.triangle_count] = Vertex(p1, color)
+        self.triangles[self.triangle_count] = Vertex(p1, self.color)
         self.triangle_count += 1
 
-        self.triangles[self.triangle_count] = Vertex(p2, color)
+        self.triangles[self.triangle_count] = Vertex(p2, self.color)
         self.triangle_count += 1
 
     def quad(self, p0: Float3, p1: Float3, p2: Float3, p3: Float3):
@@ -189,7 +190,7 @@ class Gizmo:
                 self.line(t2, b2)
                 self.line(t3, b3)
 
-    def bone(self, length: float, is_selected: bool = False):
+    def bone(self, key, length: float, is_selected: bool = False):
         '''
         return True if mouse clicked
         '''
@@ -237,12 +238,25 @@ class Gizmo:
         self.line(p1, t)
 
         # triangles
-        self.color = Float4(1, 1, 1, 0.2)
-        self.triangle(p0, h, p1, hittest=True)
-        self.triangle(p1, h, p2, hittest=True)
-        self.triangle(p2, h, p3, hittest=True)
-        self.triangle(p3, h, p0, hittest=True)
-        self.triangle(p0, t, p1, hittest=True)
-        self.triangle(p1, t, p2, hittest=True)
-        self.triangle(p2, t, p3, hittest=True)
-        self.triangle(p3, t, p0, hittest=True)
+        self.color = Float4(0.5, 0.5, 0.5, 0.2)
+        if self.hover_last == key:
+            self.color = Float4(0, 0.7, 0, 0.7)
+
+        triangles = (
+            (p0, h, p1),
+            (p1, h, p2),
+            (p2, h, p3),
+            (p3, h, p0),
+            (p0, t, p1),
+            (p1, t, p2),
+            (p2, t, p3),
+            (p3, t, p0),
+        )
+
+        hit = None
+        for t in triangles:
+            self.triangle(*t)
+            if not hit:
+                hit = self.state.ray.intersect(*t)
+        if hit:
+            self.hover = key

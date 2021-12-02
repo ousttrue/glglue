@@ -22,7 +22,7 @@ class Scene(glglue.gl3.samplecontroller.BaseScene):
         self.gizmo.begin(state)
         self.gizmo.axis(10)
 
-        self.gizmo.bone(1)
+        self.gizmo.bone('bone1', 1)
 
         self.gizmo.end()
 
