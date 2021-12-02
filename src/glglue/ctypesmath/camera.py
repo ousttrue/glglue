@@ -3,6 +3,7 @@ import logging
 from typing import NamedTuple
 from .mat4 import Mat4, Float4
 from .float3 import Float3
+from .hittest import Ray
 logger = logging.getLogger(__name__)
 
 
@@ -23,6 +24,7 @@ class Perspective:
 class Orbit:
     def __init__(self) -> None:
         self.matrix = Mat4.new_identity()
+        self.inverse = Mat4.new_identity()
         self.x = 0.0
         self.y = 0.0
         self.distance = 2.0
@@ -38,6 +40,7 @@ class Orbit:
         yaw = Mat4.new_rotation_y(self.yaw)
         pitch = Mat4.new_rotation_x(self.pitch)
         self.matrix = yaw * pitch * t
+        self.inverse = self.matrix.inverse_rigidbody()
 
 
 class FrameState(NamedTuple):
@@ -52,6 +55,7 @@ class FrameState(NamedTuple):
     mouse_middle_down: bool
     camera_view: Mat4
     camera_projection: Mat4
+    ray: Ray
 
 
 class Camera:
@@ -182,10 +186,26 @@ class Camera:
             self.projection.z_far = self.view.distance*2
             self.projection.update_matrix()
 
+    def get_mouse_ray(self):
+        origin = Float3(
+            self.view.inverse._41,
+            self.view.inverse._42,
+            self.view.inverse._43)
+        half_fov = self.projection.fov_y/2
+        dir = Float3(
+            (self.x/self.width * 2 - 1) * math.tan(half_fov) * (self.projection.aspect),
+            -(self.y/self.height * 2 - 1) * math.tan(half_fov),
+            -1)
+        dir = self.view.inverse.apply(*dir, translate=False)
+
+        return Ray(origin, dir.normalized())
+
     def get_state(self) -> FrameState:
+        ray = self.get_mouse_ray()
         return FrameState(
             Float4(0, 0, self.width, self.height),
             self.x, self.y,
             self.left, self.right, self.middle,
-            self.view.matrix, self.projection.matrix
+            self.view.matrix, self.projection.matrix,
+            ray
         )

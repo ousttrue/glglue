@@ -38,11 +38,15 @@ void main() { fColor = vColor; }
 
 class Gizmo:
     def __init__(self) -> None:
-        self.state = FrameState(Float4(0, 0, 1, 1), 0, 0, False,
-                                False, False, Mat4.new_identity(), Mat4.new_identity())
         # state
+        self.state = FrameState(Float4(0, 0, 1, 1), 0, 0, False,
+                                False, False, Mat4.new_identity(), Mat4.new_identity(), Ray(Float3(0, 0, 0), Float3(0, 0, 1)))
         self.matrix = Mat4.new_identity()
         self.color = Float4(1, 1, 1, 1)
+        # event
+        self.click_left = False
+        self.click_middle = False
+        self.click_right = False
         # lines
         self.lines = (Vertex * 65535)()
         self.line_count = 0
@@ -61,12 +65,9 @@ class Gizmo:
         self.matrix = Mat4.new_identity()
         self.color = Float4(1, 1, 1, 1)
         # update
-        if self.state.mouse_left_down and not state.mouse_left_down:
-            logger.info(f'left click: {state.mouse_x} x {state.mouse_y}')
-        if self.state.mouse_right_down and not state.mouse_right_down:
-            logger.info(f'right click: {state.mouse_x} x {state.mouse_y}')
-        if self.state.mouse_middle_down and not state.mouse_middle_down:
-            logger.info(f'middle click: {state.mouse_x} x {state.mouse_y}')
+        self.click_left = self.state.mouse_left_down and not state.mouse_left_down
+        self.click_right = self.state.mouse_right_down and not state.mouse_right_down
+        self.click_middle = self.state.mouse_middle_down and not state.mouse_middle_down
         self.state = state
 
     def end(self):
@@ -118,17 +119,24 @@ class Gizmo:
         self.lines[self.line_count] = Vertex(p1, self.color)
         self.line_count += 1
 
-    def triangle(self, p0: Float3, p1: Float3, p2: Float3):
+    def triangle(self, p0: Float3, p1: Float3, p2: Float3, *, hittest=False):
         p0 = self.matrix.apply(*p0)
-        self.triangles[self.triangle_count] = Vertex(p0, self.color)
-        self.triangle_count += 1
-
         p1 = self.matrix.apply(*p1)
-        self.triangles[self.triangle_count] = Vertex(p1, self.color)
+        p2 = self.matrix.apply(*p2)
+        color = self.color
+        if hittest:
+            hit = self.state.ray.intersect(p0, p1, p2)
+            if hit:
+                color = Float4(0, 1, 0, 1)
+                logger.info(hit)
+
+        self.triangles[self.triangle_count] = Vertex(p0, color)
         self.triangle_count += 1
 
-        p2 = self.matrix.apply(*p2)
-        self.triangles[self.triangle_count] = Vertex(p2, self.color)
+        self.triangles[self.triangle_count] = Vertex(p1, color)
+        self.triangle_count += 1
+
+        self.triangles[self.triangle_count] = Vertex(p2, color)
         self.triangle_count += 1
 
     def quad(self, p0: Float3, p1: Float3, p2: Float3, p3: Float3):
@@ -181,7 +189,7 @@ class Gizmo:
                 self.line(t2, b2)
                 self.line(t3, b3)
 
-    def bone(self, length: float, is_selected: bool = False) -> bool:
+    def bone(self, length: float, is_selected: bool = False):
         '''
         return True if mouse clicked
         '''
@@ -230,13 +238,11 @@ class Gizmo:
 
         # triangles
         self.color = Float4(1, 1, 1, 0.2)
-        self.triangle(p0, h, p1)
-        self.triangle(p1, h, p2)
-        self.triangle(p2, h, p3)
-        self.triangle(p3, h, p0)
-        self.triangle(p0, t, p1)
-        self.triangle(p1, t, p2)
-        self.triangle(p2, t, p3)
-        self.triangle(p3, t, p0)
-
-        return False
+        self.triangle(p0, h, p1, hittest=True)
+        self.triangle(p1, h, p2, hittest=True)
+        self.triangle(p2, h, p3, hittest=True)
+        self.triangle(p3, h, p0, hittest=True)
+        self.triangle(p0, t, p1, hittest=True)
+        self.triangle(p1, t, p2, hittest=True)
+        self.triangle(p2, t, p3, hittest=True)
+        self.triangle(p3, t, p0, hittest=True)

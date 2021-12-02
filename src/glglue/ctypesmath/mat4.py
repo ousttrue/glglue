@@ -99,12 +99,19 @@ class Mat4(ctypes.Structure):
                 self._14, self._24, self._34, self._44
             )
 
-    def apply(self, x: float, y: float, z: float) -> Float3:
-        return Float3(
-            x * self._11 + y * self._21 + z * self._31 + self._41,
-            x * self._12 + y * self._22 + z * self._32 + self._42,
-            x * self._13 + y * self._23 + z * self._33 + self._43
-        )
+    def apply(self, x: float, y: float, z: float, *, translate=True) -> Float3:
+        if translate:
+            return Float3(
+                x * self._11 + y * self._21 + z * self._31 + self._41,
+                x * self._12 + y * self._22 + z * self._32 + self._42,
+                x * self._13 + y * self._23 + z * self._33 + self._43
+            )
+        else:
+            return Float3(
+                x * self._11 + y * self._21 + z * self._31,
+                x * self._12 + y * self._22 + z * self._32,
+                x * self._13 + y * self._23 + z * self._33
+            )
 
     def to_array(self):
         return (ctypes.c_float * 16).from_buffer(self)

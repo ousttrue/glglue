@@ -20,7 +20,7 @@ class Float3(ctypes.Structure):
 
     def normalized(self) -> 'Float3':
         f = 1 / self.get_length()
-        return Float3(self.x * f, self.y * f, self.z * f)
+        return self * f
 
     @staticmethod
     def dot(lhs, rhs) -> float:
@@ -65,6 +65,9 @@ class Float3(ctypes.Structure):
             case Float3(x, y, z) | (x, y, z):
                 return Float3(self.x - x, self.y - y, self.z - z)
         raise RuntimeError()
+
+    def __mul__(self, rhs: float) -> 'Float3':
+        return Float3(self.x * rhs, self.y * rhs, self.z * rhs)
 
     @staticmethod
     def new_inifinity() -> 'Float3':
