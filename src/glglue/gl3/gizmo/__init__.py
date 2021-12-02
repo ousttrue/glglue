@@ -4,6 +4,8 @@ from glglue.ctypesmath import *
 import glglue.scene.vertices
 import glglue.gl3.shader
 import glglue.gl3.vbo
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Vertex(ctypes.Structure):
@@ -36,7 +38,8 @@ void main() { fColor = vColor; }
 
 class Gizmo:
     def __init__(self) -> None:
-        self.vp = Mat4.new_identity()
+        self.state = FrameState(Float4(0, 0, 1, 1), 0, 0, False,
+                                False, False, Mat4.new_identity(), Mat4.new_identity())
         # state
         self.matrix = Mat4.new_identity()
         self.color = Float4(1, 1, 1, 1)
@@ -52,11 +55,19 @@ class Gizmo:
         self.triangle_drawable = None
 
     def begin(self, state: FrameState):
+        # clear
         self.line_count = 0
         self.triangle_count = 0
-        self.state = state
         self.matrix = Mat4.new_identity()
         self.color = Float4(1, 1, 1, 1)
+        # update
+        if self.state.mouse_left_down and not state.mouse_left_down:
+            logger.info(f'left click: {state.mouse_x} x {state.mouse_y}')
+        if self.state.mouse_right_down and not state.mouse_right_down:
+            logger.info(f'right click: {state.mouse_x} x {state.mouse_y}')
+        if self.state.mouse_middle_down and not state.mouse_middle_down:
+            logger.info(f'middle click: {state.mouse_x} x {state.mouse_y}')
+        self.state = state
 
     def end(self):
         # material

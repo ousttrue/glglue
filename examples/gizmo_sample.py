@@ -1,7 +1,7 @@
 #
 # pip install pyside6
 #
-from PySide6 import QtWidgets, QtGui
+from PySide6 import QtWidgets, QtGui, QtCore
 import logging
 from glglue.ctypesmath.camera import FrameState
 import glglue.gl3.samplecontroller
@@ -16,10 +16,11 @@ class Scene(glglue.gl3.samplecontroller.BaseScene):
         self.gizmo = gizmo.Gizmo()
 
     def update(self, d: int):
-        pass
+        return True
 
     def draw(self, state: FrameState):
         self.gizmo.begin(state)
+        self.gizmo.axis(10)
 
         self.gizmo.bone(1)
 
@@ -40,6 +41,9 @@ class Window(QtWidgets.QMainWindow):
         self.glwidget = glglue.pyside6.Widget(
             self, self.controller, glglue.utils.get_desktop_scaling_factor())
         self.setCentralWidget(self.glwidget)
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.glwidget.update)
+        self.timer.start(33)
 
 
 if __name__ == "__main__":

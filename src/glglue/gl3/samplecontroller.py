@@ -17,8 +17,8 @@ class BaseScene(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def update(self, d: int):
-        pass
+    def update(self, d: int) -> bool:
+        return False
 
     @abstractmethod
     def draw(self, state: FrameState):
@@ -32,12 +32,16 @@ class Scene(BaseScene):
         self.renderer = Renderer()
         self.gizmo = gizmo.Gizmo()
 
-    def update(self, d: int):
+    def update(self, d: int) -> bool:
+        updated = False
         for drawable in self.drawables:
-            drawable.update(d)
+            if drawable.update(d):
+                updated = True
+        return updated
 
     def draw(self, state: FrameState):
         self.gizmo.begin(state)
+        self.gizmo.axis(10)
 
         for e in self.env:
             self.renderer.draw(e, state)
@@ -54,7 +58,6 @@ class SampleController(glglue.basecontroller.BaseController):
     def __init__(self):
         self.clear_color = (0.6, 0.6, 0.4, 0.0)
         self.camera = Camera()
-        self.gizmo = gizmo.Gizmo()
         self.scene: BaseScene = Scene()
         self.isInitialized = False
 
@@ -100,9 +103,9 @@ class SampleController(glglue.basecontroller.BaseController):
         '''
         milliseconds
         '''
-        if self.scene:
-            self.scene.update(d)
-        return False
+        if not self.scene:
+            return False
+        return self.scene.update(d)
 
     def initialize(self):
         import glglue
@@ -121,7 +124,4 @@ class SampleController(glglue.basecontroller.BaseController):
         if self.scene:
             self.scene.draw(state)
 
-        self.gizmo.begin(state)
-        self.gizmo.axis(10)
-        self.gizmo.end()
         GL.glFlush()
