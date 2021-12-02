@@ -1,7 +1,8 @@
 import math
-from .mat4 import Mat4
-from .float3 import Float3
 import logging
+from typing import NamedTuple
+from .mat4 import Mat4, Float4
+from .float3 import Float3
 logger = logging.getLogger(__name__)
 
 
@@ -37,6 +38,20 @@ class Orbit:
         yaw = Mat4.new_rotation_y(self.yaw)
         pitch = Mat4.new_rotation_x(self.pitch)
         self.matrix = yaw * pitch * t
+
+
+class FrameState(NamedTuple):
+    '''
+    RenderInfo for frame
+    '''
+    viewport: Float4
+    mouse_x: int
+    mouse_y: int
+    mouse_left_down: bool
+    mouse_right_down: bool
+    mouse_middle_down: bool
+    camera_view: Mat4
+    camera_projection: Mat4
 
 
 class Camera:
@@ -166,3 +181,11 @@ class Camera:
         if self.view.distance*2 > self.projection.z_far:
             self.projection.z_far = self.view.distance*2
             self.projection.update_matrix()
+
+    def get_state(self) -> FrameState:
+        return FrameState(
+            Float4(0, 0, self.width, self.height),
+            self.x, self.y,
+            self.left, self.right, self.middle,
+            self.view.matrix, self.projection.matrix
+        )

@@ -4,7 +4,7 @@ from typing import Dict, Union, Tuple
 from ..scene.node import Node
 from ..scene.mesh import Mesh
 from ..scene.material import Material, Texture, CubeMap
-from ..ctypesmath.mat4 import Mat4
+from ..ctypesmath import Mat4, FrameState
 import glglue.gl3.vbo
 import glglue.gl3.shader
 import glglue.gl3.texture
@@ -100,9 +100,11 @@ class Renderer:
         for child in node.children:
             self._draw_node(child, projection, view, m)
 
-    def draw(self, root: Union[Node, Mesh], projection: Mat4, view: Mat4):
+    def draw(self, root: Union[Node, Mesh], state: FrameState):
         match root:
             case Node() as node:
-                self._draw_node(node, projection, view, Mat4.new_identity())
+                self._draw_node(node, state.camera_projection,
+                                state.camera_view, Mat4.new_identity())
             case Mesh() as mesh:
-                self._draw_mesh(mesh, projection, view, Mat4.new_identity())
+                self._draw_mesh(mesh, state.camera_projection,
+                                state.camera_view, Mat4.new_identity())

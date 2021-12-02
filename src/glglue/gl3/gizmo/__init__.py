@@ -7,7 +7,7 @@ import glglue.gl3.shader
 import glglue.gl3.vbo
 
 
-class LineVertex(ctypes.Structure):
+class Vertex(ctypes.Structure):
     _fields_ = [
         ('position', Float3),
         ('color', Float4)
@@ -38,46 +38,52 @@ void main() { fColor = vColor; }
 class Gizmo:
     def __init__(self) -> None:
         self.vp = Mat4.new_identity()
-        self.lines = (LineVertex * 65535)()
-        self.line_count = 0
         # state
         self.matrix = Mat4.new_identity()
         self.color = Float4(1, 1, 1, 1)
-        #
-        self.shader = None
-        self.drawable = None
-
-    def begin(self, view: Mat4, projection: Mat4):
+        # lines
+        self.lines = (Vertex * 65535)()
         self.line_count = 0
-        self.vp = view * projection
+        self.line_shader = None
+        self.line_drawable = None
+        # triangles
+        self.triangles = (Vertex * 65535)()
+        self.triangle_count = 0
+        self.triangle_shader = None
+        self.triangle_drawable = None
+
+    def begin(self, state: FrameState):
+        self.line_count = 0
+        self.vp = state.camera_view * state.camera_projection
         self.matrix = Mat4.new_identity()
+        self.color = Float4(1, 1, 1, 1)
 
     def end(self):
         # material
-        if not self.shader:
+        if not self.line_shader:
             shader_source = glglue.gl3.shader.ShaderSource(
                 VS, (), FS, ())
-            self.shader = glglue.gl3.shader.create_from(shader_source)
-        self.shader.use()
-        self.shader.set_uniform('vp', self.vp)
+            self.line_shader = glglue.gl3.shader.create_from(shader_source)
+        self.line_shader.use()
+        self.line_shader.set_uniform('vp', self.vp)
 
         # vertices
-        if self.drawable:
-            self.drawable.vbo_list[0].update(memoryview(self.lines))
+        if self.line_drawable:
+            self.line_drawable.vbo_list[0].update(memoryview(self.lines))
         else:
             typed = glglue.scene.vertices.VectorView(
                 memoryview(self.lines), ctypes.c_float, 7)
-            self.drawable = glglue.gl3.vbo.create(
+            self.line_drawable = glglue.gl3.vbo.create(
                 glglue.gl3.vbo.Interleaved(typed, [0, 12]), is_dynamic=True)
-        self.drawable.draw(GL.GL_LINES, 0, self.line_count)
+        self.line_drawable.draw(GL.GL_LINES, 0, self.line_count)
 
     def line(self, p0: Float3, p1: Float3):
         p0 = self.matrix.apply(*p0)
-        self.lines[self.line_count] = LineVertex(p0, self.color)
+        self.lines[self.line_count] = Vertex(p0, self.color)
         self.line_count += 1
 
         p1 = self.matrix.apply(*p1)
-        self.lines[self.line_count] = LineVertex(p1, self.color)
+        self.lines[self.line_count] = Vertex(p1, self.color)
         self.line_count += 1
 
     def axis(self, size: float):

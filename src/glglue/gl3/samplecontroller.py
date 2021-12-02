@@ -3,7 +3,7 @@ from typing import Any, List
 from OpenGL import GL
 from . import gizmo
 import glglue.basecontroller
-from glglue import ctypesmath
+from glglue.ctypesmath import Camera, FrameState, AABB, Float4
 import glglue.gl3.vbo
 import glglue.scene.material
 from ..scene import cube
@@ -22,19 +22,15 @@ class Scene:
         for drawable in self.drawables:
             drawable.update(d)
 
-    def draw(self, camera: ctypesmath.Camera):
-        self.gizmo.begin(camera.view.matrix, camera.projection.matrix)
+    def draw(self, state: FrameState):
+        self.gizmo.begin(state)
 
         for e in self.env:
-            self.renderer.draw(
-                e, camera.projection.matrix, camera.view.matrix)
-        for i, drawable in enumerate(self.drawables):
-            self.renderer.draw(
-                drawable,
-                camera.projection.matrix,
-                camera.view.matrix)
+            self.renderer.draw(e, state)
+        for _, drawable in enumerate(self.drawables):
+            self.renderer.draw(drawable, state)
             # aabb
-            aabb = ctypesmath.AABB.new_empty()
+            aabb = AABB.new_empty()
             self.gizmo.aabb(drawable.expand_aabb(aabb))
 
         self.gizmo.end()
@@ -43,13 +39,12 @@ class Scene:
 class SampleController(glglue.basecontroller.BaseController):
     def __init__(self):
         self.clear_color = (0.6, 0.6, 0.4, 0.0)
-        self.camera = ctypesmath.Camera()
+        self.camera = Camera()
         self.gizmo = gizmo.Gizmo()
         self.scene = Scene()
         self.isInitialized = False
 
     def onResize(self, w: int, h: int) -> bool:
-        GL.glViewport(0, 0, w, h)
         return self.camera.onResize(w, h)
 
     def onLeftDown(self, x: int, y: int) -> bool:
@@ -107,11 +102,13 @@ class SampleController(glglue.basecontroller.BaseController):
         GL.glClearColor(*self.clear_color)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT |
                    GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
-        if self.scene:
-            self.scene.draw(self.camera)
 
-        self.gizmo.begin(self.camera.view.matrix,
-                         self.camera.projection.matrix)
+        state = self.camera.get_state()
+
+        if self.scene:
+            self.scene.draw(state)
+
+        self.gizmo.begin(state)
         self.gizmo.axis(10)
         self.gizmo.end()
         GL.glFlush()
