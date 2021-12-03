@@ -95,6 +95,14 @@ class ImGuiController(BaseController):
         self.io.delta_time = d * 0.001
         return True
 
+    def on_imgui(self):
+        # open new window context
+        imgui.begin("Your first window!", True)
+        # draw text label inside of current window
+        imgui.text("Hello world!")
+        # close current window context
+        imgui.end()
+
     def draw(self):
         if not self.is_init:
             # initilize imgui context (see documentation)
@@ -112,12 +120,7 @@ class ImGuiController(BaseController):
         # start new frame context
         imgui.new_frame()
 
-        # open new window context
-        imgui.begin("Your first window!", True)
-        # draw text label inside of current window
-        imgui.text("Hello world!")
-        # close current window context
-        imgui.end()
+        self.on_imgui()
 
         imgui.end_frame()
 
