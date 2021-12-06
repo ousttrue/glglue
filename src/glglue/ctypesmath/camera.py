@@ -83,6 +83,8 @@ class Camera:
         ''' 
         Mouse input. Returns whether redraw is required.
         '''
+        if self.left:
+            return False
         self.left = True
         self.x = x
         self.y = y
@@ -99,6 +101,8 @@ class Camera:
         ''' 
         Mouse input. Returns whether redraw is required.
         '''
+        if self.middle:
+            return False
         self.middle = True
         self.x = x
         self.y = y
@@ -115,6 +119,8 @@ class Camera:
         ''' 
         Mouse input. Returns whether redraw is required.
         '''
+        if self.right:
+            return False
         self.right = True
         self.x = x
         self.y = y
@@ -193,7 +199,8 @@ class Camera:
             self.view.inverse._43)
         half_fov = self.projection.fov_y/2
         dir = Float3(
-            (self.x/self.width * 2 - 1) * math.tan(half_fov) * (self.projection.aspect),
+            (self.x/self.width * 2 - 1) *
+            math.tan(half_fov) * (self.projection.aspect),
             -(self.y/self.height * 2 - 1) * math.tan(half_fov),
             -1)
         dir = self.view.inverse.apply(*dir, translate=False)
