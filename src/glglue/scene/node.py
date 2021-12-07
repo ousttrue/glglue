@@ -7,7 +7,7 @@ class Node:
     def __init__(self, name: str, transform: Union[TRS, Mat4]):
         self. name = name
         self.local_transform = transform
-        self.world_transform = Mat4.new_identity()
+        self.world_matrix = Mat4.new_identity()
         self.children: List['Node'] = []
         self.meshes: List[mesh.Mesh] = []
 
@@ -42,8 +42,8 @@ class Node:
 
     def calc_world(self, parent: Optional[Mat4] = None):
         if parent:
-            self.world_transform = self.get_local_matrix() * parent
+            self.world_matrix = self.get_local_matrix() * parent
         else:
-            self.world_transform = self.get_local_matrix()
+            self.world_matrix = self.get_local_matrix()
         for child in self.children:
-            child.calc_world(self.world_transform)
+            child.calc_world(self.world_matrix)
