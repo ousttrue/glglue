@@ -1,15 +1,24 @@
-# coding: utf-8
-from logging import getLogger
+from glglue.sample.imguicontroller import ImGuiController
+import logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    format='%(levelname)s:%(name)s:%(message)s', level=logging.DEBUG)
 
-logger = getLogger(__name__)
 
-from logging import basicConfig, DEBUG
+class CustomGUI(ImGuiController):
+    def on_imgui(self):
+        import imgui
 
-basicConfig(format='%(levelname)s:%(name)s:%(message)s', level=DEBUG)
+        # open new window context
+        imgui.begin("CustomGUI", True)
+        # draw text label inside of current window
+        imgui.text("imgui !")
+        # close current window context
+        imgui.end()
+
 
 if __name__ == "__main__":
-    from glglue.sample.imguicontroller import ImGuiController
-    controller = ImGuiController()
+    controller = CustomGUI()
 
     import glglue.wgl
     loop = glglue.wgl.LoopManager(controller,

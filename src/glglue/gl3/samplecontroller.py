@@ -120,6 +120,8 @@ class SampleController(glglue.basecontroller.BaseController):
                    GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
 
         state = self.camera.get_state()
+        GL.glViewport(int(state.viewport.x), int(state.viewport.y),
+                      int(state.viewport.z), int(state.viewport.w))
 
         if self.scene:
             self.scene.draw(state)

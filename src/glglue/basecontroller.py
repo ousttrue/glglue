@@ -78,7 +78,7 @@ class BaseController(metaclass=ABCMeta):
         return False
 
     @abstractmethod
-    def onKeyDown(*args: str) -> bool:
+    def onKeyDown(self, *args: str) -> bool:
         """
         Keyboard event. Returns whether redraw is required.
         """
