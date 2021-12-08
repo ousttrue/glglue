@@ -173,6 +173,8 @@
                    <span class="n">GL</span><span class="o">.</span><span class="n">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
         <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glViewport</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">viewport</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">viewport</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+                      <span class="nb">int</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">viewport</span><span class="o">.</span><span class="n">z</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">viewport</span><span class="o">.</span><span class="n">w</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
