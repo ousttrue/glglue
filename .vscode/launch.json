@@ -66,6 +66,15 @@
             "cwd": "${workspaceRoot}",
         },
         {
+            "name": "cydeer_sample",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "program": "${workspaceFolder}/examples/cydeer_sample.py",
+            "cwd": "${workspaceRoot}",
+            "justMyCode": false
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
