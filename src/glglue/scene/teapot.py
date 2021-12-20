@@ -1,3 +1,4 @@
+from typing import Iterable
 import ctypes
 import pkgutil
 import struct
@@ -13,39 +14,31 @@ class Float3(ctypes.Structure):
         ('z', ctypes.c_float),
     ]
 
+    def __iter__(self) -> Iterable[float]:
+        yield self.x
+        yield self.y
+        yield self.z
+
+
+class StlTriangle(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('normal', Float3),
+        ('position0', Float3),
+        ('position1', Float3),
+        ('position2', Float3),
+        ('attributes', ctypes.c_ushort),
+    ]
+
+
+assert ctypes.sizeof(StlTriangle) == 50
+
 
 class Vertex(ctypes.Structure):
     _fields_ = [
         ('position', Float3),
         ('normal', Float3),
     ]
-
-
-class Builder:
-    def __init__(self) -> None:
-        self.vertices = []
-
-    def push_triangle(self, v0, v1, v2, n):
-        self.vertices.append(Vertex(Float3(*v0), Float3(*n)))
-        self.vertices.append(Vertex(Float3(*v1), Float3(*n)))
-        self.vertices.append(Vertex(Float3(*v2), Float3(*n)))
-
-    def build(self) -> Mesh:
-        vertices = (Vertex * len(self.vertices))(*self.vertices)
-        mesh = Mesh('teapot', Interleaved(
-            VectorView(memoryview(vertices), ctypes.c_float, 6), [0, 12]))
-
-        vs = pkgutil.get_data('glglue', 'assets/teapot.vs')
-        if not vs:
-            raise Exception()
-        fs = pkgutil.get_data('glglue', 'assets/teapot.fs')
-        if not fs:
-            raise Exception()
-        material = Material('teapot', vs.decode('utf-8'), fs.decode('utf-8'))
-
-        mesh.add_submesh(material, [], GL.GL_TRIANGLES)
-
-        return mesh
 
 
 class BinaryReader:
@@ -69,10 +62,45 @@ class BinaryReader:
         return struct.unpack('f', data)[0]
 
 
+class Builder:
+    def __init__(self, triangle_count: int):
+        self.vertices = (Vertex * (triangle_count * 3))()
+
+    def push_triangle(self, i: int, t: StlTriangle, scale: float):
+        p0x, p0y, p0z = t.position0
+        p1x, p1y, p1z = t.position1
+        p2x, p2y, p2z = t.position2
+        nx, ny, nz = t.normal
+        v0 = self.vertices[i]
+        v0.position = Float3(p0x*scale, p0z*scale, -p0y*scale)
+        v0.normal = Float3(nx, nz, -ny)
+        v1 = self.vertices[i+1]
+        v1.position = Float3(p1x*scale, p1z*scale, -p1y*scale)
+        v1.normal = Float3(nx, nz, -ny)
+        v2 = self.vertices[i+2]
+        v2.position = Float3(p2x*scale, p2z*scale, -p2y*scale)
+        v2.normal = Float3(nx, nz, -ny)
+
+    def build(self):
+        mesh = Mesh('teapot', Interleaved(
+            VectorView(memoryview(self.vertices), ctypes.c_float, 6), [0, 12]))
+
+        vs = pkgutil.get_data('glglue', 'assets/teapot.vs')
+        if not vs:
+            raise Exception()
+        fs = pkgutil.get_data('glglue', 'assets/teapot.fs')
+        if not fs:
+            raise Exception()
+        material = Material('teapot', vs.decode('utf-8'), fs.decode('utf-8'))
+
+        mesh.add_submesh(material, [], GL.GL_TRIANGLES)
+
+        return mesh
+
+
 def create_teapot() -> Mesh:
 
     # https://en.wikipedia.org/wiki/Utah_teapot#/media/File:Utah_teapot_(solid).stl
-    import pkgutil
     data = pkgutil.get_data('glglue', 'assets/Utah_teapot_(solid).stl')
     if not data:
         raise RuntimeError()
@@ -82,30 +110,15 @@ def create_teapot() -> Mesh:
 
     # UINT8[80]    – Header                 -     80 bytes
     # UINT32       – Number of triangles    -      4 bytes
-
     header = r.read(80)
     triangle_count = r.read_uint32()
 
-    b = Builder()
-    for _ in range(triangle_count):
-        nx = r.read_float32()
-        ny = r.read_float32()
-        nz = r.read_float32()
-        p0x = r.read_float32() * 0.1
-        p0y = r.read_float32() * 0.1
-        p0z = r.read_float32() * 0.1
-        p1x = r.read_float32() * 0.1
-        p1y = r.read_float32() * 0.1
-        p1z = r.read_float32() * 0.1
-        p2x = r.read_float32() * 0.1
-        p2y = r.read_float32() * 0.1
-        p2z = r.read_float32() * 0.1
-        _attribute = r.read(2)
-        # zup to yup
-        b.push_triangle(
-            (p0x, p0z, -p0y),
-            (p1x, p1z, -p1y),
-            (p2x, p2z, -p2y),
-            (nx, nz, -ny))
+    triangles_type = StlTriangle * triangle_count
+    data = r.read(ctypes.sizeof(triangles_type))
+    triangles = triangles_type.from_buffer_copy(data)
+
+    b = Builder(triangle_count)
+    for i, t in enumerate(triangles):
+        b.push_triangle(i * 3, t, 0.1)
 
     return b.build()
