@@ -33,6 +33,7 @@ class Scene(BaseScene):
         self.drawables: List[Any] = [teapot.create_teapot()]
         self.renderer = Renderer()
         self.gizmo = gizmo.Gizmo()
+        self.light = Float4(-1, -1, -1, 0)
 
     def update(self, d: int) -> bool:
         updated = False
@@ -46,9 +47,9 @@ class Scene(BaseScene):
         self.gizmo.axis(10)
 
         for e in self.env:
-            self.renderer.draw(e, state)
+            self.renderer.draw(e, state, self.light)
         for _, drawable in enumerate(self.drawables):
-            self.renderer.draw(drawable, state)
+            self.renderer.draw(drawable, state, self.light)
             # aabb
             aabb = AABB.new_empty()
             self.gizmo.aabb(drawable.expand_aabb(aabb))

@@ -1,18 +1,23 @@
+import logging
+import ctypes
 from OpenGL import GL
 from glglue import ctypesmath
 from typing import Any, NamedTuple, List, Tuple
 from .texture import Texture
+
+logger = logging.getLogger(__name__)
 
 
 def compile_shader(src: str, shader_type):
     shader = GL.glCreateShader(shader_type)
     GL.glShaderSource(shader, src)
     GL.glCompileShader(shader)
-    error = GL.glGetShaderiv(shader, GL.GL_COMPILE_STATUS)
-    if error != GL.GL_TRUE:
+    result = GL.glGetShaderiv(shader, GL.GL_COMPILE_STATUS)
+    if result != GL.GL_TRUE:
         info = GL.glGetShaderInfoLog(shader)
         GL.glDeleteShader(shader)
-        raise Exception(info)
+        logging.error(info)
+        return
     return shader
 
 
@@ -22,11 +27,17 @@ class UniformMat4:
         self.name = name
         self.location = -1
 
-    def set(self, value: ctypesmath.Mat4, transpose=True) -> None:
+    def set(self, value, transpose=True) -> None:
         if self.location < 0:
             self.location = GL.glGetUniformLocation(self.program, self.name)
-        GL.glUniformMatrix4fv(
-            self.location, 1, GL.GL_TRUE if transpose else GL.GL_FALSE, value.to_array())
+        match value:
+            case ctypesmath.Mat4():
+                GL.glUniformMatrix4fv(
+                    self.location, 1, GL.GL_TRUE if transpose else GL.GL_FALSE, ctypes.byref(value))
+            case ctypesmath.Float4():
+                GL.glUniform4fv(self.location, 1, ctypes.byref(value))
+            case _:
+                raise RuntimeError()
 
 
 class ShaderSource(NamedTuple):
@@ -45,6 +56,7 @@ class ShaderSource(NamedTuple):
 class Shader:
     def __init__(self) -> None:
         self.program = GL.glCreateProgram()
+        self.ready = False
         self.uniforms = {}
 
     def __del__(self) -> None:
@@ -53,11 +65,13 @@ class Shader:
     def compile(self, shader_source: ShaderSource):
         vs = compile_shader(shader_source.get_vs(), GL.GL_VERTEX_SHADER)
         if not vs:
-            raise Exception('compile_shader: GL_VERTEX_SHADER')
+            logger.warn('compile_shader: GL_VERTEX_SHADER')
+            return
 
         fs = compile_shader(shader_source.get_fs(), GL.GL_FRAGMENT_SHADER)
         if not fs:
-            raise Exception('compile_shader: GL_FRAGMENT_SHADER')
+            logging.warn('compile_shader: GL_FRAGMENT_SHADER')
+            return
 
         GL.glAttachShader(self.program, vs)
         GL.glAttachShader(self.program, fs)
@@ -67,15 +81,21 @@ class Shader:
         GL.glDeleteShader(fs)
         if error != GL.GL_TRUE:
             info = GL.glGetShaderInfoLog(self.program)
-            raise Exception(info)
+            logger.error(info)
+
+        self.ready = True
 
     def use(self):
+        if not self.ready:
+            return
         GL.glUseProgram(self.program)
 
     def unuse(self):
         GL.glUseProgram(0)
 
     def set_uniform(self, name: str, value: Any, transpose=True):
+        if not self.ready:
+            return
         u = self.uniforms.get(name)
         if not u:
             u = UniformMat4(self.program, name)
@@ -83,6 +103,8 @@ class Shader:
         u.set(value, transpose)
 
     def set_texture(self, name: str, slot: int, texture: Texture):
+        if not self.ready:
+            return
         location = GL.glGetUniformLocation(self.program, name)
         texture.activate(location, slot)
 

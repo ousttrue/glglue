@@ -1,0 +1,10 @@
+ BasedOnStyle: LLVM
+ # AllowShortIfStatementsOnASingleLine: false
+ # AllowShortBlocksOnASingleLine: false
+ AllowShortFunctionsOnASingleLine: false
+ AccessModifierOffset: -4 
+ BreakBeforeBraces: Allman # かっこの位置
+ IndentCaseLabels: false # switch case
+ IndentWidth: 4
+ SortIncludes: false
+ UseTab: Never

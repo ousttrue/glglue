@@ -4,7 +4,7 @@ from typing import Dict, Union, Tuple
 from ..scene.node import Node
 from ..scene.mesh import Mesh
 from ..scene.material import Material, Texture, CubeMap
-from ..ctypesmath import Mat4, FrameState
+from ..ctypesmath import Mat4, FrameState, Float4
 import glglue.gl3.vbo
 import glglue.gl3.shader
 import glglue.gl3.texture
@@ -53,7 +53,7 @@ class Renderer:
             self.meshes[src] = drawable
         return drawable
 
-    def _draw_mesh(self, mesh: Mesh, projection: Mat4, view: Mat4, model: Mat4):
+    def _draw_mesh(self, mesh: Mesh, projection: Mat4, view: Mat4, model: Mat4, light: Float4):
         drawable = self._get_or_create_mesh(mesh)
 
         for submesh in mesh.submeshes:
@@ -82,6 +82,9 @@ class Renderer:
 
                 shader.set_uniform('vp', view * projection)
                 shader.set_uniform('m', model)
+                shader.set_uniform('v', view)
+                shader.set_uniform('p', projection)
+                shader.set_uniform('light', light)
 
                 if submesh.material.color_texture:
                     texture = self._get_or_create_texture(
@@ -91,20 +94,20 @@ class Renderer:
                 drawable.draw(submesh.topology, submesh.offset,
                               submesh.draw_count)
 
-    def _draw_node(self, node: Node, projection: Mat4, view: Mat4, parent: Mat4):
+    def _draw_node(self, node: Node, projection: Mat4, view: Mat4, parent: Mat4, light: Float4):
         m = node.get_local_matrix() * parent
 
         for mesh in node.meshes:
-            self._draw_mesh(mesh, projection, view, m)
+            self._draw_mesh(mesh, projection, view, m, light)
 
         for child in node.children:
-            self._draw_node(child, projection, view, m)
+            self._draw_node(child, projection, view, m, light)
 
-    def draw(self, root: Union[Node, Mesh], state: FrameState):
+    def draw(self, root: Union[Node, Mesh], state: FrameState, light: Float4):
         match root:
             case Node() as node:
                 self._draw_node(node, state.camera_projection,
-                                state.camera_view, Mat4.new_identity())
+                                state.camera_view, Mat4.new_identity(), light)
             case Mesh() as mesh:
                 self._draw_mesh(mesh, state.camera_projection,
-                                state.camera_view, Mat4.new_identity())
+                                state.camera_view, Mat4.new_identity(), light)

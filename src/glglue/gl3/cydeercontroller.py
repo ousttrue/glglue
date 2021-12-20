@@ -28,30 +28,45 @@ class CydeerController(BaseController):
         self.impl_gl = Renderer()
         self.viewport = (1, 1)
 
-        #
-        # 3D View
-        #
-        self.view = CameraView()
+        # imgui view
+        self.views = [view for view in self.imgui_views()]
 
-        #
-        # dock
-        #
+    def imgui_views(self):
         from cydeer.utils.dockspace import DockView
-        self.metrics_view = DockView(
+        yield DockView(
             'metrics', (ctypes.c_bool * 1)(True), ImGui.ShowMetricsWindow)
 
         def show_hello(p_open: ctypes.Array):
             # open new window context
-            ImGui.Begin("CustomGUI")
-            # draw text label inside of current window
-            ImGui.Text("cydeer !")
+            if ImGui.Begin("CustomGUI", p_open):
+                # draw text label inside of current window
+                ImGui.Text("cydeer !")
             # close current window context
             ImGui.End()
-        self.hello_view = DockView(
+        yield DockView(
             'hello', (ctypes.c_bool * 1)(True), show_hello)
 
-        self.scene_view = DockView(
-            '3d', (ctypes.c_bool * 1)(True), self.view.draw)
+        #
+        # 3D View
+        #
+        view = CameraView()
+        yield DockView(
+            '3d', (ctypes.c_bool * 1)(True), view.draw)
+
+        is_point = (ctypes.c_bool * 1)(False)
+
+        def show_env(p_open: ctypes.Array):
+            if ImGui.Begin("env", p_open):
+                ImGui.Checkbox("point or direction", is_point)
+                if is_point[0]:
+                    view.rendertarget.scene.light.w = 1
+                else:
+                    view.rendertarget.scene.light.w = 0
+                ImGui.SliderFloat3(
+                    'light position', view.rendertarget.scene.light, -10, 10)
+            ImGui.End()
+        yield DockView(
+            'env', (ctypes.c_bool * 1)(True), show_env)
 
     def load_font(self):
         # create texture before: ImGui.NewFrame()
@@ -107,7 +122,7 @@ class CydeerController(BaseController):
 
     def draw_imgui(self):
         from cydeer.utils.dockspace import dockspace
-        dockspace(self.metrics_view, self.hello_view, self.scene_view)
+        dockspace(*self.views)
 
     def draw(self):
         # state = self.camera.get_state()
