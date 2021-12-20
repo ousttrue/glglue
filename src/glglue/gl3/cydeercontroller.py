@@ -21,7 +21,7 @@ class CydeerController(BaseController):
         self.io = ImGui.GetIO()
         self.io.ConfigFlags |= ImGui.ImGuiConfigFlags_.DockingEnable
 
-        self.load_font()
+        self.imgui_font()
 
         self.io.DisplayFramebufferScale = ImGui.ImVec2(scale, scale)
         from cydeer.backends.opengl import Renderer
@@ -68,7 +68,7 @@ class CydeerController(BaseController):
         yield DockView(
             'env', (ctypes.c_bool * 1)(True), show_env)
 
-    def load_font(self):
+    def imgui_font(self):
         # create texture before: ImGui.NewFrame()
         self.io.Fonts.GetTexDataAsRGBA32(
             (ctypes.c_void_p * 1)(),
