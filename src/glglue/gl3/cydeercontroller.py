@@ -4,7 +4,7 @@ import logging
 from OpenGL import GL
 import cydeer as ImGui
 from glglue.basecontroller import BaseController
-from glglue.gl3.rendertarget import RenderView
+from .cameraview import CameraView
 logger = logging.getLogger(__name__)
 
 
@@ -20,10 +20,9 @@ class CydeerController(BaseController):
         ImGui.CreateContext()
         self.io = ImGui.GetIO()
         self.io.ConfigFlags |= ImGui.ImGuiConfigFlags_.DockingEnable
-        # create texture before: ImGui.NewFrame()
-        self.io.Fonts.GetTexDataAsRGBA32(
-            (ctypes.c_void_p * 1)(),
-            (ctypes.c_int * 1)(), (ctypes.c_int * 1)())
+
+        self.load_font()
+
         self.io.DisplayFramebufferScale = ImGui.ImVec2(scale, scale)
         from cydeer.backends.opengl import Renderer
         self.impl_gl = Renderer()
@@ -32,7 +31,7 @@ class CydeerController(BaseController):
         #
         # 3D View
         #
-        self.view = RenderView()
+        self.view = CameraView()
 
         #
         # dock
@@ -51,49 +50,14 @@ class CydeerController(BaseController):
         self.hello_view = DockView(
             'hello', (ctypes.c_bool * 1)(True), show_hello)
 
-        def show_render_view(p_open: ctypes.Array):
-            '''
-            button に fbo を描画する
-            '''
-            ImGui.PushStyleVar_2(
-                ImGui.ImGuiStyleVar_.WindowPadding, ImGui.ImVec2(0, 0))
-            if ImGui.Begin(
-                    "render target", None, ImGui.ImGuiWindowFlags_.NoScrollbar | ImGui.ImGuiWindowFlags_.NoScrollWithMouse):
-                w, h = ImGui.GetContentRegionAvail()
-                x, y = ImGui.GetWindowPos()
-                y += ImGui.GetFrameHeight()
-                io = ImGui.GetIO()
-
-                mouse_x = io.MousePos.x - x
-                mouse_y = -(io.MousePos.y - y)
-
-                if ImGui.IsMouseDown(0):
-                    self.view.camera.onLeftDown(mouse_x, mouse_y)
-                elif ImGui.IsMouseReleased(0):
-                    self.view.camera.onLeftUp(mouse_x, mouse_y)
-                if ImGui.IsMouseDown(1):
-                    self.view.camera.onRightDown(mouse_x, mouse_y)
-                elif ImGui.IsMouseReleased(1):
-                    self.view.camera.onRightUp(mouse_x, mouse_y)
-                if ImGui.IsMouseDown(2):
-                    self.view.camera.onMiddleDown(mouse_x, mouse_y)
-                elif ImGui.IsMouseReleased(2):
-                    self.view.camera.onMiddleUp(mouse_x, mouse_y)
-
-                if io.MouseWheel:
-                    self.view.camera.onWheel(int(io.MouseWheel))
-
-                if ImGui.IsMouseDragging(0) or ImGui.IsMouseDragging(1) or ImGui.IsMouseDragging(2):
-                    self.view.camera.onMotion(mouse_x, mouse_y)
-
-                texture = self.view.render(int(w), int(h))
-                if texture:
-                    ImGui.ImageButton(
-                        ctypes.c_void_p(texture), (w, h), (0.0, 0.0), (1.0, 1.0), 0, bg_col=ImGui.ImVec4(0, 0, 0, 1), tint_col=ImGui.ImVec4(1, 1, 1, 1))
-            ImGui.End()
-            ImGui.PopStyleVar()
         self.scene_view = DockView(
-            '3d', (ctypes.c_bool * 1)(True), show_render_view)
+            '3d', (ctypes.c_bool * 1)(True), self.view.draw)
+
+    def load_font(self):
+        # create texture before: ImGui.NewFrame()
+        self.io.Fonts.GetTexDataAsRGBA32(
+            (ctypes.c_void_p * 1)(),
+            (ctypes.c_int * 1)(), (ctypes.c_int * 1)())
 
     def onResize(self, w, h):
         if self.viewport == (w, h):
@@ -141,6 +105,10 @@ class CydeerController(BaseController):
         self.io.DeltaTime = d * 0.001
         return True
 
+    def draw_imgui(self):
+        from cydeer.utils.dockspace import dockspace
+        dockspace(self.metrics_view, self.hello_view, self.scene_view)
+
     def draw(self):
         # state = self.camera.get_state()
 
@@ -153,8 +121,7 @@ class CydeerController(BaseController):
         #
         # imgui
         #
-        from cydeer.utils.dockspace import dockspace
-        dockspace(self.metrics_view, self.hello_view, self.scene_view)
+        self.draw_imgui()
         ImGui.EndFrame()
         ImGui.Render()
 

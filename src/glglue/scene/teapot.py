@@ -1,11 +1,9 @@
 import ctypes
-import array
 import pkgutil
 import struct
 from OpenGL import GL
-from .mesh import Mesh, Submesh, Material
+from .mesh import Mesh, Material
 from .vertices import Interleaved, VectorView
-# https://www.sjbaker.org/wiki/index.php?title=The_History_of_The_Teapot
 
 
 class Float3(ctypes.Structure):
@@ -105,9 +103,9 @@ def create_teapot() -> Mesh:
         _attribute = r.read(2)
         # zup to yup
         b.push_triangle(
-            (p0x, -p0z, p0y),
-            (p1x, -p1z, p1y),
-            (p2x, -p2z, p2y),
-            (nx, -nz, ny))
+            (p0x, p0z, -p0y),
+            (p1x, p1z, -p1y),
+            (p2x, p2z, -p2y),
+            (nx, nz, -ny))
 
     return b.build()

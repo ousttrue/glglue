@@ -1,3 +1,4 @@
+from typing import NamedTuple
 import glfw
 import logging
 from OpenGL import GL
@@ -6,12 +7,21 @@ from .basecontroller import BaseController
 logger = logging.getLogger(__name__)
 
 
+class WindowStatus(NamedTuple):
+    x: int
+    y: int
+    width: int
+    height: int
+    is_maximized: bool
+
+
 class LoopManager:
     def __init__(
             self, controller: BaseController, *,
             title: str = 'glfw',
             width: int = 1280,
-            height: int = 720):
+            height: int = 720,
+            is_maximized: bool = False):
         self.controller = controller
         self.x = 0
         self.y = 0
@@ -34,6 +44,9 @@ class LoopManager:
             logger.error("Could not initialize Window")
             return
 
+        if is_maximized:
+            glfw.maximize_window(self.window)
+
         glfw.make_context_current(self.window)
         glfw.swap_interval(1)
         glfw.set_key_callback(self.window, self.keyboard_callback)
@@ -47,6 +60,13 @@ class LoopManager:
     def __del__(self):
         del self.controller
         glfw.terminate()
+
+    def get_status(self) -> WindowStatus:
+        w, h = glfw.get_window_size(self.window)
+        x, y = glfw.get_window_pos(self.window)
+        is_maximized = True if glfw.get_window_attrib(
+            self.window, glfw.MAXIMIZED) else False
+        return WindowStatus(x, y, w, h, is_maximized)
 
     def keyboard_callback(self, window, key, scancode, action, mods):
         pass
@@ -104,7 +124,7 @@ class LoopManager:
                 self.controller.onMiddleUp(self.x, self.y)
 
     def scroll_callback(self, window, x_offset, y_offset):
-        self.controller.onWheel(-y_offset)
+        self.controller.onWheel(y_offset)
 
     def begin_frame(self):
         if glfw.window_should_close(self.window):
