@@ -120,7 +120,7 @@ class CydeerController(BaseController):
         self.io.DeltaTime = d * 0.001
         return True
 
-    def draw_imgui(self):
+    def imgui_draw(self):
         from cydeer.utils.dockspace import dockspace
         dockspace(*self.views)
 
@@ -136,7 +136,7 @@ class CydeerController(BaseController):
         #
         # imgui
         #
-        self.draw_imgui()
+        self.imgui_draw()
         ImGui.EndFrame()
         ImGui.Render()
 
