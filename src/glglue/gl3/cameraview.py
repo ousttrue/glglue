@@ -36,7 +36,7 @@ class CameraView:
             elif ImGui.IsMouseReleased(2):
                 self.rendertarget.camera.onMiddleUp(mouse_x, mouse_y)
 
-            if io.MouseWheel:
+            if ImGui.IsWindowFocused() and io.MouseWheel:
                 self.rendertarget.camera.onWheel(-int(io.MouseWheel))
 
             if ImGui.IsMouseDragging(0) or ImGui.IsMouseDragging(1) or ImGui.IsMouseDragging(2):
