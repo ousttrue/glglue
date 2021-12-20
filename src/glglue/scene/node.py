@@ -10,6 +10,7 @@ class Node:
         self.world_matrix = Mat4.new_identity()
         self.children: List['Node'] = []
         self.meshes: List[mesh.Mesh] = []
+        self.skin = None
 
     def update(self, delta):
         pass

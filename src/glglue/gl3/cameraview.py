@@ -6,6 +6,7 @@ import cydeer as ImGui
 class CameraView:
     def __init__(self) -> None:
         self.rendertarget = RenderView()
+        self.hovered = False
 
     def draw(self, p_open: ctypes.Array):
         '''
@@ -36,7 +37,7 @@ class CameraView:
             elif ImGui.IsMouseReleased(2):
                 self.rendertarget.camera.onMiddleUp(mouse_x, mouse_y)
 
-            if ImGui.IsWindowFocused() and io.MouseWheel:
+            if self.hovered and io.MouseWheel:
                 self.rendertarget.camera.onWheel(-int(io.MouseWheel))
 
             if ImGui.IsMouseDragging(0) or ImGui.IsMouseDragging(1) or ImGui.IsMouseDragging(2):
@@ -52,6 +53,7 @@ class CameraView:
                 ImGui.BeginChild(b"cameraview")
                 # Because I use the texture from OpenGL, I need to invert the V from the UV.
                 ImGui.Image(ctypes.c_void_p(texture), (w, h), (0, 1), (1, 0))
+                self.hovered = ImGui.IsItemHovered()
                 ImGui.EndChild()
         ImGui.End()
         ImGui.PopStyleVar()
