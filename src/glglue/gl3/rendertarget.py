@@ -82,7 +82,7 @@ class RenderView:
             if self.render_target.width != width or self.render_target.height != height:
                 del self.render_target
                 self.render_target = None
-        if width == 0 or height == 0:
+        if width <= 0 or height <= 0:
             return 0
         if not self.render_target:
             self.render_target = RenderTarget(width, height)

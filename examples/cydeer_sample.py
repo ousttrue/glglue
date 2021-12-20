@@ -9,11 +9,11 @@ if __name__ == "__main__":
     from glglue.gl3.cydeercontroller import CydeerController
     controller = CydeerController()
 
-    import glglue.wgl
-    loop = glglue.wgl.LoopManager(controller,
+    import glglue.glfw
+    loop = glglue.glfw.LoopManager(controller,
                                   width=640,
                                   height=480,
-                                  title=b"cydeer")
+                                  title="cydeer")
 
     lastCount = 0
     while True:
