@@ -1,5 +1,4 @@
 from typing import Optional
-from typing import Optional
 from .texture import Texture, CubeMap
 
 

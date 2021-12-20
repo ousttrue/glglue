@@ -4,7 +4,7 @@ import imgui.integrations.opengl
 import imgui
 from glglue.basecontroller import BaseController
 from logging import getLogger
-from ..gl3.samplecontroller import Scene, BaseScene
+from .samplecontroller import Scene, BaseScene
 
 logger = getLogger(__name__)
 

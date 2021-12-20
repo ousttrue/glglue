@@ -6,9 +6,9 @@ from OpenGL.GL import *
 
 from ..basecontroller import BaseController
 from . import targetview
-from . import triangle
-from . import cube
-from . import coord
+from ..gl1 import triangle
+from ..gl1 import cube
+from ..gl1 import coord
 
 from logging import getLogger
 logger = getLogger(__name__)
