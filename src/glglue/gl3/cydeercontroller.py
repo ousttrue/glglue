@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Iterable
 import ctypes
 import logging
 #
@@ -8,6 +8,55 @@ from cydeer.utils.dockspace import DockView
 from glglue.basecontroller import BaseController
 from .renderview import RenderView
 logger = logging.getLogger(__name__)
+
+
+def create_docks() -> List[DockView]:
+    views: List[DockView] = []
+
+    views.append(DockView(
+        'metrics', (ctypes.c_bool * 1)(True), ImGui.ShowMetricsWindow))
+
+    def show_hello(p_open: ctypes.Array):
+        # open new window context
+        if ImGui.Begin("CustomGUI", p_open):
+            # draw text label inside of current window
+            if ImGui.Button("Debug"):
+                logger.debug("debug message")
+        # close current window context
+        ImGui.End()
+    views.append(DockView(
+        'hello', (ctypes.c_bool * 1)(True), show_hello))
+
+    #
+    # 3D View
+    #
+    render_view = RenderView()
+    views.append(DockView(
+        '3d', (ctypes.c_bool * 1)(True), render_view.draw))
+
+    is_point = (ctypes.c_bool * 1)(False)
+
+    def show_env(p_open: ctypes.Array):
+        if ImGui.Begin("env", p_open):
+            ImGui.Checkbox("point or direction", is_point)
+            if is_point[0]:
+                render_view.light.w = 1
+            else:
+                render_view.light.w = 0
+            ImGui.SliderFloat3(
+                'light position', render_view.light, -10, 10)  # type: ignore
+        ImGui.End()
+    views.append(DockView(
+        'env', (ctypes.c_bool * 1)(True), show_env))
+
+    # logger
+    from cydeer.utils.loghandler import ImGuiLogHandler
+    log_handle = ImGuiLogHandler()
+    log_handle.register_root()
+    views.append(DockView('log', (ctypes.c_bool * 1)
+                          (True), log_handle.draw))
+
+    return views
 
 
 class CydeerController(BaseController):
@@ -31,51 +80,10 @@ class CydeerController(BaseController):
         self.viewport = (1, 1)
 
         # imgui view
-        self.imgui_docks: List[DockView] = [
-            view for view in self.imgui_create_docks()]
+        self.imgui_docks = self.imgui_create_docks()
 
-    def imgui_create_docks(self):
-        yield DockView(
-            'metrics', (ctypes.c_bool * 1)(True), ImGui.ShowMetricsWindow)
-
-        def show_hello(p_open: ctypes.Array):
-            # open new window context
-            if ImGui.Begin("CustomGUI", p_open):
-                # draw text label inside of current window
-                if ImGui.Button("Debug"):
-                    logger.debug("debug message")
-            # close current window context
-            ImGui.End()
-        yield DockView(
-            'hello', (ctypes.c_bool * 1)(True), show_hello)
-
-        #
-        # 3D View
-        #
-        self.view = RenderView()
-        yield DockView(
-            '3d', (ctypes.c_bool * 1)(True), self.view.draw)
-
-        is_point = (ctypes.c_bool * 1)(False)
-
-        def show_env(p_open: ctypes.Array):
-            if ImGui.Begin("env", p_open):
-                ImGui.Checkbox("point or direction", is_point)
-                if is_point[0]:
-                    self.view.light.w = 1
-                else:
-                    self.view.light.w = 0
-                ImGui.SliderFloat3(
-                    'light position', self.view.light, -10, 10)
-            ImGui.End()
-        yield DockView(
-            'env', (ctypes.c_bool * 1)(True), show_env)
-
-        # logger
-        from cydeer.utils.loghandler import ImGuiLogHandler
-        log_handle = ImGuiLogHandler()
-        log_handle.register_root()
-        yield DockView('log', (ctypes.c_bool * 1)(True), log_handle.draw)
+    def imgui_create_docks(self) -> List[DockView]:
+        return create_docks()
 
     def imgui_font(self):
         # create texture before: ImGui.NewFrame()
@@ -131,7 +139,7 @@ class CydeerController(BaseController):
 
     def imgui_draw(self):
         from cydeer.utils.dockspace import dockspace
-        dockspace(*self.imgui_docks)
+        dockspace(self.imgui_docks)
 
     def draw(self):
         # state = self.camera.get_state()

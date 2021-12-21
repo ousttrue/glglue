@@ -1,7 +1,9 @@
-import glglue.glfw
+from typing import Iterable, Dict, Optional
 import logging
 import pathlib
 import ctypes
+#
+import glglue.glfw
 from glglue.gl3.cydeercontroller import CydeerController
 from glglue.gl3.renderview import RenderView
 from glglue.windowconfig import WindowConfig
@@ -13,55 +15,74 @@ logger = logging.getLogger(__name__)
 CONFIG_FILE = pathlib.Path("window.ini")
 
 
-class SampleController(CydeerController):
-    def imgui_create_docks(self):
-        yield DockView(
+class ImguiDocks:
+    def __init__(self) -> None:
+        self.metrics = DockView(
             'metrics', (ctypes.c_bool * 1)(True), ImGui.ShowMetricsWindow)
+        self.selected = 'teapot'
+        self.scenes: Dict[str, Optional[DockView]] = {
+            'teapot': None,
+            'cube': None,
+        }
 
-        def show_hello(p_open: ctypes.Array):
+        def show_selector(p_open: ctypes.Array):
             # open new window context
             if ImGui.Begin("SceneSelector", p_open):
+                for k, v in self.scenes.items():
+                    if ImGui.Selectable(k, k == self.selected):
+                        self.selected = k
                 # draw text label inside of current window
                 if ImGui.Button("Debug"):
                     logger.debug("debug message")
             # close current window context
             ImGui.End()
-        yield DockView(
-            'hello', (ctypes.c_bool * 1)(True), show_hello)
-
-        #
-        # 3D View
-        #
-        self.view = RenderView()
-        from glglue.gl3.samplecontroller import Scene
-        match self.view.scene:
-            case Scene() as scene:
-                from glglue.scene.teapot import create_teapot
-                scene.drawables = [create_teapot()]
-
-        yield DockView(
-            '3d', (ctypes.c_bool * 1)(True), self.view.draw)
-
-        is_point = (ctypes.c_bool * 1)(False)
-
-        def show_env(p_open: ctypes.Array):
-            if ImGui.Begin("env", p_open):
-                ImGui.Checkbox("point or direction", is_point)
-                if is_point[0]:
-                    self.view.light.w = 1
-                else:
-                    self.view.light.w = 0
-                ImGui.SliderFloat3(
-                    'light position', self.view.light, -10, 10)  # type: ignore
-            ImGui.End()
-        yield DockView(
-            'env', (ctypes.c_bool * 1)(True), show_env)
+        self.hello = DockView(
+            'hello', (ctypes.c_bool * 1)(True), show_selector)
 
         # logger
         from cydeer.utils.loghandler import ImGuiLogHandler
         log_handle = ImGuiLogHandler()
         log_handle.register_root()
-        yield DockView('log', (ctypes.c_bool * 1)(True), log_handle.draw)
+        self.logger = DockView('log', (ctypes.c_bool * 1)
+                               (True), log_handle.draw)
+
+    def get_or_create(self, key: str) -> DockView:
+        value = self.scenes.get(key)
+        if value:
+            return value
+
+        # create RenderView
+        match key:
+            case 'cube':
+                logger.info("create: cube")
+                view = RenderView()
+            case 'teapot':
+                logger.info("create: teapot")
+                view = RenderView()
+                from glglue.gl3.samplecontroller import Scene
+                match view.scene:
+                    case Scene() as scene:
+                        from glglue.scene.teapot import create_teapot
+                        scene.drawables = [create_teapot()]
+            case _:
+                raise RuntimeError()
+
+        # create dock
+        value = DockView(
+            '3d', (ctypes.c_bool * 1)(True), view.draw)
+        self.scenes[key] = value
+        return value
+
+    def __iter__(self) -> Iterable[DockView]:
+        yield self.metrics
+        yield self.hello
+        yield self.get_or_create(self.selected)
+        yield self.logger
+
+
+class SampleController(CydeerController):
+    def imgui_create_docks(self):
+        return ImguiDocks()
 
 
 if __name__ == "__main__":
