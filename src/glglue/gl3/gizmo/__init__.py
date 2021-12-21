@@ -40,7 +40,9 @@ class Gizmo:
     def __init__(self) -> None:
         # state
         self.state = FrameState(Float4(0, 0, 1, 1), 0, 0, False,
-                                False, False, Mat4.new_identity(), Mat4.new_identity(), Ray(Float3(0, 0, 0), Float3(0, 0, 1)))
+                                False, False, Mat4.new_identity(), Mat4.new_identity(),
+                                Ray(Float3(0, 0, 0), Float3(0, 0, 1)),
+                                Float4(1, 1, 1, 1))
         self.matrix = Mat4.new_identity()
         self.color = Float4(1, 1, 1, 1)
         # event

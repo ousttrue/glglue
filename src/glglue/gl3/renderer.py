@@ -103,11 +103,11 @@ class Renderer:
         for child in node.children:
             self._draw_node(child, projection, view, m, light)
 
-    def draw(self, root: Union[Node, Mesh], state: FrameState, light: Float4):
+    def draw(self, root: Union[Node, Mesh], state: FrameState):
         match root:
             case Node() as node:
                 self._draw_node(node, state.camera_projection,
-                                state.camera_view, Mat4.new_identity(), light)
+                                state.camera_view, Mat4.new_identity(), state.light)
             case Mesh() as mesh:
                 self._draw_mesh(mesh, state.camera_projection,
-                                state.camera_view, Mat4.new_identity(), light)
+                                state.camera_view, Mat4.new_identity(), state.light)

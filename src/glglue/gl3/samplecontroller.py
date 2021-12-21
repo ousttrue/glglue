@@ -33,7 +33,6 @@ class Scene(BaseScene):
         self.drawables: List[Any] = [teapot.create_teapot()]
         self.renderer = Renderer()
         self.gizmo = gizmo.Gizmo()
-        self.light = Float4(-1, -1, -1, 0)
 
     def update(self, d: int) -> bool:
         updated = False
@@ -47,9 +46,9 @@ class Scene(BaseScene):
         self.gizmo.axis(10)
 
         for e in self.env:
-            self.renderer.draw(e, state, self.light)
+            self.renderer.draw(e, state)
         for _, drawable in enumerate(self.drawables):
-            self.renderer.draw(drawable, state, self.light)
+            self.renderer.draw(drawable, state)
             # aabb
             aabb = AABB.new_empty()
             self.gizmo.aabb(drawable.expand_aabb(aabb))
@@ -63,6 +62,7 @@ class SampleController(glglue.basecontroller.BaseController):
         self.camera = Camera()
         self.scene: BaseScene = Scene()
         self.isInitialized = False
+        self.light = Float4(1, 1, 1, 1)
 
     def onResize(self, w: int, h: int) -> bool:
         return self.camera.onResize(w, h)
@@ -122,7 +122,7 @@ class SampleController(glglue.basecontroller.BaseController):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT |
                    GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
 
-        state = self.camera.get_state()
+        state = self.camera.get_state(self.light)
         GL.glViewport(int(state.viewport.x), int(state.viewport.y),
                       int(state.viewport.z), int(state.viewport.w))
 

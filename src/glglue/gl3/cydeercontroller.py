@@ -1,10 +1,12 @@
+from typing import List
 import ctypes
 import logging
 #
 from OpenGL import GL
 import cydeer as ImGui
+from cydeer.utils.dockspace import DockView
 from glglue.basecontroller import BaseController
-from .cameraview import CameraView
+from .renderview import RenderView
 logger = logging.getLogger(__name__)
 
 
@@ -29,10 +31,10 @@ class CydeerController(BaseController):
         self.viewport = (1, 1)
 
         # imgui view
-        self.views = [view for view in self.imgui_views()]
+        self.imgui_docks: List[DockView] = [
+            view for view in self.imgui_create_docks()]
 
-    def imgui_views(self):
-        from cydeer.utils.dockspace import DockView
+    def imgui_create_docks(self):
         yield DockView(
             'metrics', (ctypes.c_bool * 1)(True), ImGui.ShowMetricsWindow)
 
@@ -49,7 +51,7 @@ class CydeerController(BaseController):
         #
         # 3D View
         #
-        view = CameraView()
+        view = RenderView()
         yield DockView(
             '3d', (ctypes.c_bool * 1)(True), view.draw)
 
@@ -59,11 +61,11 @@ class CydeerController(BaseController):
             if ImGui.Begin("env", p_open):
                 ImGui.Checkbox("point or direction", is_point)
                 if is_point[0]:
-                    view.rendertarget.scene.light.w = 1
+                    view.light.w = 1
                 else:
-                    view.rendertarget.scene.light.w = 0
+                    view.light.w = 0
                 ImGui.SliderFloat3(
-                    'light position', view.rendertarget.scene.light, -10, 10)
+                    'light position', view.light, -10, 10)
             ImGui.End()
         yield DockView(
             'env', (ctypes.c_bool * 1)(True), show_env)
@@ -122,7 +124,7 @@ class CydeerController(BaseController):
 
     def imgui_draw(self):
         from cydeer.utils.dockspace import dockspace
-        dockspace(*self.views)
+        dockspace(*self.imgui_docks)
 
     def draw(self):
         # state = self.camera.get_state()

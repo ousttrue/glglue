@@ -1,7 +1,7 @@
 from typing import Optional
 import contextlib
 from OpenGL import GL
-from glglue.ctypesmath.camera import Camera
+from glglue.ctypesmath import Camera, Float4
 from glglue.gl3.samplecontroller import BaseScene, Scene
 
 
@@ -63,47 +63,3 @@ class RenderTarget:
             yield
         finally:
             self.unbind()
-
-
-class RenderView:
-    def __init__(self) -> None:
-        self.camera = Camera()
-        self.scene: BaseScene = Scene()
-        self.render_target: Optional[RenderTarget] = None
-        self.clear_color = (0.2, 0.2, 0.2, 1)
-
-    def __del__(self):
-        if self.render_target:
-            del self.render_target
-            self.render_target = None
-
-    def render(self, width: int, height: int) -> int:
-        if self.render_target:
-            if self.render_target.width != width or self.render_target.height != height:
-                del self.render_target
-                self.render_target = None
-        if width <= 0 or height <= 0:
-            return 0
-        if not self.render_target:
-            self.render_target = RenderTarget(width, height)
-
-        #
-        # update view camera
-        #
-        self.camera.onResize(width, height)
-
-        #
-        # render
-        #
-        with self.render_target.bind_context():
-            GL.glViewport(0, 0, width, height)
-            GL.glClearColor(*self.clear_color)
-            GL.glClear(GL.GL_COLOR_BUFFER_BIT |
-                       GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
-
-            state = self.camera.get_state()
-            if self.scene:
-                self.scene.draw(state)
-
-        # <class 'numpy.uintc'>
-        return int(self.render_target.texture)
