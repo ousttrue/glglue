@@ -42,7 +42,8 @@ class CydeerController(BaseController):
             # open new window context
             if ImGui.Begin("CustomGUI", p_open):
                 # draw text label inside of current window
-                ImGui.Text("cydeer !")
+                if ImGui.Button("Debug"):
+                    logger.debug("debug message")
             # close current window context
             ImGui.End()
         yield DockView(
@@ -69,6 +70,12 @@ class CydeerController(BaseController):
             ImGui.End()
         yield DockView(
             'env', (ctypes.c_bool * 1)(True), show_env)
+
+        # logger
+        from cydeer.utils.loghandler import ImGuiLogHandler
+        log_handle = ImGuiLogHandler()
+        log_handle.register_root()
+        yield DockView('log', (ctypes.c_bool * 1)(True), log_handle.draw)
 
     def imgui_font(self):
         # create texture before: ImGui.NewFrame()
