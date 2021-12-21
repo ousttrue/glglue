@@ -23,13 +23,14 @@ def cube():
 
 def teapot():
     view = RenderView()
-    from glglue.gl3.samplecontroller import Scene
-    match view.scene:
-        case Scene() as scene:
-            from glglue.scene.teapot import create_teapot
-            scene.drawables = [create_teapot()]
+    from glglue.scene.teapot import create_teapot
+    view.scene.drawables = [create_teapot()]
     return DockView(
         'teapot', (ctypes.c_bool * 1)(True), view.draw)
+
+
+def skin():
+    view = RenderView()
 
 
 SCENES = {

@@ -11,26 +11,16 @@ from . renderer import Renderer
 logger = getLogger(__name__)
 
 
-class BaseScene(metaclass=ABCMeta):
-    def __init__(self):
-        pass
-
-    @abstractmethod
-    def update(self, d: int) -> bool:
-        return False
-
-    @abstractmethod
-    def draw(self, state: FrameState):
-        pass
-
-
-class Scene(BaseScene):
+class Scene:
     def __init__(self) -> None:
         self.env: List[Any] = []
         from ..scene import cube
         self.drawables: List[Any] = [cube.create_cube(0.3)]
         self.renderer = Renderer()
         self.gizmo = gizmo.Gizmo()
+
+    def __del__(self):
+        del self.renderer
 
     def update(self, d: int) -> bool:
         updated = False
@@ -58,7 +48,7 @@ class SampleController(glglue.basecontroller.BaseController):
     def __init__(self):
         self.clear_color = (0.6, 0.6, 0.4, 0.0)
         self.camera = Camera()
-        self.scene: BaseScene = Scene()
+        self.scene = Scene()
         self.isInitialized = False
         self.light = Float4(1, 1, 1, 1)
 

@@ -6,13 +6,13 @@ import cydeer as ImGui
 #
 from ..ctypesmath import Camera, Float4
 from .rendertarget import RenderTarget
-from .samplecontroller import Scene, BaseScene
+from .samplecontroller import Scene
 
 
 class RenderView:
     def __init__(self) -> None:
         self.camera = Camera()
-        self.scene: BaseScene = Scene()
+        self.scene = Scene()
         self.render_target: Optional[RenderTarget] = None
         self.clear_color = (0.2, 0.2, 0.2, 1)
         self.light = Float4(1, 1, 1, 1)

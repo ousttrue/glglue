@@ -4,15 +4,16 @@
 from PySide6 import QtWidgets, QtGui, QtCore
 import logging
 from glglue.ctypesmath.camera import FrameState
-import glglue.gl3.samplecontroller
+from glglue.gl3.samplecontroller import Scene
 from glglue.gl3 import gizmo
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(levelname)s:%(name)s:%(message)s',
                     level=logging.DEBUG)
 
 
-class Scene(glglue.gl3.samplecontroller.BaseScene):
+class Scene(Scene):
     def __init__(self) -> None:
+        super().__init__()
         self.gizmo = gizmo.Gizmo()
 
     def update(self, d: int):

@@ -1,8 +1,5 @@
-from typing import Optional
 import contextlib
 from OpenGL import GL
-from glglue.ctypesmath import Camera, Float4
-from glglue.gl3.samplecontroller import BaseScene, Scene
 
 
 class RenderTarget:

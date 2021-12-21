@@ -4,7 +4,7 @@ import imgui.integrations.opengl
 import imgui
 from glglue.basecontroller import BaseController
 from logging import getLogger
-from .samplecontroller import Scene, BaseScene
+from .samplecontroller import Scene
 
 logger = getLogger(__name__)
 
@@ -22,7 +22,7 @@ class ImGuiController(BaseController):
         self.io.display_fb_scale = scale, scale
         self.viewport = (1, 1)
         self.camera = Camera()
-        self.scene: BaseScene = Scene()
+        self.scene = Scene()
 
     def onResize(self, w, h):
         if self.viewport == (w, h):
