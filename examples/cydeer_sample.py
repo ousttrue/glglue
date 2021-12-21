@@ -1,4 +1,4 @@
-from typing import Iterable, Dict, Optional
+from typing import Iterable, Dict, Optional, List
 import logging
 import pathlib
 import ctypes
@@ -9,43 +9,119 @@ from glglue.gl3.renderview import RenderView
 from glglue.windowconfig import WindowConfig
 import cydeer as ImGui
 from cydeer.utils.dockspace import DockView
+from glglue.scene.node import Node
+from glglue.ctypesmath import TRS, Mat4
 
 logger = logging.getLogger(__name__)
 
 CONFIG_FILE = pathlib.Path("window.ini")
 
 
+class SceneTree:
+    def __init__(self, root: Node) -> None:
+        self.root = root
+        self.selected = None
+
+    def traverse(self, node: Node):
+        flag = ImGui.ImGuiTreeNodeFlags_.OpenOnArrow | ImGui.ImGuiTreeNodeFlags_.OpenOnDoubleClick | ImGui.ImGuiTreeNodeFlags_.SpanAvailWidth
+        if not node.children:
+            flag |= ImGui.ImGuiTreeNodeFlags_.Leaf
+            flag |= ImGui.ImGuiTreeNodeFlags_.Bullet
+        if node == self.selected:
+            flag |= ImGui.ImGuiTreeNodeFlags_.Selected
+        open = ImGui.TreeNodeEx(node.name, flag)
+        if ImGui.IsItemClicked():
+            # update selectable
+            logger.debug(f'select: {node.name}')
+            self.selected = node
+        if open:
+            for child in node.children:
+                self.traverse(child)
+            ImGui.TreePop()
+
+    def draw(self, p_open: ctypes.Array):
+        if ImGui.Begin(self.root.name, p_open):
+            self.traverse(self.root)
+        ImGui.End()
+
+        # update scene
+        self.root.calc_world()
+
+
+class NodeProp:
+    def __init__(self, get_selected) -> None:
+        self.get_selected = get_selected
+
+    def draw(self, p_open: ctypes.Array):
+        if ImGui.Begin('selected node', p_open):
+            node: Node = self.get_selected()
+            if node:
+                ImGui.TextUnformatted(node.name)
+                match node.local_transform:
+                    case TRS(t, r, s):
+                        ImGui.SliderFloat3(b'T', t, -10, 10)
+                        ImGui.SliderFloat4(b'R', r, -1, 1)
+                        ImGui.SliderFloat3(b'S', s, -10, 10)
+                    case Mat4() as m:
+                        a = ctypes.addressof(m)
+                        ImGui.SliderFloat4(
+                            b'row0', ctypes.c_void_p(a), -10, 10)
+                        ImGui.SliderFloat4(
+                            b'row1', ctypes.c_void_p(a+16), -10, 10)
+                        ImGui.SliderFloat4(
+                            b'row2', ctypes.c_void_p(a+32), -10, 10)
+                        ImGui.SliderFloat4(
+                            b'row3', ctypes.c_void_p(a+48), -10, 10)
+        ImGui.End()
+
+
 def cube():
     view = RenderView()
-    return DockView(
-        'cube', (ctypes.c_bool * 1)(True), view.draw)
+    return [DockView(
+        'cube', (ctypes.c_bool * 1)(True), view.draw)]
 
 
 def teapot():
     view = RenderView()
     from glglue.scene.teapot import create_teapot
     view.scene.drawables = [create_teapot()]
-    return DockView(
-        'teapot', (ctypes.c_bool * 1)(True), view.draw)
+    return [DockView(
+        'teapot', (ctypes.c_bool * 1)(True), view.draw)]
 
 
 def skin():
     view = RenderView()
+    from glglue.scene.skin_sample import create_skin
+
+    root = create_skin()
+    view.scene.drawables = [root]
+
+    tree = SceneTree(root)
+    prop = NodeProp(lambda: tree.selected)
+
+    return [
+        DockView('skin', (ctypes.c_bool * 1)(True), view.draw),
+        DockView('skin_herarchy', (ctypes.c_bool * 1)(True), tree.draw),
+        DockView('skin_node_prop', (ctypes.c_bool * 1)(True), prop.draw),
+    ]
 
 
 SCENES = {
     'cube': cube,
     'teapot': teapot,
+    'skin': skin,
 }
 
 
 class ImguiDocks:
     def __init__(self) -> None:
+        self.demo = DockView(
+            'demo', (ctypes.c_bool * 1)(True), ImGui.ShowDemoWindow)
         self.metrics = DockView(
             'metrics', (ctypes.c_bool * 1)(True), ImGui.ShowMetricsWindow)
-        self.selected = 'teapot'
-        self.scenes: Dict[str, Optional[DockView]] = {
-            k: None for k, v in SCENES.items()}
+        self.selected = 'skin'
+        self.scenes: Dict[str, List[DockView]] = {
+            k: [] for k, v in SCENES.items()}
 
         def show_selector(p_open: ctypes.Array):
             # open new window context
@@ -68,7 +144,7 @@ class ImguiDocks:
         self.logger = DockView('log', (ctypes.c_bool * 1)
                                (True), log_handle.draw)
 
-    def get_or_create(self, key: str) -> DockView:
+    def get_or_create(self, key: str) -> Iterable[DockView]:
         value = self.scenes.get(key)
         if value:
             return value
@@ -80,9 +156,11 @@ class ImguiDocks:
         return value
 
     def __iter__(self) -> Iterable[DockView]:
+        yield self.demo
         yield self.metrics
         yield self.hello
-        yield self.get_or_create(self.selected)
+        for dock in self.get_or_create(self.selected):
+            yield dock
         yield self.logger
 
 
@@ -95,7 +173,7 @@ if __name__ == "__main__":
     logging.basicConfig(
         format='%(levelname)s:%(name)s:%(message)s', level=logging.DEBUG)
 
-    # imgui
+    # ImGui
     controller = SampleController()
 
     # glfw

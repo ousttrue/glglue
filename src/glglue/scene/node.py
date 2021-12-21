@@ -1,6 +1,7 @@
 from typing import List, Optional, Union
 from ..ctypesmath import *
-from . import mesh
+from .mesh import Mesh
+from .skin import Skin
 
 
 class Node:
@@ -9,8 +10,8 @@ class Node:
         self.local_transform = transform
         self.world_matrix = Mat4.new_identity()
         self.children: List['Node'] = []
-        self.meshes: List[mesh.Mesh] = []
-        self.skin = None
+        self.meshes: List[Mesh] = []
+        self.skin: Optional[Skin] = None
 
     def update(self, delta):
         pass
