@@ -15,15 +15,36 @@ logger = logging.getLogger(__name__)
 CONFIG_FILE = pathlib.Path("window.ini")
 
 
+def cube():
+    view = RenderView()
+    return DockView(
+        'cube', (ctypes.c_bool * 1)(True), view.draw)
+
+
+def teapot():
+    view = RenderView()
+    from glglue.gl3.samplecontroller import Scene
+    match view.scene:
+        case Scene() as scene:
+            from glglue.scene.teapot import create_teapot
+            scene.drawables = [create_teapot()]
+    return DockView(
+        'teapot', (ctypes.c_bool * 1)(True), view.draw)
+
+
+SCENES = {
+    'cube': cube,
+    'teapot': teapot,
+}
+
+
 class ImguiDocks:
     def __init__(self) -> None:
         self.metrics = DockView(
             'metrics', (ctypes.c_bool * 1)(True), ImGui.ShowMetricsWindow)
         self.selected = 'teapot'
         self.scenes: Dict[str, Optional[DockView]] = {
-            'teapot': None,
-            'cube': None,
-        }
+            k: None for k, v in SCENES.items()}
 
         def show_selector(p_open: ctypes.Array):
             # open new window context
@@ -52,24 +73,8 @@ class ImguiDocks:
             return value
 
         # create RenderView
-        match key:
-            case 'cube':
-                logger.info("create: cube")
-                view = RenderView()
-            case 'teapot':
-                logger.info("create: teapot")
-                view = RenderView()
-                from glglue.gl3.samplecontroller import Scene
-                match view.scene:
-                    case Scene() as scene:
-                        from glglue.scene.teapot import create_teapot
-                        scene.drawables = [create_teapot()]
-            case _:
-                raise RuntimeError()
-
-        # create dock
-        value = DockView(
-            '3d', (ctypes.c_bool * 1)(True), view.draw)
+        logger.info(f"create: {key}")
+        value = SCENES[key]()
         self.scenes[key] = value
         return value
 
