@@ -1,7 +1,6 @@
 # glglue
 
 The glue code which mediates between OpenGL and some GUI.
-
 GUI イベント(resize, mouse, keyboard, repaint) を OpenGL に橋渡しする。
 
 ```                           
@@ -14,6 +13,8 @@ GUI                         OpenGL controller
 |     etc|--repaint--------->| Draw       |
 +--------+                   +------------+
 ```
+
+And OpenGL utilities.
 
 ## imgui
 

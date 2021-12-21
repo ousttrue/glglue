@@ -1,30 +1,30 @@
-from typing import NamedTuple
+from typing import Optional
 import glfw
 import logging
 from OpenGL import GL
 from .basecontroller import BaseController
+from .windowconfig import WindowConfig
 
 logger = logging.getLogger(__name__)
-
-
-class WindowStatus(NamedTuple):
-    x: int
-    y: int
-    width: int
-    height: int
-    is_maximized: bool
 
 
 class LoopManager:
     def __init__(
             self, controller: BaseController, *,
             title: str = 'glfw',
-            width: int = 1280,
-            height: int = 720,
-            is_maximized: bool = False):
+            width: int = 0,
+            height: int = 0,
+            is_maximized: bool = False,
+            config:  Optional[WindowConfig] = None
+    ):
+        width = width or (config.width if config else 1280)
+        height = height or (config.height if config else 720)
+        is_maximized = is_maximized or (
+            config.is_maximized if config else False)
+
         self.controller = controller
-        self.x = 0
-        self.y = 0
+        self.mouse_x = 0
+        self.mouse_y = 0
 
         if not glfw.init():
             logger.error("Could not initialize OpenGL context")
@@ -61,12 +61,12 @@ class LoopManager:
         del self.controller
         glfw.terminate()
 
-    def get_status(self) -> WindowStatus:
+    def get_config(self) -> WindowConfig:
         w, h = glfw.get_window_size(self.window)
         x, y = glfw.get_window_pos(self.window)
         is_maximized = True if glfw.get_window_attrib(
             self.window, glfw.MAXIMIZED) else False
-        return WindowStatus(x, y, w, h, is_maximized)
+        return WindowConfig(x, y, w, h, is_maximized)
 
     def keyboard_callback(self, window, key, scancode, action, mods):
         pass
@@ -105,23 +105,23 @@ class LoopManager:
 
     def cursor_calblack(self, window, x, y):
         self.controller.onMotion(x, y)
-        self.x = x
-        self.y = y
+        self.mouse_x = x
+        self.mouse_y = y
 
     def mouse_callback(self, window,  button, action, mods):
         match button, action:
             case glfw.MOUSE_BUTTON_LEFT, glfw.PRESS:
-                self.controller.onLeftDown(self.x, self.y)
+                self.controller.onLeftDown(self.mouse_x, self.mouse_y)
             case glfw.MOUSE_BUTTON_LEFT, glfw.RELEASE:
-                self.controller.onLeftUp(self.x, self.y)
+                self.controller.onLeftUp(self.mouse_x, self.mouse_y)
             case glfw.MOUSE_BUTTON_RIGHT, glfw.PRESS:
-                self.controller.onRightDown(self.x, self.y)
+                self.controller.onRightDown(self.mouse_x, self.mouse_y)
             case glfw.MOUSE_BUTTON_RIGHT, glfw.RELEASE:
-                self.controller.onRightUp(self.x, self.y)
+                self.controller.onRightUp(self.mouse_x, self.mouse_y)
             case glfw.MOUSE_BUTTON_MIDDLE, glfw.PRESS:
-                self.controller.onMiddleDown(self.x, self.y)
+                self.controller.onMiddleDown(self.mouse_x, self.mouse_y)
             case glfw.MOUSE_BUTTON_MIDDLE, glfw.RELEASE:
-                self.controller.onMiddleUp(self.x, self.y)
+                self.controller.onMiddleUp(self.mouse_x, self.mouse_y)
 
     def scroll_callback(self, window, x_offset, y_offset):
         self.controller.onWheel(y_offset)
