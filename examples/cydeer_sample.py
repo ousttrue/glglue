@@ -1,3 +1,4 @@
+import glglue.glfw
 import logging
 import pathlib
 import ctypes
@@ -19,7 +20,7 @@ class SampleController(CydeerController):
 
         def show_hello(p_open: ctypes.Array):
             # open new window context
-            if ImGui.Begin("CustomGUI", p_open):
+            if ImGui.Begin("SceneSelector", p_open):
                 # draw text label inside of current window
                 if ImGui.Button("Debug"):
                     logger.debug("debug message")
@@ -32,6 +33,12 @@ class SampleController(CydeerController):
         # 3D View
         #
         self.view = RenderView()
+        from glglue.gl3.samplecontroller import Scene
+        match self.view.scene:
+            case Scene() as scene:
+                from glglue.scene.teapot import create_teapot
+                scene.drawables = [create_teapot()]
+
         yield DockView(
             '3d', (ctypes.c_bool * 1)(True), self.view.draw)
 
@@ -45,7 +52,7 @@ class SampleController(CydeerController):
                 else:
                     self.view.light.w = 0
                 ImGui.SliderFloat3(
-                    'light position', self.view.light, -10, 10)
+                    'light position', self.view.light, -10, 10)  # type: ignore
             ImGui.End()
         yield DockView(
             'env', (ctypes.c_bool * 1)(True), show_env)
@@ -61,23 +68,16 @@ if __name__ == "__main__":
     logging.basicConfig(
         format='%(levelname)s:%(name)s:%(message)s', level=logging.DEBUG)
 
+    # imgui
     controller = SampleController()
-    from glglue.gl3.samplecontroller import Scene
-    match controller.view.scene:
-        case Scene() as scene:
-            from glglue.scene.teapot import create_teapot
-            scene.drawables = [create_teapot()]
 
-    config = None
-    if CONFIG_FILE.exists():
-        import json
-        config = WindowConfig(**json.loads(CONFIG_FILE.read_bytes()))
+    # glfw
+    loop = glglue.glfw.LoopManager(
+        controller,
+        config=WindowConfig.load_json_from_path(CONFIG_FILE),
+        title="cydeer")
 
-    import glglue.glfw
-    loop = glglue.glfw.LoopManager(controller,
-                                   config=config,
-                                   title="cydeer")
-
+    # main loop
     lastCount = 0
     while True:
         count = loop.begin_frame()
@@ -90,7 +90,6 @@ if __name__ == "__main__":
             controller.draw()
             loop.end_frame()
 
+    # save window config
     config = loop.get_config()
-    with CONFIG_FILE.open('w') as w:
-        import json
-        json.dump(config._asdict(), w)
+    config.save_json_to_path(CONFIG_FILE)
