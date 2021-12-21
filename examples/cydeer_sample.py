@@ -8,6 +8,8 @@ if __name__ == "__main__":
 
     from glglue.gl3.cydeercontroller import CydeerController
     controller = CydeerController()
+    from glglue.scene.teapot import create_teapot
+    controller.view.scene.drawables = [create_teapot()]
 
     import glglue.glfw
     loop = glglue.glfw.LoopManager(controller,

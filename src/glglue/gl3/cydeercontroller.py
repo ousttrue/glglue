@@ -52,9 +52,9 @@ class CydeerController(BaseController):
         #
         # 3D View
         #
-        view = RenderView()
+        self.view = RenderView()
         yield DockView(
-            '3d', (ctypes.c_bool * 1)(True), view.draw)
+            '3d', (ctypes.c_bool * 1)(True), self.view.draw)
 
         is_point = (ctypes.c_bool * 1)(False)
 
@@ -62,11 +62,11 @@ class CydeerController(BaseController):
             if ImGui.Begin("env", p_open):
                 ImGui.Checkbox("point or direction", is_point)
                 if is_point[0]:
-                    view.light.w = 1
+                    self.view.light.w = 1
                 else:
-                    view.light.w = 0
+                    self.view.light.w = 0
                 ImGui.SliderFloat3(
-                    'light position', view.light, -10, 10)
+                    'light position', self.view.light, -10, 10)
             ImGui.End()
         yield DockView(
             'env', (ctypes.c_bool * 1)(True), show_env)
