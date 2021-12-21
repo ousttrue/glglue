@@ -7,8 +7,6 @@ import glglue.basecontroller
 from glglue.ctypesmath import Camera, FrameState, AABB, Float4
 import glglue.gl3.vbo
 import glglue.scene.material
-# from ..scene import cube
-from ..scene import teapot
 from . renderer import Renderer
 logger = getLogger(__name__)
 
@@ -29,8 +27,8 @@ class BaseScene(metaclass=ABCMeta):
 class Scene(BaseScene):
     def __init__(self) -> None:
         self.env: List[Any] = []
-        # self.drawables: List[Any] = [cube.create_cube(0.3)]
-        self.drawables: List[Any] = [teapot.create_teapot()]
+        from ..scene import cube
+        self.drawables: List[Any] = [cube.create_cube(0.3)]
         self.renderer = Renderer()
         self.gizmo = gizmo.Gizmo()
 
