@@ -51,6 +51,9 @@ class SceneTree:
 class NodeProp:
     def __init__(self, get_selected) -> None:
         self.get_selected = get_selected
+        self.matrixTranslation = (ctypes.c_float*3)()
+        self.matrixRotation = (ctypes.c_float*3)()
+        self.matrixScale = (ctypes.c_float*3)()
 
     def draw(self, p_open: ctypes.Array):
         if ImGui.Begin('selected node', p_open):
@@ -64,14 +67,14 @@ class NodeProp:
                         ImGui.SliderFloat3(b'S', s, -10, 10)
                     case Mat4() as m:
                         a = ctypes.addressof(m)
-                        ImGui.SliderFloat4(
-                            b'row0', ctypes.c_void_p(a), -10, 10)
-                        ImGui.SliderFloat4(
-                            b'row1', ctypes.c_void_p(a+16), -10, 10)
-                        ImGui.SliderFloat4(
-                            b'row2', ctypes.c_void_p(a+32), -10, 10)
-                        ImGui.SliderFloat4(
-                            b'row3', ctypes.c_void_p(a+48), -10, 10)
+                        p = ctypes.c_void_p(a)
+                        ImGui.ImGuizmo_DecomposeMatrixToComponents(
+                            p, self.matrixTranslation, self.matrixRotation, self.matrixScale)
+                        ImGui.InputFloat3(b"Tr", self.matrixTranslation)
+                        ImGui.InputFloat3(b"Rt", self.matrixRotation)
+                        ImGui.InputFloat3(b"Sc", self.matrixScale)
+                        ImGui.ImGuizmo_RecomposeMatrixFromComponents(
+                            self.matrixTranslation, self.matrixRotation, self.matrixScale, p)
         ImGui.End()
 
 
