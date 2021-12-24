@@ -10,7 +10,7 @@ from glglue.windowconfig import WindowConfig
 import cydeer as ImGui
 from cydeer.utils.dockspace import DockView
 from glglue.scene.node import Node
-from glglue.ctypesmath import TRS, Mat4
+from glglue.ctypesmath import TRS, Mat4, Camera
 
 logger = logging.getLogger(__name__)
 
@@ -49,33 +49,103 @@ class SceneTree:
 
 
 class NodeProp:
-    def __init__(self, get_selected) -> None:
+    def __init__(self, get_selected, camera: Camera) -> None:
         self.get_selected = get_selected
+
+        # ImGuizmo
+        self.camera = camera
         self.matrixTranslation = (ctypes.c_float*3)()
         self.matrixRotation = (ctypes.c_float*3)()
         self.matrixScale = (ctypes.c_float*3)()
+        self.mCurrentGizmoOperation = ImGui.OPERATION.ROTATE
+        self.mCurrentGizmoMode = ImGui.MODE.WORLD
+        self.useSnap = False
 
     def draw(self, p_open: ctypes.Array):
         if ImGui.Begin('selected node', p_open):
             node: Node = self.get_selected()
             if node:
                 ImGui.TextUnformatted(node.name)
-                match node.local_transform:
-                    case TRS(t, r, s):
-                        ImGui.SliderFloat3(b'T', t, -10, 10)
-                        ImGui.SliderFloat4(b'R', r, -1, 1)
-                        ImGui.SliderFloat3(b'S', s, -10, 10)
-                    case Mat4() as m:
-                        a = ctypes.addressof(m)
-                        p = ctypes.c_void_p(a)
-                        ImGui.ImGuizmo_DecomposeMatrixToComponents(
-                            p, self.matrixTranslation, self.matrixRotation, self.matrixScale)
-                        ImGui.InputFloat3(b"Tr", self.matrixTranslation)
-                        ImGui.InputFloat3(b"Rt", self.matrixRotation)
-                        ImGui.InputFloat3(b"Sc", self.matrixScale)
-                        ImGui.ImGuizmo_RecomposeMatrixFromComponents(
-                            self.matrixTranslation, self.matrixRotation, self.matrixScale, p)
+                self.edit_transform(node.local_transform)
+                # match node.local_transform:
+                #     case TRS(t, r, s):
+                #         ImGui.SliderFloat3(b'T', t, -10, 10)
+                #         ImGui.SliderFloat4(b'R', r, -1, 1)
+                #         ImGui.SliderFloat3(b'S', s, -10, 10)
+                #     case Mat4() as m:
+                #         a = ctypes.addressof(m)
+                #         p = ctypes.c_void_p(a)
+                #         ImGui.ImGuizmo_DecomposeMatrixToComponents(
+                #             p, self.matrixTranslation, self.matrixRotation, self.matrixScale)
+                #         ImGui.InputFloat3(b"Tr", self.matrixTranslation)
+                #         ImGui.InputFloat3(b"Rt", self.matrixRotation)
+                #         ImGui.InputFloat3(b"Sc", self.matrixScale)
+                #         ImGui.ImGuizmo_RecomposeMatrixFromComponents(
+                #             self.matrixTranslation, self.matrixRotation, self.matrixScale, p)
         ImGui.End()
+
+    def edit_transform(self, m: Mat4):
+        ImGui.ImGuizmo_BeginFrame()
+        ImGui.ImGuizmo_SetDrawlist()
+
+        # if (ImGui.IsKeyPressed(90))
+        #     mCurrentGizmoOperation = ImGui.OPERATION.TRANSLATE
+        # if (ImGui.IsKeyPressed(69))
+        #     mCurrentGizmoOperation = ImGui.OPERATION.ROTATE
+        # if (ImGui.IsKeyPressed(82)) // r Key
+        #     mCurrentGizmoOperation = ImGui.OPERATION.SCALE
+
+        if ImGui.RadioButton("Translate", self.mCurrentGizmoOperation == ImGui.OPERATION.TRANSLATE):
+            self.mCurrentGizmoOperation = ImGui.OPERATION.TRANSLATE
+        ImGui.SameLine()
+        if ImGui.RadioButton("Rotate", self.mCurrentGizmoOperation == ImGui.OPERATION.ROTATE):
+            self.mCurrentGizmoOperation = ImGui.OPERATION.ROTATE
+        ImGui.SameLine()
+        if ImGui.RadioButton("Scale", self.mCurrentGizmoOperation == ImGui.OPERATION.SCALE):
+            self.mCurrentGizmoOperation = ImGui.OPERATION.SCALE
+
+        ImGui.ImGuizmo_DecomposeMatrixToComponents(
+            m, self.matrixTranslation, self.matrixRotation, self.matrixScale)
+        ImGui.InputFloat3("Tr", self.matrixTranslation, 3)
+        ImGui.InputFloat3("Rt", self.matrixRotation, 3)
+        ImGui.InputFloat3("Sc", self.matrixScale, 3)
+        ImGui.ImGuizmo_RecomposeMatrixFromComponents(
+            self.matrixTranslation, self.matrixRotation, self.matrixScale, m)
+
+        if self.mCurrentGizmoOperation != ImGui.OPERATION.SCALE:
+            if ImGui.RadioButton("Local", self.mCurrentGizmoMode == ImGui.MODE.LOCAL):
+                self.mCurrentGizmoMode = ImGui.MODE.LOCAL
+            ImGui.SameLine()
+            if ImGui.RadioButton("World", self.mCurrentGizmoMode == ImGui.MODE.WORLD):
+                self.mCurrentGizmoMode = ImGui.MODE.WORLD
+
+        # if (ImGui.IsKeyPressed(83))
+        #     useSnap = !useSnap
+        # ImGui.Checkbox("", &useSnap)
+        # ImGui.SameLine()
+        # vec_t snap
+        # switch (mCurrentGizmoOperation)
+        # {
+        # case ImGui.OPERATION.TRANSLATE:
+        #     snap = config.mSnapTranslation
+        #     ImGui.InputFloat3("Snap", &snap.x)
+        #     break
+        # case ImGui.OPERATION.ROTATE:
+        #     snap = config.mSnapRotation
+        #     ImGui.InputFloat("Angle Snap", &snap.x)
+        #     break
+        # case ImGui.OPERATION.SCALE:
+        #     snap = config.mSnapScale
+        #     ImGui.InputFloat("Scale Snap", &snap.x)
+        #     break
+        # }
+
+        io = ImGui.GetIO()
+        # x, y = ImGui.GetWindowPos()
+        # w, h = ImGui.GetWindowSize()
+        # ImGui.ImGuizmo_SetRect(x, y, w, h)
+        ImGui.ImGuizmo_SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y)
+        ImGui.ImGuizmo_Manipulate(self.camera.view.matrix, self.camera.projection.matrix, self.mCurrentGizmoOperation, self.mCurrentGizmoMode, m, None, None)#self.useSnap ? &snap.x : NULL)
 
 
 def cube():
@@ -100,7 +170,7 @@ def skin():
     view.scene.drawables = [root]
 
     tree = SceneTree(root)
-    prop = NodeProp(lambda: tree.selected)
+    prop = NodeProp(lambda: tree.selected, view.camera)
 
     return [
         DockView('skin', (ctypes.c_bool * 1)(True), view.draw),
