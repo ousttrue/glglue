@@ -1,14 +1,16 @@
 {
     "cSpell.words": [
-        "Integerv",
-        "Programiv",
         "ctypes",
         "ctypesmath",
+        "pydear",
         "glglue",
         "gmail",
+        "imgui",
+        "Integerv",
         "mainloop",
         "mediump",
         "opengl",
+        "Programiv",
         "pysdl",
         "pyside",
         "struct",

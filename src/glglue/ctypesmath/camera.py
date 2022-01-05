@@ -1,3 +1,4 @@
+import ctypes
 import math
 import logging
 from typing import NamedTuple
@@ -56,6 +57,7 @@ class FrameState(NamedTuple):
     camera_view: Mat4
     camera_projection: Mat4
     ray: Ray
+    light: Float4
 
 
 class Camera:
@@ -207,12 +209,12 @@ class Camera:
 
         return Ray(origin, dir.normalized())
 
-    def get_state(self) -> FrameState:
+    def get_state(self, light: Float4) -> FrameState:
         ray = self.get_mouse_ray()
         return FrameState(
             Float4(0, 0, self.width, self.height),
             self.x, self.y,
             self.left, self.right, self.middle,
             self.view.matrix, self.projection.matrix,
-            ray
+            ray, light
         )

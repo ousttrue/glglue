@@ -597,6 +597,9 @@ class LoopManager:
         self.pMsg = ctypes.pointer(self.msg)
         self.NULL = ctypes.c_int(win32con.NULL)
 
+        from OpenGL.WGL.EXT.swap_control import wglSwapIntervalEXT
+        wglSwapIntervalEXT(1)
+
     def begin_frame(self):
         while True:
             if ctypes.windll.user32.PeekMessageA(self.pMsg, self.NULL, 0, 0,

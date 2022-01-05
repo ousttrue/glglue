@@ -1,4 +1,4 @@
-from glglue.sample.imguicontroller import ImGuiController
+from glglue.gl3.imguicontroller import ImGuiController
 import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(

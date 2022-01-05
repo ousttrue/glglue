@@ -1,7 +1,6 @@
 # glglue
 
 The glue code which mediates between OpenGL and some GUI.
-
 GUI イベント(resize, mouse, keyboard, repaint) を OpenGL に橋渡しする。
 
 ```                           
@@ -15,6 +14,25 @@ GUI                         OpenGL controller
 +--------+                   +------------+
 ```
 
+And OpenGL utilities.
+
+## imgui
+
+[examples/pydear_sample.py](examples/pydear_sample.py)
+
+![docking](docking.jpg)
+
+```                           
+GUI                         OpenGL controller
++--------+                   +------------+                   +------------+
+| win32  |--window resize--->| ImGuiIO    |--view resize----->|RenderTarget|
+| glut   |--mouse input----->|       focus|--mouse input----->|  3D Scene  |
+| sdl    |--keyboard input-->|       focus|--keyboard input-->|  Camera    |
+| pyside6|                   |            |                   |  Light     |
+|     etc|--repaint--------->| Draw       |--repaint--------->| Draw       |
++--------+                   +------------+                   +------------+
+```
+
 ## Requirements
 
 * Python 3.10
@@ -23,10 +41,3 @@ GUI                         OpenGL controller
 
 * <https://ousttrue.github.io/glglue/>
 * <https://pypi.python.org/pypi/glglue/>
-
-## TODO
-
-* [ ] pyside6: shared context
-* [ ] pyside6: loop framerate
-* [ ] gizmo: bone selector
-* [ ] gizmo: text label

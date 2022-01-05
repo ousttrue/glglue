@@ -49,6 +49,15 @@
             "justMyCode": false
         },
         {
+            "name": "glfw_sample",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "program": "${workspaceFolder}/examples/glfw_sample.py",
+            "cwd": "${workspaceRoot}",
+            "justMyCode": false
+        },
+        {
             "name": "gizmo_sample",
             "type": "python",
             "request": "launch",
@@ -64,6 +73,15 @@
             "stopOnEntry": false,
             "program": "${workspaceFolder}/examples/imgui_sample.py",
             "cwd": "${workspaceRoot}",
+        },
+        {
+            "name": "pydear_sample",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "program": "${workspaceFolder}/examples/pydear_sample.py",
+            "cwd": "${workspaceRoot}",
+            "justMyCode": false
         },
         {
             "name": "Python: Current File",

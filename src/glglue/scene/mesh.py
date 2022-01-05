@@ -5,7 +5,7 @@ from glglue import ctypesmath
 
 
 class Submesh:
-    def __init__(self, material: Material, macro: List[str], topology: int, offset: int, draw_count: int) -> None:
+    def __init__(self, material: Material, macro: List[str], topology, offset: int, draw_count: int) -> None:
         self.material = material
         self.macro = macro
 
