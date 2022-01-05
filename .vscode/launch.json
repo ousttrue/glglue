@@ -75,11 +75,11 @@
             "cwd": "${workspaceRoot}",
         },
         {
-            "name": "cydeer_sample",
+            "name": "pydear_sample",
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
-            "program": "${workspaceFolder}/examples/cydeer_sample.py",
+            "program": "${workspaceFolder}/examples/pydear_sample.py",
             "cwd": "${workspaceRoot}",
             "justMyCode": false
         },

@@ -3,8 +3,8 @@ import ctypes
 import logging
 #
 from OpenGL import GL
-import cydeer as ImGui
-from cydeer.utils.dockspace import DockView
+import pydear as ImGui
+from pydear.utils.dockspace import DockView
 from glglue.basecontroller import BaseController
 from .renderview import RenderView
 logger = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ def create_docks() -> List[DockView]:
         'env', (ctypes.c_bool * 1)(True), show_env))
 
     # logger
-    from cydeer.utils.loghandler import ImGuiLogHandler
+    from pydear.utils.loghandler import ImGuiLogHandler
     log_handle = ImGuiLogHandler()
     log_handle.register_root()
     views.append(DockView('log', (ctypes.c_bool * 1)
@@ -59,7 +59,7 @@ def create_docks() -> List[DockView]:
     return views
 
 
-class CydeerController(BaseController):
+class PydearController(BaseController):
     """
     [CLASSES] Controllerクラスは、glglueの規約に沿って以下のコールバックを実装する
     """
@@ -75,7 +75,7 @@ class CydeerController(BaseController):
         self.imgui_font()
 
         self.io.DisplayFramebufferScale = ImGui.ImVec2(scale, scale)
-        from cydeer.backends.opengl import Renderer
+        from pydear.backends.opengl import Renderer
         self.impl_gl = Renderer()
         self.viewport = (1, 1)
 
@@ -138,7 +138,7 @@ class CydeerController(BaseController):
         return True
 
     def imgui_draw(self):
-        from cydeer.utils.dockspace import dockspace
+        from pydear.utils.dockspace import dockspace
         dockspace(self.imgui_docks)
 
     def draw(self):

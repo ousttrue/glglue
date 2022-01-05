@@ -4,11 +4,11 @@ import pathlib
 import ctypes
 #
 import glglue.glfw
-from glglue.gl3.cydeercontroller import CydeerController
+from glglue.gl3.pydearcontroller import PydearController
 from glglue.gl3.renderview import RenderView
 from glglue.windowconfig import WindowConfig
-import cydeer as ImGui
-from cydeer.utils.dockspace import DockView
+import pydear as ImGui
+from pydear.utils.dockspace import DockView
 from glglue.scene.node import Node
 from glglue.ctypesmath import TRS, Mat4, Camera
 
@@ -170,12 +170,12 @@ def skin():
     view.scene.drawables = [root]
 
     tree = SceneTree(root)
-    prop = NodeProp(lambda: tree.selected, view.camera)
+    # prop = NodeProp(lambda: tree.selected, view.camera)
 
     return [
         DockView('skin', (ctypes.c_bool * 1)(True), view.draw),
         DockView('skin_herarchy', (ctypes.c_bool * 1)(True), tree.draw),
-        DockView('skin_node_prop', (ctypes.c_bool * 1)(True), prop.draw),
+        # DockView('skin_node_prop', (ctypes.c_bool * 1)(True), prop.draw),
     ]
 
 
@@ -211,7 +211,7 @@ class ImguiDocks:
             'hello', (ctypes.c_bool * 1)(True), show_selector)
 
         # logger
-        from cydeer.utils.loghandler import ImGuiLogHandler
+        from pydear.utils.loghandler import ImGuiLogHandler
         log_handle = ImGuiLogHandler()
         log_handle.register_root()
         self.logger = DockView('log', (ctypes.c_bool * 1)
@@ -237,7 +237,7 @@ class ImguiDocks:
         yield self.logger
 
 
-class SampleController(CydeerController):
+class SampleController(PydearController):
     def imgui_create_docks(self):
         return ImguiDocks()
 
@@ -253,7 +253,7 @@ if __name__ == "__main__":
     loop = glglue.glfw.LoopManager(
         controller,
         config=WindowConfig.load_json_from_path(CONFIG_FILE),
-        title="cydeer")
+        title="pydear")
 
     # main loop
     lastCount = 0

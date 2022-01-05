@@ -18,7 +18,7 @@ And OpenGL utilities.
 
 ## imgui
 
-[examples/cydeer_sample.py](examples/cydeer_sample.py)
+[examples/pydear_sample.py](examples/pydear_sample.py)
 
 ![docking](docking.jpg)
 
