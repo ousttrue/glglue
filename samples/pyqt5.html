@@ -48,102 +48,6 @@
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pyqt5</span></code></p></li>
 </ul>
-<div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">HEAD examples/pysdl2_sample.py</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># coding: utf-8</span>
-<span class="sd">&#39;&#39;&#39;</span>
-<span class="sd"># sdl2</span>
-<span class="sd">require pyOpenGL + pysdl2 + sdl2.dll</span>
-
-<span class="sd"># sdl2 install on Windows</span>
-<span class="sd">* pip install pysdl2 pysdl2-dll</span>
-<span class="sd">&#39;&#39;&#39;</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(levelname)s</span><span class="s1">:</span><span class="si">%(name)s</span><span class="s1">:</span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span>
-                    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
-
-<span class="kn">from</span> <span class="nn">OpenGL.GL</span> <span class="kn">import</span> <span class="o">*</span>
-
-
-<span class="k">class</span> <span class="nc">Controller</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    [CLASSES] Controllerクラスは、glglueの規約に沿って以下のコールバックを実装する</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span>
-
-    <span class="k">def</span> <span class="nf">onResize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;onResize: </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
-        <span class="n">glViewport</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">onLeftDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;onLeftDown: </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">onLeftUp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;onLeftUp: </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">onMiddleDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;onMiddleDown: </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">onMiddleUp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;onMiddleUp: </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">onRightDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;onRightDown: </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">onRightUp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;onRightUp: </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">onMotion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;onMotion: </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">onWheel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;onWheel: </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">onKeyDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keycode</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;onKeyDown: </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">keycode</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">onUpdate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="c1">#logger.debug(&#39;onUpdate: delta %d ms&#39;, d)</span>
-        <span class="k">pass</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">glClearColor</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">glClear</span><span class="p">(</span><span class="n">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="n">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>
-
-        <span class="n">glBegin</span><span class="p">(</span><span class="n">GL_TRIANGLES</span><span class="p">)</span>
-        <span class="n">glVertex</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
-        <span class="n">glVertex</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
-        <span class="n">glVertex</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
-        <span class="n">glEnd</span><span class="p">()</span>
-
-        <span class="n">glFlush</span><span class="p">()</span>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">controller</span> <span class="o">=</span> <span class="n">Controller</span><span class="p">()</span>
-
-    <span class="kn">import</span> <span class="nn">glglue.pysdl2</span>
-    <span class="n">loop</span> <span class="o">=</span> <span class="n">glglue</span><span class="o">.</span><span class="n">pysdl2</span><span class="o">.</span><span class="n">LoopManager</span><span class="p">(</span><span class="n">controller</span><span class="p">)</span>
-    <span class="n">lastTime</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-        <span class="n">time</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">begin_frame</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">time</span><span class="p">:</span>
-            <span class="k">break</span>
-        <span class="k">if</span> <span class="n">lastTime</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">lastTime</span> <span class="o">=</span> <span class="n">time</span>
-            <span class="k">continue</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">time</span> <span class="o">-</span> <span class="n">lastTime</span>
-        <span class="n">lastTime</span> <span class="o">=</span> <span class="n">time</span>
-        <span class="k">if</span> <span class="n">d</span><span class="p">:</span>
-            <span class="n">controller</span><span class="o">.</span><span class="n">onUpdate</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-            <span class="n">controller</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-            <span class="n">loop</span><span class="o">.</span><span class="n">end_frame</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
 </section>
 
 
@@ -198,7 +102,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, ousttrue.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
     </div>
   </body>
 </html>

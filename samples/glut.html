@@ -52,18 +52,6 @@
 <p>pyOpenGL の freeglut の探索名が <code class="docutils literal notranslate"><span class="pre">freeglut64.vc14.dll</span></code> とかだった。
 わかりにくいのでお勧めできない・・・。</p>
 <p><code class="docutils literal notranslate"><span class="pre">site-packages\OpenGL\platform\win32.py</span></code> の <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">GLUT()</span></code> で決めているポイ？</p>
-<div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">HEAD examples/glut_sample.py</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># coding: utf-8</span>
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">glglue.gl3.samplecontroller</span>
-    <span class="n">controller</span> <span class="o">=</span> <span class="n">glglue</span><span class="o">.</span><span class="n">gl3</span><span class="o">.</span><span class="n">samplecontroller</span><span class="o">.</span><span class="n">SampleController</span><span class="p">()</span>
-
-    <span class="kn">import</span> <span class="nn">glglue.glut</span>
-    <span class="n">glglue</span><span class="o">.</span><span class="n">glut</span><span class="o">.</span><span class="n">mainloop</span><span class="p">(</span><span class="n">controller</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
 </section>
 
 
@@ -118,7 +106,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, ousttrue.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
     </div>
   </body>
 </html>
