@@ -80,7 +80,7 @@ class PydearController(BaseController):
         self.viewport = (1, 1)
 
         # imgui view
-        self.imgui_docks = self.imgui_create_docks()
+        self.imgui_docks = [dock for dock in self.imgui_create_docks()]
 
     def imgui_create_docks(self) -> List[DockView]:
         return create_docks()
