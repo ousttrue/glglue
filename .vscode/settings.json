@@ -2,7 +2,7 @@
     "cSpell.words": [
         "ctypes",
         "ctypesmath",
-        "pydear",
+        "glfw",
         "glglue",
         "gmail",
         "imgui",
@@ -11,6 +11,7 @@
         "mediump",
         "opengl",
         "Programiv",
+        "pydear",
         "pysdl",
         "pyside",
         "struct",

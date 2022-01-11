@@ -3,6 +3,7 @@ import logging
 import pathlib
 import ctypes
 #
+import glglue
 import glglue.glfw
 from glglue.gl3.pydearcontroller import PydearController
 from glglue.gl3.renderview import RenderView
@@ -145,7 +146,8 @@ class NodeProp:
         # w, h = ImGui.GetWindowSize()
         # ImGui.ImGuizmo_SetRect(x, y, w, h)
         ImGui.ImGuizmo_SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y)
-        ImGui.ImGuizmo_Manipulate(self.camera.view.matrix, self.camera.projection.matrix, self.mCurrentGizmoOperation, self.mCurrentGizmoMode, m, None, None)#self.useSnap ? &snap.x : NULL)
+        ImGui.ImGuizmo_Manipulate(self.camera.view.matrix, self.camera.projection.matrix,
+                                  self.mCurrentGizmoOperation, self.mCurrentGizmoMode, m, None, None)  # self.useSnap ? &snap.x : NULL)
 
 
 def cube():
@@ -254,6 +256,7 @@ if __name__ == "__main__":
         controller,
         config=WindowConfig.load_json_from_path(CONFIG_FILE),
         title="pydear")
+    logger.info(glglue.get_info())
 
     # main loop
     lastCount = 0
