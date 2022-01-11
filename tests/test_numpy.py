@@ -21,6 +21,9 @@ class TestNumpy(unittest.TestCase):
         v = c[3]
         self.assertTrue((numpy.array([2, 4, 6, 1]) == v).all())
 
+        apply = numpy.array([0, 0, 0, 1]) @ c
+        self.assertTrue((numpy.array([2, 4, 6, 1]) == apply).all())
+
     def test_col_vec(self):
         a = numpy.array([
             [1, 0, 0, 1],
@@ -37,6 +40,9 @@ class TestNumpy(unittest.TestCase):
         c = a @ b
         v = c[:, 3]
         self.assertTrue((numpy.array([2, 4, 6, 1]) == v).all())
+
+        apply = c @ numpy.array([0, 0, 0, 1])
+        self.assertTrue((numpy.array([2, 4, 6, 1]) == apply).all())
 
 
 if __name__ == '__main__':
