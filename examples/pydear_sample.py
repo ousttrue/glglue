@@ -255,7 +255,7 @@ if __name__ == "__main__":
     loop = glglue.glfw.LoopManager(
         controller,
         config=WindowConfig.load_json_from_path(CONFIG_FILE),
-        title="pydear")
+        title=f"pydear: glglue-{glglue.version}")
     logger.info(glglue.get_info())
 
     # main loop
