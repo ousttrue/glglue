@@ -2,7 +2,7 @@ from typing import Optional
 import ctypes
 from OpenGL import GL
 #
-import pydear as ImGui
+from pydear import imgui as ImGui
 #
 from ..ctypesmath import Camera, Float4
 from .rendertarget import RenderTarget

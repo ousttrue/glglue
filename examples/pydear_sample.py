@@ -8,8 +8,8 @@ import glglue.glfw
 from glglue.gl3.pydearcontroller import PydearController
 from glglue.gl3.renderview import RenderView
 from glglue.windowconfig import WindowConfig
-import pydear as ImGui
-from pydear.utils.dockspace import DockView
+from pydear import imgui as ImGui
+from pydear.utils.dockspace import Dock
 from glglue.scene.node import Node
 from glglue.ctypesmath import TRS, Mat4, Camera
 
@@ -152,7 +152,7 @@ class NodeProp:
 
 def cube():
     view = RenderView()
-    return [DockView(
+    return [Dock(
         'cube', (ctypes.c_bool * 1)(True), view.draw)]
 
 
@@ -160,7 +160,7 @@ def teapot():
     view = RenderView()
     from glglue.scene.teapot import create_teapot
     view.scene.drawables = [create_teapot()]
-    return [DockView(
+    return [Dock(
         'teapot', (ctypes.c_bool * 1)(True), view.draw)]
 
 
@@ -175,9 +175,9 @@ def skin():
     # prop = NodeProp(lambda: tree.selected, view.camera)
 
     return [
-        DockView('skin', (ctypes.c_bool * 1)(True), view.draw),
-        DockView('skin_herarchy', (ctypes.c_bool * 1)(True), tree.draw),
-        # DockView('skin_node_prop', (ctypes.c_bool * 1)(True), prop.draw),
+        Dock('skin', (ctypes.c_bool * 1)(True), view.draw),
+        Dock('skin_herarchy', (ctypes.c_bool * 1)(True), tree.draw),
+        # Dock('skin_node_prop', (ctypes.c_bool * 1)(True), prop.draw),
     ]
 
 
@@ -190,12 +190,12 @@ SCENES = {
 
 class ImguiDocks:
     def __init__(self) -> None:
-        self.demo = DockView(
+        self.demo = Dock(
             'demo', (ctypes.c_bool * 1)(True), ImGui.ShowDemoWindow)
-        self.metrics = DockView(
+        self.metrics = Dock(
             'metrics', (ctypes.c_bool * 1)(True), ImGui.ShowMetricsWindow)
         self.selected = 'skin'
-        self.scenes: Dict[str, List[DockView]] = {
+        self.scenes: Dict[str, List[Dock]] = {
             k: [] for k, v in SCENES.items()}
 
         def show_selector(p_open: ctypes.Array):
@@ -209,17 +209,17 @@ class ImguiDocks:
                     logger.debug("debug message")
             # close current window context
             ImGui.End()
-        self.hello = DockView(
+        self.hello = Dock(
             'hello', (ctypes.c_bool * 1)(True), show_selector)
 
         # logger
         from pydear.utils.loghandler import ImGuiLogHandler
         log_handle = ImGuiLogHandler()
         log_handle.register_root()
-        self.logger = DockView('log', (ctypes.c_bool * 1)
+        self.logger = Dock('log', (ctypes.c_bool * 1)
                                (True), log_handle.draw)
 
-    def get_or_create(self, key: str) -> Iterable[DockView]:
+    def get_or_create(self, key: str) -> Iterable[Dock]:
         value = self.scenes.get(key)
         if value:
             return value
@@ -230,7 +230,7 @@ class ImguiDocks:
         self.scenes[key] = value
         return value
 
-    def __iter__(self) -> Iterable[DockView]:
+    def __iter__(self) -> Iterable[Dock]:
         yield self.demo
         yield self.metrics
         yield self.hello

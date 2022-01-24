@@ -3,17 +3,17 @@ import ctypes
 import logging
 #
 from OpenGL import GL
-import pydear as ImGui
-from pydear.utils.dockspace import DockView
+from pydear import imgui as ImGui
+from pydear.utils.dockspace import Dock
 from glglue.basecontroller import BaseController
 from .renderview import RenderView
 logger = logging.getLogger(__name__)
 
 
-def create_docks() -> List[DockView]:
-    views: List[DockView] = []
+def create_docks() -> List[Dock]:
+    views: List[Dock] = []
 
-    views.append(DockView(
+    views.append(Dock(
         'metrics', (ctypes.c_bool * 1)(True), ImGui.ShowMetricsWindow))
 
     def show_hello(p_open: ctypes.Array):
@@ -24,14 +24,14 @@ def create_docks() -> List[DockView]:
                 logger.debug("debug message")
         # close current window context
         ImGui.End()
-    views.append(DockView(
+    views.append(Dock(
         'hello', (ctypes.c_bool * 1)(True), show_hello))
 
     #
     # 3D View
     #
     render_view = RenderView()
-    views.append(DockView(
+    views.append(Dock(
         '3d', (ctypes.c_bool * 1)(True), render_view.draw))
 
     is_point = (ctypes.c_bool * 1)(False)
@@ -46,14 +46,14 @@ def create_docks() -> List[DockView]:
             ImGui.SliderFloat3(
                 'light position', render_view.light, -10, 10)  # type: ignore
         ImGui.End()
-    views.append(DockView(
+    views.append(Dock(
         'env', (ctypes.c_bool * 1)(True), show_env))
 
     # logger
     from pydear.utils.loghandler import ImGuiLogHandler
     log_handle = ImGuiLogHandler()
     log_handle.register_root()
-    views.append(DockView('log', (ctypes.c_bool * 1)
+    views.append(Dock('log', (ctypes.c_bool * 1)
                           (True), log_handle.draw))
 
     return views
@@ -82,7 +82,7 @@ class PydearController(BaseController):
         # imgui view
         self.imgui_docks = [dock for dock in self.imgui_create_docks()]
 
-    def imgui_create_docks(self) -> List[DockView]:
+    def imgui_create_docks(self) -> List[Dock]:
         return create_docks()
 
     def imgui_font(self):
@@ -138,8 +138,8 @@ class PydearController(BaseController):
         return True
 
     def imgui_draw(self):
-        from pydear.utils.dockspace import dockspace
-        dockspace(self.imgui_docks)
+        from pydear.utils.dockspace import show_docks
+        show_docks(self.imgui_docks)
 
     def draw(self):
         # state = self.camera.get_state()
