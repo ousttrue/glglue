@@ -4,6 +4,7 @@ import logging
 from OpenGL import GL
 from .basecontroller import BaseController
 from .windowconfig import WindowConfig
+from .util import GLContextHint
 
 logger = logging.getLogger(__name__)
 
@@ -11,6 +12,7 @@ logger = logging.getLogger(__name__)
 class LoopManager:
     def __init__(
             self, controller: BaseController, *,
+            hint: Optional[GLContextHint] = None,
             title: str = 'glfw',
             width: int = 0,
             height: int = 0,
@@ -30,11 +32,15 @@ class LoopManager:
             logger.error("Could not initialize OpenGL context")
             return
 
-        # OS X supports only forward-compatible core profiles from 3.2
-        glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
-        glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 2)
-        glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-        glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
+        if hint:
+            # OS X supports only forward-compatible core profiles from 3.2
+            glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, hint.major)
+            glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, hint.minor)
+            if hint.core_profile:
+                glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
+            else:
+                glfw.window_hint(glfw.OPENGL_PROFILE,
+                                 glfw.OPENGL_FORWARD_COMPAT)
 
         # Create a windowed mode window and its OpenGL context
         self.window = glfw.create_window(
