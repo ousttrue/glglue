@@ -5,47 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "wgl_sample",
-            "type": "python",
-            "request": "launch",
-            "stopOnEntry": false,
-            "program": "${workspaceFolder}/examples/wgl_sample.py",
-            "cwd": "${workspaceRoot}",
-        },
-        {
             "name": "glut_sample",
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
-            "program": "${workspaceFolder}/examples/glut_sample.py",
+            "program": "${workspaceFolder}/examples/freeglut_sample.py",
             "cwd": "${workspaceRoot}",
-            "justMyCode": false
-        },
-        {
-            "name": "pysdl2_sample",
-            "type": "python",
-            "request": "launch",
-            "stopOnEntry": false,
-            "program": "${workspaceFolder}/examples/pysdl2_sample.py",
-            "cwd": "${workspaceRoot}",
-            "justMyCode": false
-        },
-        {
-            "name": "pyqt5_sample",
-            "type": "python",
-            "request": "launch",
-            "stopOnEntry": false,
-            "program": "${workspaceFolder}/examples/pyqt5_sample.py",
-            "cwd": "${workspaceRoot}",
-            "justMyCode": false
-        },
-        {
-            "name": "pyside6_sample",
-            "type": "python",
-            "request": "launch",
-            "stopOnEntry": false,
-            "program": "${workspaceFolder}/examples/pyside6_sample.py",
-            "cwd": "${workspaceRoot}",
+            "env": {
+                "PATH": "${env:PATH};${workspaceFolder}\\bin",
+                "PYTHONPATH": "${workspaceFolder}/src"
+            },
             "justMyCode": false
         },
         {
@@ -58,37 +27,33 @@
             "justMyCode": false
         },
         {
-            "name": "gizmo_sample",
+            "name": "pysdl2_sample",
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
-            "program": "${workspaceFolder}/examples/gizmo_sample.py",
+            "program": "${workspaceFolder}/examples/pysdl2_sample.py",
+            "cwd": "${workspaceRoot}",
+            "env": {
+                "PYSDL2_DLL_PATH": "${workspaceFolder}\\bin",
+            },
+            "justMyCode": false
+        },
+        {
+            "name": "pyside6_sample",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "program": "${workspaceFolder}/examples/pyside6_sample.py",
             "cwd": "${workspaceRoot}",
             "justMyCode": false
         },
         {
-            "name": "imgui_sample",
+            "name": "wgl_sample",
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
-            "program": "${workspaceFolder}/examples/imgui_sample.py",
+            "program": "${workspaceFolder}/examples/wgl_sample.py",
             "cwd": "${workspaceRoot}",
-        },
-        {
-            "name": "pydear_sample",
-            "type": "python",
-            "request": "launch",
-            "stopOnEntry": false,
-            "program": "${workspaceFolder}/examples/pydear_sample.py",
-            "cwd": "${workspaceRoot}",
-            "justMyCode": false
-        },
-        {
-            "name": "Python: Current File",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
         },
     ]
 }

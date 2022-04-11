@@ -5,54 +5,51 @@ Win32APIでOpenGLホストするサンプル。
 * Windows専用
 * 追加のインストールは不要
 '''
-from logging import getLogger
+from OpenGL import GL
+import logging
+import glglue.basecontroller
 
-logger = getLogger(__name__)
-
-from logging import basicConfig, DEBUG
-
-basicConfig(format='%(levelname)s:%(name)s:%(message)s', level=DEBUG)
-
-from OpenGL.GL import *  # pylint: disable=W0614, W0622, W0401
+LOGGER = logging.getLogger(__name__)
 
 
-class Controller:
+class Controller(glglue.basecontroller.BaseController):
     """
     [CLASSES] Controllerクラスは、glglueの規約に沿って以下のコールバックを実装する
     """
+
     def __init__(self) -> None:
         self.is_initialized = False
 
     def onResize(self, w: int, h: int) -> None:
-        logger.debug('onResize: %d, %d', w, h)
-        glViewport(0, 0, w, h)
+        LOGGER.debug('onResize: %d, %d', w, h)
+        GL.glViewport(0, 0, w, h)
 
     def onLeftDown(self, x: int, y: int) -> None:
-        logger.debug('onLeftDown: %d, %d', x, y)
+        LOGGER.debug('onLeftDown: %d, %d', x, y)
 
     def onLeftUp(self, x: int, y: int) -> None:
-        logger.debug('onLeftUp: %d, %d', x, y)
+        LOGGER.debug('onLeftUp: %d, %d', x, y)
 
     def onMiddleDown(self, x: int, y: int) -> None:
-        logger.debug('onMiddleDown: %d, %d', x, y)
+        LOGGER.debug('onMiddleDown: %d, %d', x, y)
 
     def onMiddleUp(self, x: int, y: int) -> None:
-        logger.debug('onMiddleUp: %d, %d', x, y)
+        LOGGER.debug('onMiddleUp: %d, %d', x, y)
 
     def onRightDown(self, x: int, y: int) -> None:
-        logger.debug('onRightDown: %d, %d', x, y)
+        LOGGER.debug('onRightDown: %d, %d', x, y)
 
     def onRightUp(self, x: int, y: int) -> None:
-        logger.debug('onRightUp: %d, %d', x, y)
+        LOGGER.debug('onRightUp: %d, %d', x, y)
 
     def onMotion(self, x: int, y: int) -> None:
-        logger.debug('onMotion: %d, %d', x, y)
+        LOGGER.debug('onMotion: %d, %d', x, y)
 
     def onWheel(self, d: int) -> None:
-        logger.debug('onWheel: %d', d)
+        LOGGER.debug('onWheel: %d', d)
 
     def onKeyDown(self, keycode: int) -> None:
-        logger.debug('onKeyDown: %d', keycode)
+        LOGGER.debug('onKeyDown: %d', keycode)
 
     def onUpdate(self, d: int) -> None:
         '''
@@ -67,26 +64,29 @@ class Controller:
     def draw(self) -> None:
         if not self.is_initialized:
             self.initialize()
-        glClearColor(0.0, 0.0, 1.0, 0.0)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        GL.glClearColor(0.0, 0.0, 1.0, 0.0)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
-        glBegin(GL_TRIANGLES)
-        glVertex(-1.0, -1.0)
-        glVertex(1.0, -1.0)
-        glVertex(0.0, 1.0)
-        glEnd()
+        GL.glBegin(GL.GL_TRIANGLES)
+        GL.glVertex(-1.0, -1.0)
+        GL.glVertex(1.0, -1.0)
+        GL.glVertex(0.0, 1.0)
+        GL.glEnd()
 
-        glFlush()
+        GL.glFlush()
 
 
-if __name__ == "__main__":
+def main():
+    logging.basicConfig(
+        format='%(levelname)s:%(name)s:%(message)s', level=logging.DEBUG)
+
     controller = Controller()
     import glglue.wgl
     loop = glglue.wgl.LoopManager(controller,
                                   width=640,
                                   height=480,
                                   title=b"sample")
-    
+
     lastCount = 0
     while True:
         count = loop.begin_frame()
@@ -98,3 +98,7 @@ if __name__ == "__main__":
             controller.onUpdate(d)
             controller.draw()
             loop.end_frame()
+
+
+if __name__ == "__main__":
+    main()

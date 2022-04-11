@@ -16,23 +16,6 @@ GUI                         OpenGL controller
 
 And OpenGL utilities.
 
-## imgui
-
-[examples/pydear_sample.py](examples/pydear_sample.py)
-
-![docking](docking.jpg)
-
-```                           
-GUI                         OpenGL controller
-+--------+                   +------------+                   +------------+
-| win32  |--window resize--->| ImGuiIO    |--view resize----->|RenderTarget|
-| glut   |--mouse input----->|       focus|--mouse input----->|  3D Scene  |
-| sdl    |--keyboard input-->|       focus|--keyboard input-->|  Camera    |
-| pyside6|                   |            |                   |  Light     |
-|     etc|--repaint--------->| Draw       |--repaint--------->| Draw       |
-+--------+                   +------------+                   +------------+
-```
-
 ## Requirements
 
 * Python 3.10

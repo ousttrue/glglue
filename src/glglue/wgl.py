@@ -5,7 +5,6 @@ from OpenGL import GL
 import OpenGL.error
 from ctypes import wintypes
 import ctypes
-from glglue import ctypesmath
 
 from glglue.basecontroller import BaseController
 from . import win32con
