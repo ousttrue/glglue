@@ -29,25 +29,9 @@ GUI からのイベントを受け取って OpenGL を描画するクラス。
 各種 GUI の使用例
 
 ```{toctree}
-samples/wgl
 samples/glut
+samples/glfw
 samples/pysdl2
-samples/pyqt5
 samples/pyside6
+samples/wgl
 ```
-
-## Controller Samples
-
-Controller の実装例
-
-```{toctree}
-controller/gl15
-controller/gl33
-controller/imgui
-```
-
-## Indices and tables
-
-* {ref}`genindex`
-* {ref}`modindex`
-* {ref}`search`
