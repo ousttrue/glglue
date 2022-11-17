@@ -55,5 +55,13 @@
             "program": "${workspaceFolder}/examples/wgl_sample.py",
             "cwd": "${workspaceRoot}",
         },
+        {
+            "name": "gtk3_sample",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "program": "${workspaceFolder}/examples/gtk3_sample.py",
+            "cwd": "${workspaceRoot}",
+        },
     ]
 }

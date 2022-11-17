@@ -1,13 +1,16 @@
-#
-# pip install pyside6
-#
-from PySide6 import QtWidgets
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
 import glglue.basecontroller
+from glglue.util import DummyScene
 
 
 class Controller(glglue.basecontroller.BaseController):
     def __init__(self):
         super().__init__()
+        self.scene = DummyScene()
 
     def onUpdate(self, time_delta) -> bool:
         return False
@@ -34,6 +37,7 @@ class Controller(glglue.basecontroller.BaseController):
         return False
 
     def onResize(self, w: int, h: int) -> bool:
+        self.scene.resize(w, h)
         return False
 
     def onWheel(self, d: int) -> bool:
@@ -43,27 +47,33 @@ class Controller(glglue.basecontroller.BaseController):
         return False
 
     def draw(self) -> None:
-        pass
+        self.scene.draw()
 
 
-class Window(QtWidgets.QMainWindow):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+class Window(Gtk.ApplicationWindow):
+    def __init__(self, app):
+        super().__init__(application=app)
         # setup opengl widget
         self.controller = Controller()
-        import glglue.pyside6
+
+        import glglue.gtk3
         import glglue.util
-        self.glwidget = glglue.pyside6.Widget(
-            self, self.controller, glglue.util.get_desktop_scaling_factor())
-        self.setCentralWidget(self.glwidget)
+
+        self.glWidget = glglue.gtk3.GLArea(
+            self.controller, glglue.util.get_desktop_scaling_factor()
+        )
+        self.add(self.glWidget)
+
+
+def on_activate(app: Gtk.Application):
+    window = Window(app)
+    window.show_all()
 
 
 def main():
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    window = Window()
-    window.show()
-    sys.exit(app.exec())
+    app = Gtk.Application()
+    app.connect("activate", on_activate)
+    app.run()
 
 
 if __name__ == "__main__":
