@@ -10,8 +10,9 @@ GUI                         OpenGL controller
 | glut   |--mouse input----->| Update     |
 | sdl    |--keyboard input-->| Update     |
 | pyside6|                   |            |
-|     etc|--repaint--------->| Draw       |
-+--------+                   +------------+
+| gtk3   |--repaint--------->| Draw       |
+| gtk4   |                   +------------+
++--------+
 ```
 
 And OpenGL utilities.
