@@ -82,9 +82,11 @@ class GLArea(Gtk.GLArea):
 
         def on_right_down(*args):
             self.right_down = True
+            self.queue_render()
 
         def on_right_up(*args):
             self.right_down = False
+            self.queue_render()
 
         right_click_controller.connect("pressed", on_right_down)
         right_click_controller.connect("released", on_right_up)
