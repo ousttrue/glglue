@@ -21,13 +21,11 @@ from PySide6 import QtWidgets
 
 
 class Window(QtWidgets.QMainWindow):
-    def __init__(self, render_func: glglue.frame_input.RenderFunc, parent=None):
-        super().__init__(parent)
-        # setup opengl widget
+    def __init__(self):
+        super().__init__(None)
         import glglue.pyside6
-        import glglue.util
 
-        self.glwidget = glglue.pyside6.Widget(self, render_gl=render_func)
+        self.glwidget = glglue.pyside6.Widget(self, render_gl=render)
         self.setCentralWidget(self.glwidget)
 
 
@@ -35,7 +33,7 @@ def main():
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    window = Window(render)
+    window = Window()
     window.show()
     sys.exit(app.exec())
 
