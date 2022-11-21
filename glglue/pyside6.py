@@ -59,8 +59,9 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
         self.render_wheel = 0
 
     def resizeGL(self, width, height):
-        self.render_width = width
-        self.render_height = height
+        ratio = QtGui.QGuiApplication.primaryScreen().devicePixelRatio()
+        self.render_width = int(width * ratio)
+        self.render_height = int(height * ratio)
         self.repaint()
 
     def mousePressEvent(self, event):
