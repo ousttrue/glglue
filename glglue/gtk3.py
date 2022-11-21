@@ -21,14 +21,14 @@ class GLArea(Gtk.GLArea):
         def on_draw(*args):
             render_callback(
                 glglue.frame_input.FrameInput(
-                    x=self.mouse_x,
-                    y=self.mouse_y,
+                    mouse_x=self.mouse_x,
+                    mouse_y=self.mouse_y,
                     width=self.get_allocated_width(),
                     height=self.get_allocated_height(),
-                    left_down=self.left_down,
-                    middle_down=self.middle_down,
-                    right_down=self.right_down,
-                    wheel=self.wheel,
+                    mouse_left=self.left_down,
+                    mouse_middle=self.middle_down,
+                    mouse_right=self.right_down,
+                    mouse_wheel=self.wheel,
                 )
             )
             self.wheel = 0

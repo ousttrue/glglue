@@ -652,15 +652,15 @@ class LoopManager:
             break
 
         frame = glglue.frame_input.FrameInput(
-            elapsed_milliseconds=datetime.timedelta(milliseconds=timeGetTime()),
-            x=self.window.x,
-            y=self.window.y,
+            elapsed_time=datetime.timedelta(milliseconds=timeGetTime()),
+            mouse_x=self.window.x,
+            mouse_y=self.window.y,
             width=self.window.width,
             height=self.window.height,
-            left_down=self.window.mouse_left,
-            middle_down=self.window.mouse_middle,
-            right_down=self.window.mouse_right,
-            wheel=self.window.wheel,
+            mouse_left=self.window.mouse_left,
+            mouse_middle=self.window.mouse_middle,
+            mouse_right=self.window.mouse_right,
+            mouse_wheel=self.window.wheel,
         )
         self.window.wheel = 0
         return frame

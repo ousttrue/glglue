@@ -188,8 +188,8 @@ def get_arcball_vector(mouse_input: FrameInput):
     https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
     """
     P = glm.vec3(
-        mouse_input.x / mouse_input.width * 2 - 1.0,
-        mouse_input.y / mouse_input.height * 2 - 1.0,
+        mouse_input.mouse_x / mouse_input.width * 2 - 1.0,
+        mouse_input.mouse_y / mouse_input.height * 2 - 1.0,
         0,
     )
     P.y = -P.y
@@ -216,16 +216,16 @@ class ArcBall(DragInterface):
         self.view.update_matrix()
 
     def begin(self, mouse_input: FrameInput):
-        x = mouse_input.x
-        y = mouse_input.y
+        x = mouse_input.mouse_x
+        y = mouse_input.mouse_y
         self.rotation = self.view.rotation
         self.x = x
         self.y = y
         self.va = get_arcball_vector(mouse_input)
 
     def drag(self, mouse_input: FrameInput, dx: int, dy: int):
-        x = mouse_input.x
-        y = mouse_input.y
+        x = mouse_input.mouse_x
+        y = mouse_input.mouse_y
         if x == self.x and y == self.y:
             return
         self.x = x
@@ -237,8 +237,8 @@ class ArcBall(DragInterface):
         self.update()
 
     def end(self, mouse_input: FrameInput):
-        x = mouse_input.x
-        y = mouse_input.y
+        x = mouse_input.mouse_x
+        y = mouse_input.mouse_y
         self.rotation = glm.normalize(self.tmp_rotation * self.rotation)
         self.tmp_rotation = glm.quat()
         self.update()

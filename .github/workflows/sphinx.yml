@@ -13,10 +13,7 @@ jobs:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     steps:
       - uses: actions/checkout@v1
-      - run: pip install sphinx
-      - run: pip install myst-parser
-      - run: pip install gitinclude
-      - run: pip install sphinxcontrib-actdiag sphinxcontrib-blockdiag sphinxcontrib-nwdiag sphinxcontrib-seqdiag
+      - run: pip install sphinx myst-parser gitinclude sphinxcontrib-actdiag sphinxcontrib-blockdiag sphinxcontrib-nwdiag sphinxcontrib-seqdiag
       - run: sphinx-build docs build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3

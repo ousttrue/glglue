@@ -138,15 +138,15 @@ class LoopManager:
         glfw.poll_events()
 
         frame = glglue.frame_input.FrameInput(
-            elapsed_milliseconds=datetime.timedelta(seconds=glfw.get_time()),
-            x=self.mouse_x,
-            y=self.mouse_y,
+            elapsed_time=datetime.timedelta(seconds=glfw.get_time()),
+            mouse_x=self.mouse_x,
+            mouse_y=self.mouse_y,
             width=self.width,
             height=self.height,
-            left_down=self.left_down,
-            right_down=self.right_down,
-            middle_down=self.middle_down,
-            wheel=self.wheel,
+            mouse_left=self.left_down,
+            mouse_right=self.right_down,
+            mouse_middle=self.middle_down,
+            mouse_wheel=self.wheel,
         )
         self.wheel = 0
         return frame

@@ -46,14 +46,14 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
     def paintGL(self):
         self.render_gl(
             glglue.frame_input.FrameInput(
-                x=self.mouse_x,
-                y=self.mouse_y,
+                mouse_x=self.mouse_x,
+                mouse_y=self.mouse_y,
                 width=self.render_width,
                 height=self.render_height,
-                left_down=self.left_down,
-                middle_down=self.middle_down,
-                right_down=self.right_down,
-                wheel=self.render_wheel,
+                mouse_left=self.left_down,
+                mouse_middle=self.middle_down,
+                mouse_right=self.right_down,
+                mouse_wheel=self.render_wheel,
             )
         )
         self.render_wheel = 0

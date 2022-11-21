@@ -9,16 +9,10 @@ from OpenGL.GLUT import *
 import time
 from logging import getLogger
 import sys
-import pathlib
 import datetime
 import glglue.frame_input
 
-HERE = pathlib.Path(__file__).absolute().parent
-sys.path.insert(0, str(HERE.parent))
 LOGGER = getLogger(__name__)
-
-FPS = 30
-MSPF = int(1000.0 / FPS)
 
 
 class GlutWindow:
@@ -100,15 +94,15 @@ class LoopManager:
         glutMainLoopEvent()
         clock = time.perf_counter()
         frame = glglue.frame_input.FrameInput(
-            elapsed_milliseconds=datetime.timedelta(seconds=clock),
-            x=self.w.x,
-            y=self.w.y,
+            elapsed_time=datetime.timedelta(seconds=clock),
+            mouse_x=self.w.x,
+            mouse_y=self.w.y,
             width=self.w.width,
             height=self.w.height,
-            left_down=self.w.mouse_left,
-            middle_down=self.w.mouse_middle,
-            right_down=self.w.mouse_right,
-            wheel=self.w.wheel,
+            mouse_left=self.w.mouse_left,
+            mouse_middle=self.w.mouse_middle,
+            mouse_right=self.w.mouse_right,
+            mouse_wheel=self.w.wheel,
         )
         self.w.wheel = 0
         return frame

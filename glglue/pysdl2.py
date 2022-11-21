@@ -93,15 +93,15 @@ class LoopManager:
                     self.height = self.event.window.data2
 
         return FrameInput(
-            elapsed_milliseconds=datetime.timedelta(microseconds=SDL_GetTicks()),
-            x=self.x,
-            y=self.y,
+            elapsed_time=datetime.timedelta(microseconds=SDL_GetTicks()),
+            mouse_x=self.x,
+            mouse_y=self.y,
             width=self.width,
             height=self.height,
-            left_down=self.left_down,
-            middle_down=self.middle_down,
-            right_down=self.right_down,
-            wheel=wheel,
+            mouse_left=self.left_down,
+            mouse_middle=self.middle_down,
+            mouse_right=self.right_down,
+            mouse_wheel=wheel,
         )
 
     def end_frame(self):

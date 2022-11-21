@@ -76,7 +76,7 @@ class TriangleScene:
         # clear
         GL.glViewport(0, 0, frame.width, frame.height)
         r = 0
-        g = 0.1 if frame.left_down else 0
+        g = 0.1 if frame.mouse_left else 0
         if frame.height == 0:
             return
         b = 0
