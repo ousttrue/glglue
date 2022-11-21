@@ -1,64 +1,32 @@
-import glglue.basecontroller
+import glglue.frame_input
 
 
-class Controller(glglue.basecontroller.BaseController):
-    def __init__(self):
-        super().__init__()
+def render(frame: glglue.frame_input.FrameInput):
+    from OpenGL import GL
 
-    def onUpdate(self, time_delta) -> bool:
-        return False
+    GL.glViewport(0, 0, frame.width, frame.height)
 
-    def onLeftDown(self, x: int, y: int) -> bool:
-        return False
+    r = float(frame.x) / float(frame.width)
+    g = 1 if frame.left_down else 0
+    if frame.height == 0:
+        return
+    b = float(frame.y) / float(frame.height)
+    GL.glClearColor(r, g, b, 1.0)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
 
-    def onLeftUp(self, x: int, y: int) -> bool:
-        return False
-
-    def onMiddleDown(self, x: int, y: int) -> bool:
-        return False
-
-    def onMiddleUp(self, x: int, y: int) -> bool:
-        return False
-
-    def onRightDown(self, x: int, y: int) -> bool:
-        return False
-
-    def onRightUp(self, x: int, y: int) -> bool:
-        return False
-
-    def onMotion(self, x: int, y: int) -> bool:
-        return False
-
-    def onResize(self, w: int, h: int) -> bool:
-        return False
-
-    def onWheel(self, d: int) -> bool:
-        return False
-
-    def onKeyDown(self, *args: str) -> bool:
-        return False
-
-    def draw(self) -> None:
-        pass
+    GL.glFlush()
 
 
 def main():
-    controller = Controller()
-
     import glglue.glfw
-    loop = glglue.glfw.LoopManager(controller, title='glfw sample')
 
-    lastCount = 0
+    loop = glglue.glfw.LoopManager(title="glfw sample")
     while True:
-        count = loop.begin_frame()
-        if not count:
+        frame = loop.begin_frame()
+        if not frame:
             break
-        d = count - lastCount
-        lastCount = count
-        if d > 0:
-            controller.onUpdate(d)
-            controller.draw()
-            loop.end_frame()
+        render(frame)
+        loop.end_frame()
 
 
 if __name__ == "__main__":
