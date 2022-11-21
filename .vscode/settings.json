@@ -19,9 +19,6 @@
         "togl",
         "vcpkg"
     ],
-    "terminal.integrated.env.windows": {
-        "PYTHONPATH": "${env:PYTHONPATH};${workspaceRoot}\\src"
-    },
     "python.testing.unittestArgs": [
         "-v",
         "-s",

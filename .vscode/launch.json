@@ -12,7 +12,6 @@
             "cwd": "${workspaceRoot}",
             "env": {
                 "PATH": "${env:PATH};${workspaceFolder}\\bin",
-                "PYTHONPATH": "${workspaceFolder}/src"
             },
             "justMyCode": false
         },
@@ -25,7 +24,6 @@
             "cwd": "${workspaceRoot}",
             "env": {
                 "PATH": "${env:PATH};${workspaceFolder}\\bin",
-                "PYTHONPATH": "${workspaceFolder}/src"
             },
             "justMyCode": false
         },
