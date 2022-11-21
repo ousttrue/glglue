@@ -1,11 +1,29 @@
 import argparse
 
 
-def install_packages(pkg):
+def install_pyside6():
     import pip
 
-    args = ["install", pkg]
+    args = ["install", "pyside6"]
+
+    pip.main(args)
+
+
+def install_pysdl2():
+    import pip
+
+    args = ["install", "pysdl2"]
     import platform
+
+    if platform.system() == "Windows":
+        args.append("pysdl2-dll")
+    pip.main(args)
+
+
+def install_glfw():
+    import pip
+
+    args = ["install", "glfw"]
 
     pip.main(args)
 
@@ -23,16 +41,16 @@ def main():
     if args.subparser_name == "pysdl2":
         import glglue.pysdl2
 
-        glglue.pysdl2.install_packages()
+        install_pysdl2()
     elif args.subparser_name == "glfw":
         import glglue.glfw
 
-        glglue.glfw.install_packages()
+        install_glfw()
     elif args.subparser_name == "pyside6":
         try:
             import glglue.pyside6
         except:
-            install_packages("pyside6")
+            install_pyside6()
     else:
         parser.print_help()
 

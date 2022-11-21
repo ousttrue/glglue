@@ -153,12 +153,3 @@ class LoopManager:
 
     def end_frame(self):
         glfw.swap_buffers(self.window)
-
-
-def install_packages():
-    import pip
-
-    args = ["install", "glfw"]
-    import platform
-
-    pip.main(args)
