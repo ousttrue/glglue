@@ -1,4 +1,4 @@
-from typing import NamedTuple, Optional, Union, Tuple, cast
+from typing import NamedTuple, Optional, Union, Tuple, cast, List, Callable
 from OpenGL import GL
 import glm
 import logging
@@ -117,12 +117,12 @@ class Shader:
             case _:
                 raise RuntimeError()
 
-    def create_props(self, camera, node=None):
+    def create_props(self, camera, node=None) -> List[Callable[[], None]]:
         from .. import glo
 
-        props = []
+        props: List[Callable[[], None]] = []
 
-        model = glo.UniformLocation.create(self.program, "uModel")
+        model = UniformLocation.create(self.program, "uModel")
         if model:
             if node:
 
@@ -137,7 +137,7 @@ class Shader:
 
             props.append(update_model)
 
-        view = glo.UniformLocation.create(self.program, "uView")
+        view = UniformLocation.create(self.program, "uView")
         if view:
 
             def update_view():
@@ -145,7 +145,7 @@ class Shader:
 
             props.append(update_view)
 
-        projection = glo.UniformLocation.create(self.program, "uProjection")
+        projection = UniformLocation.create(self.program, "uProjection")
         if projection:
 
             def update_projection():

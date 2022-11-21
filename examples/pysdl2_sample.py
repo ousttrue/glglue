@@ -4,9 +4,9 @@ import glglue.frame_input
 
 def main():
     import glglue.pysdl2
-    from glglue.scene.cube import CubeScene
+    from glglue.scene.triangle import TriangleScene
 
-    scene = CubeScene()
+    scene = TriangleScene()
 
     loop = glglue.pysdl2.LoopManager()
     while True:

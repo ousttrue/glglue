@@ -2,13 +2,17 @@ import glglue.frame_input
 from OpenGL import GL
 from glglue import glo
 import ctypes
+from .mouse_event import MouseEvent
+from .mouse_camera import MouseCamera
 
 
 VS = """#version 330
 in vec3 aPos;
+uniform mediump mat4 uView;
+uniform mediump mat4 uProjection;
 
 void main() {
-  gl_Position = vec4(aPos, 1);
+  gl_Position = uProjection * uView * vec4(aPos, 1);
 }
 """
 
@@ -35,9 +39,11 @@ TRIANGLE = (Vec3 * 3)(
 )
 
 
-class CubeScene:
+class TriangleScene:
     def __init__(self) -> None:
         self.initialized = False
+        self.mouse_event = MouseEvent()
+        self.mouse_camera = MouseCamera(self.mouse_event)
 
     def lazy_initialize(self):
         if self.initialized:
@@ -49,6 +55,7 @@ class CubeScene:
                 raise Exception(error)
             case glo.Shader() as shader:
                 self.shader = shader
+                self.props = self.shader.create_props(self.mouse_camera.camera)
 
         # vbo
         self.vbo = glo.Vbo()
@@ -65,19 +72,25 @@ class CubeScene:
     def render(self, frame: glglue.frame_input.FrameInput):
         self.lazy_initialize()
 
-        GL.glViewport(0, 0, frame.width, frame.height)
-
         # update camera
+        self.mouse_camera.camera.projection.resize(frame.width, frame.height)
+        self.mouse_event.process(frame)
 
-        r = float(frame.x) / float(frame.width)
-        g = 1 if frame.left_down else 0
+        # clear
+        GL.glViewport(0, 0, frame.width, frame.height)
+        r = 0
+        g = 0.1 if frame.left_down else 0
         if frame.height == 0:
             return
-        b = float(frame.y) / float(frame.height)
+        b = 0
         GL.glClearColor(r, g, b, 1.0)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
 
+        # render
         self.shader.use()
+        for prop in self.props:
+            prop()
         self.vao.draw(3)
 
+        # flush
         GL.glFlush()

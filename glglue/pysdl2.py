@@ -86,7 +86,7 @@ class LoopManager:
                 self.x = self.event.motion.x
                 self.y = self.event.motion.y
             elif self.event.type == SDL_MOUSEWHEEL:
-                self.wheel = self.event.wheel.y
+                wheel = self.event.wheel.y
             elif self.event.type == SDL_WINDOWEVENT:
                 if self.event.window.event == SDL_WINDOWEVENT_RESIZED:
                     self.width = self.event.window.data1
