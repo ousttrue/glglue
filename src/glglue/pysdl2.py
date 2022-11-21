@@ -106,3 +106,14 @@ class LoopManager:
 
     def end_frame(self):
         SDL_GL_SwapWindow(self.window)
+
+
+def install_packages():
+    import pip
+
+    args = ["install", "pysdl2"]
+    import platform
+
+    if platform.system() == "Windows":
+        args.append("pysdl2-dll")
+    pip.main(args)
