@@ -1,11 +1,11 @@
 import sys
-
-sys.path.append(".")
-sys.path.append("..")
-
+from typing import Optional
+import datetime
 import os
 import pathlib
 import platform
+import ctypes
+from glglue.frame_input import FrameInput
 
 if platform.system() == "Windows":
     if "PYSDL2_DLL_PATH" in os.environ:
@@ -24,82 +24,85 @@ if platform.system() == "Windows":
             if sdl2dll.exists():
                 os.environ["PYSDL2_DLL_PATH"] = str(exe.parent)
 
-
 from sdl2 import *
-import ctypes
 
 
 class LoopManager:
-    def __init__(self, controller, **kw):
-        self.controller = controller
+    def __init__(self, *, resizable=True, **kw):
         title = kw.get("title", b"glglue.pysdl2")
-        width = kw.get("width", 600)
-        height = kw.get("height", 400)
+
+        # window state
+        self.width = kw.get("width", 600)
+        self.height = kw.get("height", 400)
+        self.x = 0
+        self.y = 0
+        self.left_down = False
+        self.right_down = False
+        self.middle_down = False
+
         SDL_Init(SDL_INIT_VIDEO)
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1)
         self.window = SDL_CreateWindow(
             title,
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
-            width,
-            height,
+            self.width,
+            self.height,
             SDL_WINDOW_OPENGL,
         )
         SDL_GL_CreateContext(self.window)
-        self.controller.onResize(width, height)
+
+        if resizable:
+            SDL_SetWindowResizable(self.window, True)
+
         self.event = SDL_Event()
 
-    def begin_frame(self):
+    def begin_frame(self) -> Optional[FrameInput]:
+        """
+        returns elapsed milliseconds
+        """
+        wheel = 0
         while SDL_PollEvent(ctypes.byref(self.event)) != 0:
             if self.event.type == SDL_QUIT:
                 return
             elif self.event.type == SDL_KEYDOWN:
-                self.controller.onKeyDown(self.event.key.keysym.sym)
+                # self.controller.onKeyDown(self.event.key.keysym.sym)
+                pass
             elif self.event.type == SDL_MOUSEBUTTONDOWN:
                 if self.event.button.button == SDL_BUTTON_LEFT:
-                    self.controller.onLeftDown(self.event.button.x, self.event.button.y)
+                    self.left_down = True
                 elif self.event.button.button == SDL_BUTTON_MIDDLE:
-                    self.controller.onMiddleDown(
-                        self.event.button.x, self.event.button.y
-                    )
+                    self.middle_down = True
                 elif self.event.button.button == SDL_BUTTON_RIGHT:
-                    self.controller.onRightDown(
-                        self.event.button.x, self.event.button.y
-                    )
+                    self.right_down = True
             elif self.event.type == SDL_MOUSEBUTTONUP:
                 if self.event.button.button == SDL_BUTTON_LEFT:
-                    self.controller.onLeftUp(self.event.button.x, self.event.button.y)
+                    self.left_down = False
                 elif self.event.button.button == SDL_BUTTON_MIDDLE:
-                    self.controller.onMiddleUp(self.event.button.x, self.event.button.y)
+                    self.middle_down = False
                 elif self.event.button.button == SDL_BUTTON_RIGHT:
-                    self.controller.onRightUp(self.event.button.x, self.event.button.y)
+                    self.right_down = False
             elif self.event.type == SDL_MOUSEMOTION:
-                self.controller.onMotion(self.event.motion.x, self.event.motion.y)
+                self.x = self.event.motion.x
+                self.y = self.event.motion.y
             elif self.event.type == SDL_MOUSEWHEEL:
-                self.controller.onWheel(-self.event.wheel.y)
+                self.wheel = self.event.wheel.y
+            elif self.event.type == SDL_WINDOWEVENT:
+                if self.event.window.event == SDL_WINDOWEVENT_RESIZED:
+                    self.width = self.event.window.data1
+                    self.height = self.event.window.data2
 
-        return SDL_GetTicks()
+        return FrameInput(
+            elapsed_milliseconds=datetime.timedelta(microseconds=SDL_GetTicks()),
+            x=self.x,
+            y=self.y,
+            width=self.width,
+            height=self.height,
+            left_down=self.left_down,
+            middle_down=self.middle_down,
+            right_down=self.right_down,
+            wheel=wheel,
+        )
 
     def end_frame(self):
         SDL_GL_SwapWindow(self.window)
-
-
-if __name__ == "__main__":
-    import glglue.sample
-
-    controller = glglue.sample.SampleController()
-    loop = LoopManager(controller)
-    lastTime = 0
-    while True:
-        time = loop.begin_frame()
-        if not time:
-            break
-        if lastTime == 0:
-            lastTime = time
-            continue
-        d = time - lastTime
-        lastTime = time
-        if d:
-            controller.onUpdate(d)
-            controller.draw()
-            loop.end_frame()
