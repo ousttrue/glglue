@@ -29,6 +29,7 @@ class GLArea(Gtk.GLArea):
                     wheel=self.wheel,
                 )
             )
+            self.wheel = 0
 
         self.connect("render", on_draw)
 
@@ -94,7 +95,8 @@ class GLArea(Gtk.GLArea):
         wheel_controller.set_flags(Gtk.EventControllerScrollFlags.VERTICAL)
 
         def on_wheel(c, x, y):
-            self.wheel = y
+            self.wheel = -y
+            self.queue_render()
 
         wheel_controller.connect("scroll", on_wheel)
         self.add_controller(wheel_controller)
