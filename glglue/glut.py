@@ -10,183 +10,108 @@ import time
 from logging import getLogger
 import sys
 import pathlib
+import datetime
+import glglue.frame_input
 
 HERE = pathlib.Path(__file__).absolute().parent
 sys.path.insert(0, str(HERE.parent))
-logger = getLogger(__name__)
+LOGGER = getLogger(__name__)
 
 FPS = 30
 MSPF = int(1000.0 / FPS)
 
-_g_controller = None
 
+class GlutWindow:
+    def __init__(
+        self, width: int = 640, height: int = 480, title: bytes = b"glut sample"
+    ) -> None:
+        """[FUNCTIONS] setup and start glut mainloop"""
+        self.mouse_left = False
+        self.mouse_right = False
+        self.mouse_middle = False
+        self.width = 0
+        self.height = 0
+        self.x = 0
+        self.y = 0
+        self.wheel = 0
 
-def _resize(w, h):
-    _g_controller.onResize(w, h)
+        glutInit(sys.argv)
+        glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL)  # type: ignore
+        glutInitWindowSize(width, height)
+        glutCreateWindow(title)
+        # Windowのサイズが変わった時に呼ばれる関数を登録
+        glutReshapeFunc(self.resize)
+        # 描画時に呼ばれる関数を登録
+        glutDisplayFunc(self.draw)
+        # マウスボタン押し上げ時に呼ばれる関数
+        glutMouseFunc(self.mouse)
+        # マウスドラッグ時に呼ばれる関数
+        glutMotionFunc(self.motion)
+        glutPassiveMotionFunc(self.motion)
+        # キーボードが押された時に呼ばれる関数
+        glutKeyboardFunc(self.keyboard)
 
+    def draw(self):
+        pass
 
-def _mouse(button, state, x, y):
-    if button == GLUT_LEFT_BUTTON:
-        if state == GLUT_DOWN:
-            if _g_controller.onLeftDown(x, y):
-                glutPostRedisplay()
+    def resize(self, w, h):
+        self.width = w
+        self.height = h
+
+    def mouse(self, button, state, x, y):
+        if button == GLUT_LEFT_BUTTON:
+            if state == GLUT_DOWN:
+                self.mouse_left = True
+            else:
+                self.mouse_left = False
+        elif button == GLUT_MIDDLE_BUTTON:
+            if state == GLUT_DOWN:
+                self.mouse_middle = True
+            else:
+                self.mouse_middle = False
+        elif button == GLUT_RIGHT_BUTTON:
+            if state == GLUT_DOWN:
+                self.mouse_right = True
+            else:
+                self.mouse_right = False
+        elif button == 3:
+            self.wheel = 1
+        elif button == 4:
+            self.wheel = -1
         else:
-            if _g_controller.onLeftUp(x, y):
-                glutPostRedisplay()
-    elif button == GLUT_MIDDLE_BUTTON:
-        if state == GLUT_DOWN:
-            if _g_controller.onMiddleDown(x, y):
-                glutPostRedisplay()
-        else:
-            if _g_controller.onMiddleUp(x, y):
-                glutPostRedisplay()
-    elif button == GLUT_RIGHT_BUTTON:
-        if state == GLUT_DOWN:
-            if _g_controller.onRightDown(x, y):
-                glutPostRedisplay()
-        else:
-            if _g_controller.onRightUp(x, y):
-                glutPostRedisplay()
+            LOGGER.warn("unknown mouse:", button, state, x, y)
 
-    elif button == 3:
-        if _g_controller.onWheel(-1):
-            glutPostRedisplay()
-
-    elif button == 4:
-        if _g_controller.onWheel(1):
-            glutPostRedisplay()
-
-    else:
-        logger.warn("unknown mouse:", button, state, x, y)
-
-
-def _motion(x, y):
-    if _g_controller.onMotion(x, y):
         glutPostRedisplay()
 
-
-def _keyboard(key, x, y):
-    if _g_controller.onKeyDown(ord(key)):
+    def motion(self, x, y):
+        self.x = x
+        self.y = y
         glutPostRedisplay()
 
-
-def _draw():
-    _g_controller.draw()
-    glutSwapBuffers()
-
-
-def _timer(_):
-    _g_controller.onUpdate(MSPF)
-    glutTimerFunc(MSPF, _timer, 0)
-    glutPostRedisplay()
-
-
-def _create_idle_func():
-    # nonlocal
-    lastclock = [0]
-
-    def idle():
-        clock = time.clock()
-        d = (clock - lastclock[0]) * 1000
-        _g_controller.onUpdate(d)
-        glutPostRedisplay()
-        lastclock[0] = clock
-
-    return idle
-
-
-def setup(controller,
-          width: int = 640,
-          height: int = 480,
-          title: bytearray = b"glut sample"):
-    """ [FUNCTIONS] setup and start glut mainloop
-    """
-    global _g_controller
-    _g_controller = controller
-
-    glutInit(sys.argv)
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL)
-    glutInitWindowSize(width, height)
-    glutCreateWindow(title)
-    # Windowのサイズが変わった時に呼ばれる関数を登録
-    glutReshapeFunc(_resize)
-    # 描画時に呼ばれる関数を登録
-    glutDisplayFunc(_draw)
-    # マウスボタン押し上げ時に呼ばれる関数
-    glutMouseFunc(_mouse)
-    # マウスドラッグ時に呼ばれる関数
-    glutMotionFunc(_motion)
-    # キーボードが押された時に呼ばれる関数
-    glutKeyboardFunc(_keyboard)
-
-
-def mainloop(controller,
-             width: int = 640,
-             height: int = 480,
-             title: bytearray = b"glut sample"):
-    """ [FUNCTIONS] setup and start glut mainloop
-    """
-    setup(controller, width, height, title)
-
-    if glutMainLoopEvent:
-        # manual loop
-        lastclock = 0
-        while True:
-            glutMainLoopEvent()
-            clock = time.perf_counter() * 1000
-            d = clock - lastclock
-            lastclock = clock
-            _g_controller.onUpdate(d)
-            _g_controller.draw()
-            glutSwapBuffers()
-    else:
-        # タイマー
-        #glutTimerFunc(MSPF, timer , 0);
-        # idle
-        glutIdleFunc(_create_idle_func())
-        # start mainloop
-        glutMainLoop()
+    def keyboard(self, key, x, y):
+        pass
 
 
 class LoopManager:
-    def __init__(self, controller, **kw):
-        self.controller = controller
-        setup(controller, **kw)
+    def __init__(self, **kw):
+        self.w = GlutWindow(**kw)
 
-    def begin_frame(self):
+    def begin_frame(self) -> glglue.frame_input.FrameInput:
         glutMainLoopEvent()
-        clock = time.perf_counter() * 1000
-        return clock
+        clock = time.perf_counter()
+        frame = glglue.frame_input.FrameInput(
+            elapsed_milliseconds=datetime.timedelta(seconds=clock),
+            x=self.w.x,
+            y=self.w.y,
+            width=self.w.width,
+            height=self.w.height,
+            left_down=self.w.mouse_left,
+            middle_down=self.w.mouse_middle,
+            right_down=self.w.mouse_right,
+            wheel=self.w.wheel,
+        )
+        self.w.wheel = 0
+        return frame
 
     def end_frame(self):
         glutSwapBuffers()
-
-
-if __name__ == "__main__":
-    import glglue.gl3
-
-    if glutMainLoopEvent:
-        # manual loop
-        lastclock = 0
-        loop = LoopManager(glglue.gl3.SampleController(),
-                           width=480,
-                           height=480,
-                           title=b"glut")
-        while True:
-            clock = loop.begin_frame()
-            d = clock - lastclock
-            lastclock = clock
-            _g_controller.onUpdate(d)
-            _g_controller.draw()
-            loop.end_frame()
-    else:
-        setup(glglue.sample.SampleController(),
-              width=480,
-              height=480,
-              title=b"glut")
-        # タイマー
-        #glutTimerFunc(MSPF, timer , 0);
-        # idle
-        glutIdleFunc(_create_idle_func())
-        # start mainloop
-        glutMainLoop()
