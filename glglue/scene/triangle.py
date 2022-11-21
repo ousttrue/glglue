@@ -2,7 +2,6 @@ import glglue.frame_input
 from OpenGL import GL
 from glglue import glo
 import ctypes
-from .mouse_event import MouseEvent
 from .mouse_camera import MouseCamera
 
 
@@ -42,7 +41,7 @@ TRIANGLE = (Vec3 * 3)(
 class TriangleScene:
     def __init__(self) -> None:
         self.initialized = False
-        self.mouse_camera = MouseCamera(MouseEvent())
+        self.mouse_camera = MouseCamera()
 
     def lazy_initialize(self):
         if self.initialized:

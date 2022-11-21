@@ -5,3 +5,4 @@ _version.py
 build
 imgui.ini
 window.ini
+__pycache__

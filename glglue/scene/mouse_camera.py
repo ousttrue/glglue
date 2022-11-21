@@ -4,11 +4,9 @@ from glglue.frame_input import FrameInput
 
 
 class MouseCamera:
-    def __init__(
-        self, mouse_event: MouseEvent, *, distance: float = 5, y: float = 0
-    ) -> None:
+    def __init__(self, *, distance: float = 5, y: float = 0) -> None:
         self.camera = Camera(distance=distance, y=y)
-        self.mouse_event = mouse_event
+        self.mouse_event = MouseEvent()
         self.mouse_event.bind_right_drag(
             ArcBall(self.camera.view, self.camera.projection)
         )
