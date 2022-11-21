@@ -1,11 +1,4 @@
 # coding: utf-8
-'''
-# sdl2
-require pyOpenGL + pysdl2 + sdl2.dll
-
-# sdl2 install on Windows
-* pip install pysdl2 pysdl2-dll
-'''
 from OpenGL import GL
 import logging
 

@@ -1,15 +1,29 @@
 import sys
-sys.path.append('.')
-sys.path.append('..')
+
+sys.path.append(".")
+sys.path.append("..")
 
 import os
 import pathlib
+import platform
 
-if 'PYSDL2_DLL_PATH' not in os.environ:
-    exe = pathlib.Path(sys.executable)
-    sdl2dll = exe.parent / 'sdl2.dll'
-    if sdl2dll.exists():
-        os.environ['PYSDL2_DLL_PATH'] = str(exe.parent)
+if platform.system() == "Windows":
+    if "PYSDL2_DLL_PATH" in os.environ:
+        if os.path.exists(os.environ["PYSDL2_DLL_PATH"]):
+            # OK
+            pass
+        else:
+            del os.environ["PYSDL2_DLL_PATH"]
+
+    if "PYSDL2_DLL_PATH" not in os.environ:
+        try:
+            import sdl2dll
+        except ImportError:
+            exe = pathlib.Path(sys.executable)
+            sdl2dll = exe.parent / "sdl2.dll"
+            if sdl2dll.exists():
+                os.environ["PYSDL2_DLL_PATH"] = str(exe.parent)
+
 
 from sdl2 import *
 import ctypes
@@ -18,14 +32,19 @@ import ctypes
 class LoopManager:
     def __init__(self, controller, **kw):
         self.controller = controller
-        title = kw.get('title', b'glglue.pysdl2')
-        width = kw.get('width', 600)
-        height = kw.get('height', 400)
+        title = kw.get("title", b"glglue.pysdl2")
+        width = kw.get("width", 600)
+        height = kw.get("height", 400)
         SDL_Init(SDL_INIT_VIDEO)
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1)
-        self.window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED,
-                                       SDL_WINDOWPOS_UNDEFINED, width, height,
-                                       SDL_WINDOW_OPENGL)
+        self.window = SDL_CreateWindow(
+            title,
+            SDL_WINDOWPOS_UNDEFINED,
+            SDL_WINDOWPOS_UNDEFINED,
+            width,
+            height,
+            SDL_WINDOW_OPENGL,
+        )
         SDL_GL_CreateContext(self.window)
         self.controller.onResize(width, height)
         self.event = SDL_Event()
@@ -38,27 +57,24 @@ class LoopManager:
                 self.controller.onKeyDown(self.event.key.keysym.sym)
             elif self.event.type == SDL_MOUSEBUTTONDOWN:
                 if self.event.button.button == SDL_BUTTON_LEFT:
-                    self.controller.onLeftDown(self.event.button.x,
-                                               self.event.button.y)
+                    self.controller.onLeftDown(self.event.button.x, self.event.button.y)
                 elif self.event.button.button == SDL_BUTTON_MIDDLE:
-                    self.controller.onMiddleDown(self.event.button.x,
-                                                 self.event.button.y)
+                    self.controller.onMiddleDown(
+                        self.event.button.x, self.event.button.y
+                    )
                 elif self.event.button.button == SDL_BUTTON_RIGHT:
-                    self.controller.onRightDown(self.event.button.x,
-                                                self.event.button.y)
+                    self.controller.onRightDown(
+                        self.event.button.x, self.event.button.y
+                    )
             elif self.event.type == SDL_MOUSEBUTTONUP:
                 if self.event.button.button == SDL_BUTTON_LEFT:
-                    self.controller.onLeftUp(self.event.button.x,
-                                             self.event.button.y)
+                    self.controller.onLeftUp(self.event.button.x, self.event.button.y)
                 elif self.event.button.button == SDL_BUTTON_MIDDLE:
-                    self.controller.onMiddleUp(self.event.button.x,
-                                               self.event.button.y)
+                    self.controller.onMiddleUp(self.event.button.x, self.event.button.y)
                 elif self.event.button.button == SDL_BUTTON_RIGHT:
-                    self.controller.onRightUp(self.event.button.x,
-                                              self.event.button.y)
+                    self.controller.onRightUp(self.event.button.x, self.event.button.y)
             elif self.event.type == SDL_MOUSEMOTION:
-                self.controller.onMotion(self.event.motion.x,
-                                         self.event.motion.y)
+                self.controller.onMotion(self.event.motion.x, self.event.motion.y)
             elif self.event.type == SDL_MOUSEWHEEL:
                 self.controller.onWheel(-self.event.wheel.y)
 
@@ -70,6 +86,7 @@ class LoopManager:
 
 if __name__ == "__main__":
     import glglue.sample
+
     controller = glglue.sample.SampleController()
     loop = LoopManager(controller)
     lastTime = 0
