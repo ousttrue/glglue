@@ -1,65 +1,22 @@
-#
-# pip install pyside6
-#
 from PySide6 import QtWidgets
-import glglue.basecontroller
-
-
-class Controller(glglue.basecontroller.BaseController):
-    def __init__(self):
-        super().__init__()
-
-    def onUpdate(self, time_delta) -> bool:
-        return False
-
-    def onLeftDown(self, x: int, y: int) -> bool:
-        return False
-
-    def onLeftUp(self, x: int, y: int) -> bool:
-        return False
-
-    def onMiddleDown(self, x: int, y: int) -> bool:
-        return False
-
-    def onMiddleUp(self, x: int, y: int) -> bool:
-        return False
-
-    def onRightDown(self, x: int, y: int) -> bool:
-        return False
-
-    def onRightUp(self, x: int, y: int) -> bool:
-        return False
-
-    def onMotion(self, x: int, y: int) -> bool:
-        return False
-
-    def onResize(self, w: int, h: int) -> bool:
-        return False
-
-    def onWheel(self, d: int) -> bool:
-        return False
-
-    def onKeyDown(self, *args: str) -> bool:
-        return False
-
-    def draw(self) -> None:
-        pass
 
 
 class Window(QtWidgets.QMainWindow):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        # setup opengl widget
-        self.controller = Controller()
+    def __init__(self):
+        super().__init__(None)
         import glglue.pyside6
         import glglue.util
-        self.glwidget = glglue.pyside6.Widget(
-            self, self.controller, glglue.util.get_desktop_scaling_factor())
+        from glglue.scene.triangle import TriangleScene
+
+        self.scene = TriangleScene()
+
+        self.glwidget = glglue.pyside6.Widget(self, render_gl=self.scene.render)
         self.setCentralWidget(self.glwidget)
 
 
 def main():
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     window = Window()
     window.show()

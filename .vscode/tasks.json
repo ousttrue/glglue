@@ -13,7 +13,7 @@
         {
             "label": "api",
             "type": "shell",
-            "command": "sphinx-apidoc src -o docs/api",
+            "command": "sphinx-apidoc . -o docs/api",
             "problemMatcher": [],
         }
     ]

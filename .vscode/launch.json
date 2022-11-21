@@ -5,6 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "install util",
+            "type": "python",
+            "request": "launch",
+            "module": "glglue",
+            "cwd": "${workspaceRoot}",
+            "env": {
+                "PATH": "${env:PATH};${workspaceFolder}\\bin",
+            },
+            "justMyCode": false
+        },
+        {
             "name": "glut_sample",
             "type": "python",
             "request": "launch",
@@ -13,7 +24,6 @@
             "cwd": "${workspaceRoot}",
             "env": {
                 "PATH": "${env:PATH};${workspaceFolder}\\bin",
-                "PYTHONPATH": "${workspaceFolder}/src"
             },
             "justMyCode": false
         },
@@ -33,9 +43,6 @@
             "stopOnEntry": false,
             "program": "${workspaceFolder}/examples/pysdl2_sample.py",
             "cwd": "${workspaceRoot}",
-            "env": {
-                "PYSDL2_DLL_PATH": "${workspaceFolder}\\bin",
-            },
             "justMyCode": false
         },
         {
