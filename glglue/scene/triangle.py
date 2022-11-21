@@ -42,8 +42,7 @@ TRIANGLE = (Vec3 * 3)(
 class TriangleScene:
     def __init__(self) -> None:
         self.initialized = False
-        self.mouse_event = MouseEvent()
-        self.mouse_camera = MouseCamera(self.mouse_event)
+        self.mouse_camera = MouseCamera(MouseEvent())
 
     def lazy_initialize(self):
         if self.initialized:
@@ -73,8 +72,7 @@ class TriangleScene:
         self.lazy_initialize()
 
         # update camera
-        self.mouse_camera.camera.projection.resize(frame.width, frame.height)
-        self.mouse_event.process(frame)
+        self.mouse_camera.process(frame)
 
         # clear
         GL.glViewport(0, 0, frame.width, frame.height)

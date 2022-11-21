@@ -1,4 +1,5 @@
 from typing import Optional, List, Callable, TypeAlias
+from typing_extensions import Protocol
 import abc
 from glglue.frame_input import FrameInput
 
@@ -8,18 +9,15 @@ BeginEndCallback: TypeAlias = Callable[[FrameInput], None]
 DragCallback: TypeAlias = Callable[[FrameInput, int, int], None]
 
 
-class DragInterface(metaclass=abc.ABCMeta):
-    @abc.abstractmethod
+class DragInterface(Protocol):
     def begin(self, mouse_input: FrameInput):
-        pass
+        ...
 
-    @abc.abstractmethod
-    def drag(sel, mouse_input: FrameInput, dx: int, dy: int):
-        pass
+    def drag(self, mouse_input: FrameInput, dx: int, dy: int):
+        ...
 
-    @abc.abstractmethod
     def end(self, mouse_input: FrameInput):
-        pass
+        ...
 
 
 class MouseEvent:
