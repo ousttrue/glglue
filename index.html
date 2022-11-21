@@ -19,8 +19,7 @@
     <script src="_static/translations.js"></script>
     
     <link rel="index" title="索引" href="genindex.html" />
-    <link rel="search" title="検索" href="search.html" />
-    <link rel="next" title="glut" href="samples/glut.html" /> 
+    <link rel="search" title="検索" href="search.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>ナビゲーション</h3>
@@ -28,9 +27,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
-        <li class="right" >
-          <a href="samples/glut.html" title="glut"
-             accesskey="N">次へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">glglue  ドキュメント</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">glglue</a></li> 
       </ul>
@@ -45,128 +41,54 @@
 <h1>glglue<a class="headerlink" href="#glglue" title="この見出しへのパーマリンク">¶</a></h1>
 <p><a class="reference external" href="https://github.com/ousttrue/glglue">https://github.com/ousttrue/glglue</a></p>
 <p>GUI イベント(resize, mouse, keyboard, repaint) を OpenGL に橋渡しする。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GUI</span>                         <span class="n">OpenGL</span> <span class="n">controller</span>
-<span class="o">+--------+</span>                   <span class="o">+------------+</span>
-<span class="o">|</span> <span class="n">win32</span>  <span class="o">|--</span><span class="n">window</span> <span class="n">resize</span><span class="o">---&gt;|</span> <span class="n">Update</span>     <span class="o">|</span>
-<span class="o">|</span> <span class="n">glut</span>   <span class="o">|--</span><span class="n">mouse</span> <span class="nb">input</span><span class="o">-----&gt;|</span> <span class="n">Update</span>     <span class="o">|</span>
-<span class="o">|</span> <span class="n">sdl</span>    <span class="o">|--</span><span class="n">keyboard</span> <span class="nb">input</span><span class="o">--&gt;|</span> <span class="n">Update</span>     <span class="o">|</span>
-<span class="o">|</span> <span class="n">pyside6</span><span class="o">|</span>                   <span class="o">|</span>            <span class="o">|</span>
-<span class="o">|</span>     <span class="n">etc</span><span class="o">|--</span><span class="n">repaint</span><span class="o">---------&gt;|</span> <span class="n">Draw</span>       <span class="o">|</span>
-<span class="o">+--------+</span>                   <span class="o">+------------+</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GUI</span>
+<span class="o">+--------+</span>
+<span class="o">|</span> <span class="n">win32</span>  <span class="o">|</span>
+<span class="o">|</span> <span class="n">glut</span>   <span class="o">|</span>
+<span class="o">|</span> <span class="n">sdl</span>    <span class="o">|</span>
+<span class="o">|</span> <span class="n">pyside6</span><span class="o">|</span>
+<span class="o">|</span> <span class="n">gtk3</span>   <span class="o">|----</span><span class="n">FrameInput</span><span class="o">----&gt;</span> <span class="n">RenderFunc</span>
+<span class="o">|</span> <span class="n">gtk4</span>   <span class="o">|</span>     <span class="n">elapsed_time</span>  
+<span class="o">+--------+</span>     <span class="n">window</span><span class="o">.</span><span class="n">width</span>
+               <span class="n">window</span><span class="o">.</span><span class="n">height</span>
+               <span class="n">mouse</span><span class="o">.</span><span class="n">x</span>
+               <span class="n">mouse</span><span class="o">.</span><span class="n">y</span>
+               <span class="n">mouse</span><span class="o">.</span><span class="n">left_down</span>
+               <span class="n">mouse</span><span class="o">.</span><span class="n">right_down</span>
+               <span class="n">mouse</span><span class="o">.</span><span class="n">middle_down</span>
+               <span class="n">mouse</span><span class="o">.</span><span class="n">wheel</span>
 </pre></div>
 </div>
-<section id="controller-convention">
-<h2>Controller convention<a class="headerlink" href="#controller-convention" title="この見出しへのパーマリンク">¶</a></h2>
-<p>GUI からのイベントを受け取って OpenGL を描画するクラス。</p>
-<div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">HEAD src/glglue/basecontroller.py</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># coding: utf-8</span>
-
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
-
-
-<span class="k">class</span> <span class="nc">BaseController</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">onUpdate</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Update scene. Returns whether redraw is required.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">onLeftDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Mouse event. Returns whether redraw is required.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">onLeftUp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Mouse event. Returns whether redraw is required.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">onMiddleDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Mouse event. Returns whether redraw is required.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">onMiddleUp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Mouse event. Returns whether redraw is required.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">onRightDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Mouse event. Returns whether redraw is required.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">onRightUp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Mouse event. Returns whether redraw is required.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">onMotion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Mouse event. Returns whether redraw is required.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">onResize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Gui event. Returns whether redraw is required.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">onWheel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Mouse event. Returns whether redraw is required.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">onKeyDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Keyboard event. Returns whether redraw is required.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        draw scene</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
+<section id="frameinput">
+<h2>FrameInput<a class="headerlink" href="#frameinput" title="この見出しへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Version</span> <span class="pre">2.0</span></code></p>
+<p>Frame 毎の GUI イベントをまとめた。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">glglue</span><span class="o">.</span><span class="n">frame_input</span><span class="o">.</span><span class="n">FrameInput</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        ユーザーはこの関数を実装する。</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glClear</span><span class="p">()</span>
+        <span class="c1"># ...</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glFlush</span><span class="p">()</span>
 </pre></div>
-</div>
 </div>
 </section>
-<section id="gui-samples">
-<h2>GUI Samples<a class="headerlink" href="#gui-samples" title="この見出しへのパーマリンク">¶</a></h2>
-<p>各種 GUI の使用例</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="samples/glut.html">glut</a></li>
-<li class="toctree-l1"><a class="reference internal" href="samples/pysdl2.html">SDL2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="samples/pyside6.html">PySide6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="samples/wgl.html">Windows API</a></li>
+<section id="gui-mainloop">
+<h2>GUI MainLoop<a class="headerlink" href="#gui-mainloop" title="この見出しへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li><p>pysdie6</p></li>
+<li><p>gtk3</p></li>
+<li><p>gtk4</p></li>
 </ul>
-</div>
+</section>
+<section id="user-mainloop">
+<h2>User MainLoop<a class="headerlink" href="#user-mainloop" title="この見出しへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li><p>freeglut</p></li>
+<li><p>glfw</p></li>
+<li><p>pysdl2</p></li>
+<li><p>wgl</p></li>
+</ul>
 </section>
 </section>
 
@@ -181,17 +103,13 @@
     <h3><a href="#">目次</a></h3>
     <ul>
 <li><a class="reference internal" href="#">glglue</a><ul>
-<li><a class="reference internal" href="#controller-convention">Controller convention</a></li>
-<li><a class="reference internal" href="#gui-samples">GUI Samples</a></li>
+<li><a class="reference internal" href="#frameinput">FrameInput</a></li>
+<li><a class="reference internal" href="#gui-mainloop">GUI MainLoop</a></li>
+<li><a class="reference internal" href="#user-mainloop">User MainLoop</a></li>
 </ul>
 </li>
 </ul>
 
-  </div>
-  <div>
-    <h4>次のトピックへ</h4>
-    <p class="topless"><a href="samples/glut.html"
-                          title="次の章へ">glut</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
@@ -220,9 +138,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="総合索引"
              >索引</a></li>
-        <li class="right" >
-          <a href="samples/glut.html" title="glut"
-             >次へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">glglue  ドキュメント</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">glglue</a></li> 
       </ul>

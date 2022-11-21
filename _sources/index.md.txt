@@ -5,33 +5,49 @@
 GUI イベント(resize, mouse, keyboard, repaint) を OpenGL に橋渡しする。
 
 ```                           
-GUI                         OpenGL controller
-+--------+                   +------------+
-| win32  |--window resize--->| Update     |
-| glut   |--mouse input----->| Update     |
-| sdl    |--keyboard input-->| Update     |
-| pyside6|                   |            |
-|     etc|--repaint--------->| Draw       |
-+--------+                   +------------+
+GUI
++--------+
+| win32  |
+| glut   |
+| sdl    |
+| pyside6|
+| gtk3   |----FrameInput----> RenderFunc
+| gtk4   |     elapsed_time  
++--------+     window.width
+               window.height
+               mouse.x
+               mouse.y
+               mouse.left_down
+               mouse.right_down
+               mouse.middle_down
+               mouse.wheel
 ```
 
-## Controller convention
+## FrameInput
 
-GUI からのイベントを受け取って OpenGL を描画するクラス。
+`Version 2.0`
 
-```{gitinclude} HEAD src/glglue/basecontroller.py
-:language: python
-:caption:
+Frame 毎の GUI イベントをまとめた。
+
+```python
+    def render(self, frame: glglue.frame_input.FrameInput):
+        '''
+        ユーザーはこの関数を実装する。
+        '''
+        GL.glClear()
+        # ...
+        GL.glFlush()
 ```
 
-## GUI Samples
+## GUI MainLoop
 
-各種 GUI の使用例
+* pysdie6
+* gtk3
+* gtk4
 
-```{toctree}
-samples/glut
-samples/glfw
-samples/pysdl2
-samples/pyside6
-samples/wgl
-```
+## User MainLoop
+
+* freeglut
+* glfw
+* pysdl2
+* wgl
