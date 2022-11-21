@@ -1,4 +1,4 @@
-from typing import NamedTuple
+from typing import NamedTuple, Callable, TypeAlias
 import datetime
 
 
@@ -12,3 +12,6 @@ class FrameInput(NamedTuple):
     right_down: bool = False
     middle_down: bool = False
     wheel: int = 0
+
+
+RenderFunc: TypeAlias = Callable[[FrameInput], None]

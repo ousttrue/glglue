@@ -1,20 +1,24 @@
 # -*- coding: utf-8 -*-
+from typing import Callable
 import logging
 from PySide6 import QtCore, QtGui, QtOpenGLWidgets, QtWidgets
-from .basecontroller import BaseController
+import glglue.frame_input
 
 
 class Widget(QtOpenGLWidgets.QOpenGLWidget):
-    '''
+    """
     https://doc.qt.io/qtforpython/PySide6/QtOpenGLWidgets/QOpenGLWidget.html
-    '''
+    """
 
-    def __init__(self, parent, controller: BaseController, dpi_scale=1.0, core_profile=True):
+    def __init__(
+        self,
+        parent,
+        render_gl: glglue.frame_input.RenderFunc,
+        core_profile=True,
+    ):
         super().__init__(parent)
-        self.controller = controller
         self.setMouseTracking(True)
-        self.dpi_Scale = dpi_scale
-
+        self.render_gl = render_gl
         if core_profile:
             format = QtGui.QSurfaceFormat()
             format.setDepthBufferSize(24)
@@ -24,6 +28,14 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
             # self.setFormat(format)
             QtGui.QSurfaceFormat.setDefaultFormat(format)
             # must be called before the widget or its parent window gets shown
+        self.render_width = 0
+        self.render_height = 0
+        self.mouse_x = 0
+        self.mouse_y = 0
+        self.left_down = False
+        self.middle_down = False
+        self.right_down = False
+        self.render_wheel = 0
 
     def minimumSizeHint(self):
         return QtCore.QSize(50, 50)
@@ -32,41 +44,54 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
         return QtCore.QSize(150, 150)
 
     def paintGL(self):
-        self.controller.draw()
+        self.render_gl(
+            glglue.frame_input.FrameInput(
+                x=self.mouse_x,
+                y=self.mouse_y,
+                width=self.render_width,
+                height=self.render_height,
+                left_down=self.left_down,
+                middle_down=self.middle_down,
+                right_down=self.right_down,
+                wheel=self.render_wheel,
+            )
+        )
+        self.render_wheel = 0
 
     def resizeGL(self, width, height):
-        if self.controller.onResize(int(width * self.dpi_Scale), int(height * self.dpi_Scale)):
-            self.repaint()
+        self.render_width = width
+        self.render_height = height
+        self.repaint()
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            if self.controller.onLeftDown(event.x() * self.dpi_Scale, event.y() * self.dpi_Scale):
-                self.repaint()
+            self.left_down = True
+            self.repaint()
         elif event.button() == QtCore.Qt.MiddleButton:
-            if self.controller.onMiddleDown(event.x() * self.dpi_Scale, event.y() * self.dpi_Scale):
-                self.repaint()
+            self.middle_down = True
+            self.repaint()
         elif event.button() == QtCore.Qt.RightButton:
-            if self.controller.onRightDown(event.x() * self.dpi_Scale, event.y() * self.dpi_Scale):
-                self.repaint()
+            self.right_down = True
+            self.repaint()
 
     def mouseReleaseEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            if self.controller.onLeftUp(event.x() * self.dpi_Scale, event.y() * self.dpi_Scale):
-                self.repaint()
+            self.left_down = False
+            self.repaint()
         elif event.button() == QtCore.Qt.MiddleButton:
-            if self.controller.onMiddleUp(event.x() * self.dpi_Scale, event.y() * self.dpi_Scale):
-                self.repaint()
+            self.middle_down = False
+            self.repaint()
         elif event.button() == QtCore.Qt.RightButton:
-            if self.controller.onRightUp(event.x() * self.dpi_Scale, event.y() * self.dpi_Scale):
-                self.repaint()
+            self.right_down = False
+            self.repaint()
 
     def mouseMoveEvent(self, event):
-        if self.controller.onMotion(event.x() * self.dpi_Scale, event.y() * self.dpi_Scale):
-            self.repaint()
+        self.mouse_x = event.x()
+        self.mouse_y = event.y()
+        self.repaint()
 
     def wheelEvent(self, event):
-        if self.controller.onWheel(-event.angleDelta().y()):
-            self.repaint()
+        self.wheel = event.angleDelta().y()
 
 
 class CustomLogger(logging.Handler):
@@ -84,13 +109,14 @@ class CustomLogger(logging.Handler):
         elif record.levelno == logging.ERROR:
             msg = f'<font color="red">{msg}</font><br>'
         else:
-            msg = f'{msg}<br>'
+            msg = f"{msg}<br>"
 
         self.widget.textCursor().movePosition(QtGui.QTextCursor.Start)
         self.widget.textCursor().insertHtml(msg)
 
     def write(self, m):
         pass
+
 
 class QPlainTextEditLogger(QtWidgets.QPlainTextEdit):
     def __init__(self, parent):
