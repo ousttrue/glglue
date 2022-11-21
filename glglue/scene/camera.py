@@ -2,7 +2,7 @@ from typing import NamedTuple, Optional
 import math
 import logging
 import glm
-from pydear.utils.mouse_event import DragInterface
+from glglue.scene.mouse_event import DragInterface
 from glglue.frame_input import FrameInput
 
 LOGGER = logging.getLogger(__name__)
