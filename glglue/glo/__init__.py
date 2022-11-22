@@ -1,17 +1,20 @@
-from .shader import Shader, UniformLocation, ShaderProperty
+from .shader import Shader, UniformLocation, UniformUpdater
 from .vbo import Vbo, Ibo
 from .vao import Vao
 from .vertex_layout import VertexLayout, AttributeLocation
-from ..drawable.drawable import Drawable
+from .texture import Texture
+from .fbo import Fbo, FboRenderer
 
 __all__ = [
     "Shader",
     "UniformLocation",
-    "ShaderProperty",
+    "UniformUpdater",
     "Vbo",
     "Ibo",
     "Vao",
     "VertexLayout",
     "AttributeLocation",
-    "Drawable",
+    "Texture",
+    "Fbo",
+    "FboRenderer",
 ]

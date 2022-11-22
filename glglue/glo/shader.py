@@ -56,7 +56,7 @@ class ShaderCompile:
         GL.glDeleteShader(self.shader)
 
 
-ShaderProperty: TypeAlias = Callable[[], None]
+UniformUpdater: TypeAlias = Callable[[], None]
 
 
 class Shader:
@@ -120,7 +120,7 @@ class Shader:
             case _:
                 raise RuntimeError()
 
-    def create_props(self, camera, node=None) -> List[ShaderProperty]:
+    def create_props(self, camera, node=None) -> List[UniformUpdater]:
         from .. import glo
 
         props: List[Callable[[], None]] = []

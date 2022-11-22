@@ -1,6 +1,6 @@
 from typing import List, Optional
 from OpenGL import GL
-from glglue.glo.shader import Shader, ShaderProperty
+from glglue.glo.shader import Shader, UniformUpdater
 from glglue.glo.vao import Vao
 
 
@@ -15,7 +15,7 @@ class Submesh:
         *,
         draw_count=0,
         shader: Optional[Shader] = None,
-        props: List[ShaderProperty] = empty()
+        props: List[UniformUpdater] = empty()
     ) -> None:
         self.topology = topology
         self.draw_count = draw_count

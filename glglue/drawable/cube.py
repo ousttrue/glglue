@@ -1,8 +1,8 @@
 from typing import Tuple, NamedTuple, List
 import glm
 from glglue import glo
-from . import vertex_buffer
-
+from .vertex_buffer import MeshBuilder
+from .drawable import Drawable
 
 """
 OpenGL default is ccw
@@ -50,8 +50,8 @@ QUADS = [
 ]
 
 
-def create(shader: glo.Shader, props: List[glo.ShaderProperty]) -> glo.Drawable:
-    builder = vertex_buffer.MeshBuilder()
+def create(shader: glo.Shader, props: List[glo.UniformUpdater]) -> Drawable:
+    builder = MeshBuilder()
     for (i0, i1, i2, i3), rgb in QUADS:
         builder.push_quad(
             VERTICES[i0], VERTICES[i1], VERTICES[i2], VERTICES[i3], glm.vec3(*rgb)
@@ -63,6 +63,6 @@ def create(shader: glo.Shader, props: List[glo.ShaderProperty]) -> glo.Drawable:
 
     vao = glo.Vao(vbo, glo.VertexLayout.create_list(shader.program))
 
-    drawable = glo.Drawable(vao)
+    drawable = Drawable(vao)
     drawable.push_submesh(shader, len(vertices), props)
     return drawable
