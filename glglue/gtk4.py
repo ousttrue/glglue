@@ -32,6 +32,7 @@ class GLArea(Gtk.GLArea):
             self.wheel = 0
 
         self.connect("render", on_draw)
+        self.set_has_depth_buffer(True)
 
         # motion
         motion_controller = Gtk.EventControllerMotion.new()

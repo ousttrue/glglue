@@ -34,6 +34,7 @@ class GLArea(Gtk.GLArea):
             self.wheel = 0
 
         self.connect("render", on_draw)
+        self.set_has_depth_buffer(True)
         self.set_double_buffered(False)
 
         # motion
