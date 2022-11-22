@@ -2,7 +2,6 @@ import glglue.frame_input
 from OpenGL import GL
 from glglue import glo
 from glglue.camera.mouse_camera import MouseCamera
-from glglue.drawable import cube
 
 
 class SampleScene:
@@ -22,7 +21,11 @@ class SampleScene:
                 raise Exception(error)
             case glo.Shader() as shader:
                 props = shader.create_props(self.mouse_camera.camera)
-                self.drawable = cube.create(shader, props)
+                # from glglue.drawable import cube
+                # self.drawable = cube.create(shader, props)
+                from glglue.drawable import teapot
+
+                self.drawable = teapot.create(shader, props)
 
     def render(self, frame: glglue.frame_input.FrameInput):
         self.lazy_initialize()

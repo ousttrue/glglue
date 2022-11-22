@@ -57,39 +57,40 @@ class MouseEvent:
         if self.last_input:
             dx = current.mouse_x - self.last_input.mouse_x
             dy = current.mouse_y - self.last_input.mouse_y
-
         # pressed
-        if (not self.last_input or not self.last_input.mouse_left) and current.mouse_left:
-            self.left_active = (current.mouse_x, current.mouse_y)
-            for callback in self.left_pressed:
-                callback(current)
-        if (
-            not self.last_input or not self.last_input.mouse_right
-        ) and current.mouse_right:
-            self.right_active = (current.mouse_x, current.mouse_y)
-            for callback in self.right_pressed:
-                callback(current)
-        if (
-            not self.last_input or not self.last_input.mouse_middle
-        ) and current.mouse_middle:
-            self.middle_active = (current.mouse_x, current.mouse_y)
-            for callback in self.middle_pressed:
-                callback(current)
-
+        if current.is_hover:
+            if (
+                not self.last_input or not self.last_input.mouse_left
+            ) and current.mouse_left:
+                self.left_active = (current.mouse_x, current.mouse_y)
+                for callback in self.left_pressed:
+                    callback(current)
+            if (
+                not self.last_input or not self.last_input.mouse_right
+            ) and current.mouse_right:
+                self.right_active = (current.mouse_x, current.mouse_y)
+                for callback in self.right_pressed:
+                    callback(current)
+            if (
+                not self.last_input or not self.last_input.mouse_middle
+            ) and current.mouse_middle:
+                self.middle_active = (current.mouse_x, current.mouse_y)
+                for callback in self.middle_pressed:
+                    callback(current)
         # drag
-        if current.mouse_left:
-            # self.left_active = True
-            for callback in self.left_drag:
-                callback(current, dx, dy)
-        if current.mouse_right:
-            # self.right_active = True
-            for callback in self.right_drag:
-                callback(current, dx, dy)
-        if current.mouse_middle:
-            # self.middle_active = True
-            for callback in self.middle_drag:
-                callback(current, dx, dy)
-
+        if current.is_active:
+            if current.mouse_left:
+                # self.left_active = True
+                for callback in self.left_drag:
+                    callback(current, dx, dy)
+            if current.mouse_right:
+                # self.right_active = True
+                for callback in self.right_drag:
+                    callback(current, dx, dy)
+            if current.mouse_middle:
+                # self.middle_active = True
+                for callback in self.middle_drag:
+                    callback(current, dx, dy)
         # released
         if self.left_active and not current.mouse_left:
             for callback in self.left_released:
@@ -104,9 +105,10 @@ class MouseEvent:
                 callback(current)
             self.middle_active = None
 
-        if current.mouse_wheel:
-            for callback in self.wheel:
-                callback(current.mouse_wheel)
+        if current.is_active or current.is_hover:
+            if current.mouse_wheel:
+                for callback in self.wheel:
+                    callback(current.mouse_wheel)
 
         self.last_input = current
 

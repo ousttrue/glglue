@@ -1,4 +1,4 @@
-from .shader import Shader, UniformLocation, UniformUpdater
+from .shader import Shader, UniformLocation, UniformBlockIndex, UniformUpdater
 from .vbo import Vbo, Ibo
 from .vao import Vao
 from .vertex_layout import VertexLayout, AttributeLocation
@@ -8,6 +8,7 @@ from .fbo import Fbo, FboRenderer
 __all__ = [
     "Shader",
     "UniformLocation",
+    "UniformBlockIndex",
     "UniformUpdater",
     "Vbo",
     "Ibo",

@@ -1,8 +1,9 @@
 import ctypes
 import struct
 import pkgutil
-from .. import glo
+from glglue import glo
 from .vertex_buffer import Float3, Vertex
+from .drawable import Drawable
 
 WHITE = Float3(1, 1, 1)
 
@@ -10,11 +11,11 @@ WHITE = Float3(1, 1, 1)
 class StlTriangle(ctypes.Structure):
     _pack_ = 1
     _fields_ = [
-        ('normal', Float3),
-        ('position0', Float3),
-        ('position1', Float3),
-        ('position2', Float3),
-        ('attributes', ctypes.c_ushort),
+        ("normal", Float3),
+        ("position0", Float3),
+        ("position1", Float3),
+        ("position2", Float3),
+        ("attributes", ctypes.c_ushort),
     ]
 
 
@@ -29,22 +30,22 @@ class BinaryReader:
     def read(self, size: int) -> bytes:
         if self.pos + size > len(self.data):
             raise RuntimeError()
-        data = self.data[self.pos:self.pos+size]
+        data = self.data[self.pos : self.pos + size]
         self.pos += size
         return data
 
     def read_uint32(self) -> int:
         data = self.read(4)
-        return struct.unpack('I', data)[0]
+        return struct.unpack("I", data)[0]
 
     def read_float32(self) -> float:
         data = self.read(4)
-        return struct.unpack('f', data)[0]
+        return struct.unpack("f", data)[0]
 
 
 def load_teapot() -> ctypes.Array:
     # https://en.wikipedia.org/wiki/Utah_teapot#/media/File:Utah_teapot_(solid).stl
-    data = pkgutil.get_data('pydear', 'assets/Utah_teapot_(solid).stl')
+    data = pkgutil.get_data("pydear", "assets/Utah_teapot_(solid).stl")
     assert data
 
     # https://en.wikipedia.org/wiki/STL_%28file_format%29
@@ -68,17 +69,17 @@ def load_teapot() -> ctypes.Array:
         nx, ny, nz = t.normal
 
         v0 = vertices[i]
-        v0.position = Float3(p0x*scale, p0z*scale, -p0y*scale)
+        v0.position = Float3(p0x * scale, p0z * scale, -p0y * scale)
         v0.normal = Float3(nx, nz, -ny)
         v0.color = WHITE
 
-        v1 = vertices[i+1]
-        v1.position = Float3(p1x*scale, p1z*scale, -p1y*scale)
+        v1 = vertices[i + 1]
+        v1.position = Float3(p1x * scale, p1z * scale, -p1y * scale)
         v1.normal = Float3(nx, nz, -ny)
         v1.color = WHITE
 
-        v2 = vertices[i+2]
-        v2.position = Float3(p2x*scale, p2z*scale, -p2y*scale)
+        v2 = vertices[i + 2]
+        v2.position = Float3(p2x * scale, p2z * scale, -p2y * scale)
         v2.normal = Float3(nx, nz, -ny)
         v2.color = WHITE
 
@@ -94,9 +95,8 @@ def create(shader, props):
     vbo = glo.Vbo()
     vbo.set_vertices(vertices)
 
-    vao = glo.Vao(
-        vbo, glo.VertexLayout.create_list(shader.program))
+    vao = glo.Vao(vbo, glo.VertexLayout.create_list(shader.program))
 
-    drawable = glo.Drawable(vao)
+    drawable = Drawable(vao)
     drawable.push_submesh(shader, len(vertices), props)
     return drawable
