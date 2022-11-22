@@ -15,10 +15,10 @@ def main():
         format="%(levelname)s:%(name)s:%(message)s", level=logging.DEBUG
     )
 
-    from glglue.scene.triangle import TriangleScene
+    from glglue.scene.sample import SampleScene
     import glglue.wgl
 
-    scene = TriangleScene()
+    scene = SampleScene()
 
     loop = glglue.wgl.LoopManager(width=640, height=480, title=b"sample")
 

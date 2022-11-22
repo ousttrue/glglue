@@ -1,3 +1,4 @@
+import sys
 import gi
 
 gi.require_version("Gtk", "3.0")
@@ -8,9 +9,9 @@ class Window(Gtk.ApplicationWindow):
     def __init__(self, app):
         super().__init__(application=app)
 
-        from glglue.scene.triangle import TriangleScene
+        from glglue.scene.sample import SampleScene
 
-        self.scene = TriangleScene()
+        self.scene = SampleScene()
 
         import glglue.gtk3
 

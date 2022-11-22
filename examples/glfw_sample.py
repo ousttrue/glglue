@@ -1,8 +1,8 @@
 def main():
-    from glglue.scene.triangle import TriangleScene
+    from glglue.scene.sample import SampleScene
     import glglue.glfw
 
-    scene = TriangleScene()
+    scene = SampleScene()
 
     loop = glglue.glfw.LoopManager(title="glfw sample")
     while True:

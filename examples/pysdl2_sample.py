@@ -1,12 +1,9 @@
 # coding: utf-8
-import glglue.frame_input
-
-
 def main():
     import glglue.pysdl2
-    from glglue.scene.triangle import TriangleScene
+    from glglue.scene.sample import SampleScene
 
-    scene = TriangleScene()
+    scene = SampleScene()
 
     loop = glglue.pysdl2.LoopManager()
     while True:

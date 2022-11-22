@@ -1,4 +1,4 @@
-from typing import NamedTuple, Optional, Union, Tuple, cast, List, Callable
+from typing import NamedTuple, Optional, Union, Tuple, cast, List, Callable, TypeAlias
 from OpenGL import GL
 import glm
 import logging
@@ -54,6 +54,9 @@ class ShaderCompile:
 
     def __del__(self):
         GL.glDeleteShader(self.shader)
+
+
+ShaderProperty: TypeAlias = Callable[[], None]
 
 
 class Shader:
@@ -117,7 +120,7 @@ class Shader:
             case _:
                 raise RuntimeError()
 
-    def create_props(self, camera, node=None) -> List[Callable[[], None]]:
+    def create_props(self, camera, node=None) -> List[ShaderProperty]:
         from .. import glo
 
         props: List[Callable[[], None]] = []

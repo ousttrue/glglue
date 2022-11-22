@@ -16,9 +16,9 @@ require pyOpenGL + freeglut.dll
 
 def main():
     import glglue.glut
-    from glglue.scene.triangle import TriangleScene
+    from glglue.scene.sample import SampleScene
 
-    scene = TriangleScene()
+    scene = SampleScene()
 
     # manual loop
     loop = glglue.glut.LoopManager()

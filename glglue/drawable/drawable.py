@@ -1,7 +1,7 @@
-from typing import List, Optional, Callable
+from typing import List, Optional
 from OpenGL import GL
-from .shader import Shader
-from .vao import Vao
+from glglue.glo.shader import Shader, ShaderProperty
+from glglue.glo.vao import Vao
 
 
 def empty():
@@ -15,7 +15,7 @@ class Submesh:
         *,
         draw_count=0,
         shader: Optional[Shader] = None,
-        props: List[Callable[[], None]] = empty()
+        props: List[ShaderProperty] = empty()
     ) -> None:
         self.topology = topology
         self.draw_count = draw_count
