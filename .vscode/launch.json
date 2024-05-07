@@ -6,10 +6,13 @@
     "configurations": [
         {
             "name": "install util",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "glglue",
             "cwd": "${workspaceRoot}",
+            "args": [
+                "${workspaceFolder}\\bin\\freeglut.dll",
+            ],
             "env": {
                 "PATH": "${env:PATH};${workspaceFolder}\\bin",
             },
@@ -17,7 +20,7 @@
         },
         {
             "name": "glut_sample",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "stopOnEntry": false,
             "program": "${workspaceFolder}/examples/freeglut_sample.py",
@@ -29,7 +32,7 @@
         },
         {
             "name": "glfw_sample",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "stopOnEntry": false,
             "program": "${workspaceFolder}/examples/glfw_sample.py",
@@ -38,7 +41,7 @@
         },
         {
             "name": "pysdl2_sample",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "stopOnEntry": false,
             "program": "${workspaceFolder}/examples/pysdl2_sample.py",
@@ -47,7 +50,7 @@
         },
         {
             "name": "pyside6_sample",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "stopOnEntry": false,
             "program": "${workspaceFolder}/examples/pyside6_sample.py",
@@ -56,7 +59,7 @@
         },
         {
             "name": "wgl_sample",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "stopOnEntry": false,
             "program": "${workspaceFolder}/examples/wgl_sample.py",
@@ -64,7 +67,7 @@
         },
         {
             "name": "gtk3_sample",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "stopOnEntry": false,
             "program": "${workspaceFolder}/examples/gtk3_sample.py",
@@ -72,7 +75,7 @@
         },
         {
             "name": "gtk4_sample",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "stopOnEntry": false,
             "program": "${workspaceFolder}/examples/gtk4_sample.py",

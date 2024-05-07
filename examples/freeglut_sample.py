@@ -1,20 +1,13 @@
 # coding: utf-8
 """
-> git clone https://github.com/FreeGLUTProject/freeglut.git
+https://github.com/mcfletch/pyopengl/tree/master/OpenGL/DLLS
 
-
-# glut
-require pyOpenGL + glut.dll
-require pyOpenGL + freeglut.dll
-
-# glut install on Windows
-
-* glut.dllもしくはfreeglut.dllを入手(vcpkgでビルドするのおすすめ)
-* Python.exeと同じフォルダにコピーするか環境変数PATHを設定する
+environment variable PATH to freeglut64.vc14.dll
 """
 
 
 def main():
+
     import glglue.glut
     from glglue.scene.sample import SampleScene
 

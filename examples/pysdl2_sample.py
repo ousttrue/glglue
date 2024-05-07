@@ -1,4 +1,8 @@
 # coding: utf-8
+'''
+pip install pysdl2 pysdl2-dll
+'''
+
 def main():
     import glglue.pysdl2
     from glglue.scene.sample import SampleScene
