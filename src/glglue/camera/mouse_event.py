@@ -1,5 +1,4 @@
-from typing import Optional, List, Callable, TypeAlias
-from typing_extensions import Protocol
+from typing import Optional, List, Callable, TypeAlias, Protocol
 from glglue.frame_input import FrameInput
 
 

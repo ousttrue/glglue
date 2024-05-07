@@ -45,7 +45,7 @@ class BinaryReader:
 
 def load_teapot() -> ctypes.Array:
     # https://en.wikipedia.org/wiki/Utah_teapot#/media/File:Utah_teapot_(solid).stl
-    data = pkgutil.get_data("pydear", "assets/Utah_teapot_(solid).stl")
+    data = pkgutil.get_data("glglue", "assets/Utah_teapot_(solid).stl")
     assert data
 
     # https://en.wikipedia.org/wiki/STL_%28file_format%29
