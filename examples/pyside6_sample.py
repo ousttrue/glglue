@@ -1,3 +1,7 @@
+# coding: utf-8
+"""
+pip install pyside6
+"""
 from PySide6 import QtWidgets
 
 

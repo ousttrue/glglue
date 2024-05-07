@@ -1,5 +1,30 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "glglue"
+authors = [{ name = "ousttrue", email = "ousttrue@gmail.com" }]
+description = "The glue code which mediates between OpenGL and some GUI"
+readme = "README.md"
+dynamic = ["version"]
+requires-python = ">=3.11"
+dependencies = ["pyopengl", "PyGLM"]
+classifiers = [
+  "Programming Language :: Python :: 3.11",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Multimedia :: Graphics :: 3D Modeling",
+]
+
+[project.urls]
+HomePage = "https://ousttrue.github.io/glglue/"
+Repository = "https://github.com/ousttrue/glglue/"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+glglue = ["assets/*"]
 
 [tool.setuptools_scm]
-write_to = "glglue/_version.py"
+version_file = "src/glglue/_version.py"

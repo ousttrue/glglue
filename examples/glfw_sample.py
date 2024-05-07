@@ -1,3 +1,9 @@
+# coding: utf-8
+"""
+pip install glfw
+"""
+
+
 def main():
     from glglue.scene.sample import SampleScene
     import glglue.glfw
