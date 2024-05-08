@@ -1,17 +1,32 @@
 import glglue.frame_input
-from OpenGL import GL
+from OpenGL import GL  # type: ignore
 from glglue import glo
 from glglue.camera.mouse_camera import MouseCamera
+from glglue.drawable import Drawable, cube, teapot
+import glm
+import dataclasses
+
 import logging
 
 LOGGER = logging.getLogger(__name__)
+
+
+@dataclasses.dataclass
+class Node:
+    name: str
+    world_matrix: glm.mat4 = glm.mat4(1.0)
+
+    def set_position(self, pos: glm.vec3) -> None:
+        self.world_matrix = glm.translate(pos)
 
 
 class SampleScene:
     def __init__(self) -> None:
         self.initialized = False
         self.mouse_camera = MouseCamera()
-        self.drawable = None
+        self.drawables: list[Drawable] = []
+        self.cube_node = Node("cube")
+        self.teapot_node = Node("teapot")
 
     def lazy_initialize(self):
         if self.initialized:
@@ -21,16 +36,21 @@ class SampleScene:
         # shader
         shader = glo.Shader.load_from_pkg("glglue", "assets/mesh")
         if shader:
-            props = shader.create_props(self.mouse_camera.camera)
-            # from glglue.drawable import cube
-            # self.drawable = cube.create(shader, props)
-            from glglue.drawable import teapot
-
-            self.drawable = teapot.create(shader, props)
+            self.drawables.append(
+                cube.create(
+                    shader,
+                    shader.create_props(self.mouse_camera.camera, self.cube_node),
+                )
+            )
+            self.drawables.append(
+                teapot.create(
+                    shader,
+                    shader.create_props(self.mouse_camera.camera, self.teapot_node),
+                )
+            )
 
     def render(self, frame: glglue.frame_input.FrameInput):
         self.lazy_initialize()
-        assert self.drawable
 
         # update camera
         self.mouse_camera.process(frame)
@@ -57,7 +77,8 @@ class SampleScene:
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
 
         # render
-        self.drawable.draw()
+        for drawable in self.drawables:
+            drawable.draw()
 
         # flush
         GL.glFlush()

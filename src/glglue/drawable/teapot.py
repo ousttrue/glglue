@@ -90,7 +90,7 @@ def load_teapot() -> ctypes.Array[Vertex]:
     return vertices
 
 
-def create(shader: glo.Shader, props: list[glo.UniformUpdater]):
+def create(shader: glo.Shader, props: list[glo.UniformUpdater]) -> Drawable:
     vertices = load_teapot()
 
     vbo = glo.Vbo()

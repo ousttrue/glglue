@@ -135,5 +135,10 @@ class CustomLogger(logging.Handler):
             case _:
                 msg = f"{msg}<br>"
 
-        self.widget.textCursor().movePosition(QtGui.QTextCursor.Start)  # type: ignore
+        # self.widget.textCursor().movePosition(
+        #     QtGui.QTextCursor.Start, QtGui.QTextCursor.KeepAnchor
+        # )
+        cursor = self.widget.textCursor()
+        cursor.setPosition(0)
+        self.widget.setTextCursor(cursor)
         self.widget.textCursor().insertHtml(msg)

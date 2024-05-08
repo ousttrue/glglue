@@ -59,7 +59,7 @@ def create(shader: glo.Shader, props: List[glo.UniformUpdater]) -> Drawable:
     vertices = builder.create_vertices()
 
     vbo = glo.Vbo()
-    vbo.set_vertices(vertices)
+    vbo.set_vertices(memoryview(vertices))
 
     vao = glo.Vao(vbo, glo.VertexLayout.create_list(shader.program))
 

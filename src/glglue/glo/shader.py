@@ -119,9 +119,9 @@ class Shader:
     def load_from_pkg(pkg: str, name: str) -> Optional["Shader"]:
         import pkgutil
 
-        vs = pkgutil.get_data(pkg, f"{name}.vs")
+        vs = pkgutil.get_data(pkg, f"{name}.vert")
         assert vs
-        fs = pkgutil.get_data(pkg, f"{name}.fs")
+        fs = pkgutil.get_data(pkg, f"{name}.frag")
         assert fs
         match Shader.load(vs, fs):
             case Shader() as shader:
