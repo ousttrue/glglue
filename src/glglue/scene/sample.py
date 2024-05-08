@@ -2,6 +2,9 @@ import glglue.frame_input
 from OpenGL import GL
 from glglue import glo
 from glglue.camera.mouse_camera import MouseCamera
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 
 class SampleScene:
@@ -42,7 +45,11 @@ class SampleScene:
         # clear
         GL.glViewport(0, 0, frame.width, frame.height)  # type: ignore
         r = 0
-        g = 0.1 if frame.mouse_left else 0
+        if frame.mouse_left:
+            LOGGER.debug("LEFT_MOUSE")
+            g = 0.1
+        else:
+            g = 0
         if frame.height == 0:
             return
         b = 0

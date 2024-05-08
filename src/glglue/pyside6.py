@@ -108,6 +108,16 @@ class QPlainTextEditLogger(QtWidgets.QPlainTextEdit):
 
 
 class CustomLogger(logging.Handler):
+    """
+    CRITICAL: int
+    FATAL: int
+    ERROR: int
+    WARNING: int
+    WARN: int
+    INFO: int
+    DEBUG: int
+    """
+
     def __init__(self, widget: QPlainTextEditLogger):
         super().__init__()
         self.widget = widget
@@ -115,14 +125,15 @@ class CustomLogger(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
         msg = self.format(record)
 
-        if record.levelno == logging.DEBUG:
-            msg = f'<font color="gray">{msg}</font><br>'
-        elif record.levelno == logging.WARNING:
-            msg = f'<font color="orange">{msg}</font><br>'
-        elif record.levelno == logging.ERROR:
-            msg = f'<font color="red">{msg}</font><br>'
-        else:
-            msg = f"{msg}<br>"
+        match record.levelno:
+            case logging.DEBUG:
+                msg = f'<font color="gray">{msg}</font><br>'
+            case logging.WARNING:
+                msg = f'<font color="orange">{msg}</font><br>'
+            case logging.ERROR | logging.FATAL | logging.CRITICAL:
+                msg = f'<font color="red">{msg}</font><br>'
+            case _:
+                msg = f"{msg}<br>"
 
         self.widget.textCursor().movePosition(QtGui.QTextCursor.Start)  # type: ignore
         self.widget.textCursor().insertHtml(msg)
