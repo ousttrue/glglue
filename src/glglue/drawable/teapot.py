@@ -2,7 +2,7 @@ import ctypes
 import struct
 import pkgutil
 from glglue import glo
-from .vertex_buffer import Float3, Vertex
+from .mesh_builder import Float3, Vertex
 from .drawable import Drawable
 
 

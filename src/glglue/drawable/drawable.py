@@ -1,4 +1,4 @@
-from OpenGL import GL
+from OpenGL import GL  # type: ignore
 from glglue.glo.shader import Shader, UniformUpdater
 from glglue.glo.vao import Vao
 
@@ -43,5 +43,5 @@ class Drawable:
                 with submesh.shader:
                     for prop in submesh.properties:
                         prop()
-                    self.vao.draw(submesh.draw_count, topology=submesh.topology)
+                    self.vao.draw(submesh.draw_count)
         self.vao.unbind()

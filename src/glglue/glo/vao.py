@@ -1,5 +1,5 @@
 from typing import Iterable
-from OpenGL import GL
+from OpenGL import GL  # type: ignore
 from .vbo import Vbo, Ibo
 from .vertex_layout import VertexLayout
 import ctypes
@@ -7,8 +7,14 @@ import ctypes
 
 class Vao:
     def __init__(
-        self, vbo: Vbo, layouts: Iterable[VertexLayout], ibo: Ibo | None = None
+        self,
+        vbo: Vbo,
+        layouts: Iterable[VertexLayout],
+        ibo: Ibo | None = None,
+        *,
+        topology: int = GL.GL_TRIANGLES,  # type: ignore
     ) -> None:
+        self.topology = topology
         self.vao: int = GL.glGenVertexArrays(1)
         self.vbo = vbo
         self.bind()
@@ -32,16 +38,16 @@ class Vao:
     def __del__(self) -> None:
         GL.glDeleteVertexArrays(1, [self.vao])
 
-    def bind(self):
+    def bind(self) -> None:
         GL.glBindVertexArray(self.vao)  # type: ignore
 
-    def unbind(self):
+    def unbind(self) -> None:
         GL.glBindVertexArray(0)  # type: ignore
 
-    def draw(self, count: int, offset: int = 0, *, topology=GL.GL_TRIANGLES):  # type: ignore
+    def draw(self, count: int, offset: int = 0) -> None:  # type: ignore
         self.bind()
         if self.ibo:
-            GL.glDrawElements(topology, count, self.ibo.format, ctypes.c_void_p(offset))
+            GL.glDrawElements(self.topology, count, self.ibo.format, ctypes.c_void_p(offset))  # type: ignore
         else:
-            GL.glDrawArrays(topology, offset, count)
+            GL.glDrawArrays(self.topology, offset, count)  # type: ignore
         self.unbind()

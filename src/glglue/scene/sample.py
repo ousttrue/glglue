@@ -2,7 +2,7 @@ import glglue.frame_input
 from OpenGL import GL  # type: ignore
 from glglue import glo
 from glglue.camera.mouse_camera import MouseCamera
-from glglue.drawable import Drawable, cube, teapot
+from glglue.drawable import Drawable, cube, teapot, axes, grid
 import glm
 import dataclasses
 
@@ -34,20 +34,35 @@ class SampleScene:
         self.initialized = True
 
         # shader
-        shader = glo.Shader.load_from_pkg("glglue", "assets/mesh")
-        if shader:
-            self.drawables.append(
-                cube.create(
-                    shader,
-                    shader.create_props(self.mouse_camera.camera, self.cube_node),
-                )
+        mesh_shader = glo.Shader.load_from_pkg("glglue", "assets/mesh")
+        assert mesh_shader
+        self.drawables.append(
+            cube.create(
+                mesh_shader,
+                mesh_shader.create_props(self.mouse_camera.camera, self.cube_node),
             )
-            self.drawables.append(
-                teapot.create(
-                    shader,
-                    shader.create_props(self.mouse_camera.camera, self.teapot_node),
-                )
+        )
+        self.drawables.append(
+            teapot.create(
+                mesh_shader,
+                mesh_shader.create_props(self.mouse_camera.camera, self.teapot_node),
             )
+        )
+
+        line_shader = glo.Shader.load_from_pkg("glglue", "assets/line")
+        assert line_shader
+        self.drawables.append(
+            axes.create(
+                line_shader,
+                line_shader.create_props(self.mouse_camera.camera),
+            )
+        )
+        self.drawables.append(
+            grid.create(
+                line_shader,
+                line_shader.create_props(self.mouse_camera.camera),
+            )
+        )
 
     def render(self, frame: glglue.frame_input.FrameInput):
         self.lazy_initialize()

@@ -1,7 +1,7 @@
-from typing import Tuple, NamedTuple, List
+from typing import NamedTuple
 import glm
 from glglue import glo
-from .vertex_buffer import MeshBuilder
+from .mesh_builder import MeshBuilder
 from .drawable import Drawable
 
 """
@@ -35,8 +35,8 @@ VERTICES = [
 
 
 class Face(NamedTuple):
-    indices: Tuple[int, int, int, int]
-    color: Tuple[float, float, float]
+    indices: tuple[int, int, int, int]
+    color: tuple[float, float, float]
 
 
 # CCW
@@ -50,7 +50,7 @@ QUADS = [
 ]
 
 
-def create(shader: glo.Shader, props: List[glo.UniformUpdater]) -> Drawable:
+def create(shader: glo.Shader, props: list[glo.UniformUpdater]) -> Drawable:
     builder = MeshBuilder()
     for (i0, i1, i2, i3), rgb in QUADS:
         builder.push_quad(
