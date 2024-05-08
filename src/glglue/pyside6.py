@@ -33,7 +33,7 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
         self.left_down = False
         self.middle_down = False
         self.right_down = False
-        self.render_wheel = 0
+        self.wheel = 0
 
     def minimumSizeHint(self) -> QtCore.QSize:
         return QtCore.QSize(50, 50)
@@ -51,10 +51,10 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
                 mouse_left=self.left_down,
                 mouse_middle=self.middle_down,
                 mouse_right=self.right_down,
-                mouse_wheel=self.render_wheel,
+                mouse_wheel=self.wheel,
             )
         )
-        self.render_wheel = 0
+        self.wheel = 0
 
     def resizeGL(self, w: int, h: int) -> None:
         ratio = QtGui.QGuiApplication.primaryScreen().devicePixelRatio()
@@ -97,6 +97,7 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
 
     def wheelEvent(self, event: QtGui.QWheelEvent) -> None:
         self.wheel = event.angleDelta().y()
+        self.repaint()
 
 
 class QPlainTextEditLogger(QtWidgets.QPlainTextEdit):

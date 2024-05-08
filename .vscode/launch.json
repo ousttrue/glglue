@@ -72,7 +72,7 @@
             "type": "debugpy",
             "request": "launch",
             "stopOnEntry": false,
-            "program": "${workspaceFolder}/examples/basic/pyside6_gui.py",
+            "program": "${workspaceFolder}/examples/gui/pyside6_gui.py",
             "cwd": "${workspaceRoot}",
             "justMyCode": false
         },
