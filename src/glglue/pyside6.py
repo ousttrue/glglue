@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from typing import Callable
 import logging
 from PySide6 import QtCore, QtGui, QtOpenGLWidgets, QtWidgets
 import glglue.frame_input
@@ -12,9 +10,9 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
 
     def __init__(
         self,
-        parent,
+        parent: QtWidgets.QWidget | None,
         render_gl: glglue.frame_input.RenderFunc,
-        core_profile=True,
+        core_profile: bool = True,
     ):
         super().__init__(parent)
         self.setMouseTracking(True)
@@ -24,7 +22,7 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
             format.setDepthBufferSize(24)
             format.setStencilBufferSize(8)
             format.setVersion(3, 2)
-            format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
+            format.setProfile(QtGui.QSurfaceFormat.CoreProfile)  # type: ignore
             # self.setFormat(format)
             QtGui.QSurfaceFormat.setDefaultFormat(format)
             # must be called before the widget or its parent window gets shown
@@ -37,13 +35,13 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
         self.right_down = False
         self.render_wheel = 0
 
-    def minimumSizeHint(self):
+    def minimumSizeHint(self) -> QtCore.QSize:
         return QtCore.QSize(50, 50)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QtCore.QSize:
         return QtCore.QSize(150, 150)
 
-    def paintGL(self):
+    def paintGL(self) -> None:
         self.render_gl(
             glglue.frame_input.FrameInput(
                 mouse_x=self.mouse_x,
@@ -58,49 +56,62 @@ class Widget(QtOpenGLWidgets.QOpenGLWidget):
         )
         self.render_wheel = 0
 
-    def resizeGL(self, width, height):
+    def resizeGL(self, w: int, h: int) -> None:
         ratio = QtGui.QGuiApplication.primaryScreen().devicePixelRatio()
-        self.render_width = int(width * ratio)
-        self.render_height = int(height * ratio)
+        self.render_width = int(w * ratio)
+        self.render_height = int(h * ratio)
         self.repaint()
 
-    def mousePressEvent(self, event):
-        if event.button() == QtCore.Qt.LeftButton:
-            self.left_down = True
-            self.repaint()
-        elif event.button() == QtCore.Qt.MiddleButton:
-            self.middle_down = True
-            self.repaint()
-        elif event.button() == QtCore.Qt.RightButton:
-            self.right_down = True
-            self.repaint()
+    def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
+        match event.button():
+            case QtCore.Qt.LeftButton:  # type: ignore
+                self.left_down = True
+                self.repaint()
+            case QtCore.Qt.MiddleButton:  # type: ignore
+                self.middle_down = True
+                self.repaint()
+            case QtCore.Qt.RightButton:  # type: ignore
+                self.right_down = True
+                self.repaint()
+            case _:
+                pass
 
-    def mouseReleaseEvent(self, event):
-        if event.button() == QtCore.Qt.LeftButton:
-            self.left_down = False
-            self.repaint()
-        elif event.button() == QtCore.Qt.MiddleButton:
-            self.middle_down = False
-            self.repaint()
-        elif event.button() == QtCore.Qt.RightButton:
-            self.right_down = False
-            self.repaint()
+    def mouseReleaseEvent(self, event: QtGui.QMouseEvent) -> None:
+        match event.button():
+            case QtCore.Qt.LeftButton:  # type: ignore
+                self.left_down = False
+                self.repaint()
+            case QtCore.Qt.MiddleButton:  # type: ignore
+                self.middle_down = False
+                self.repaint()
+            case QtCore.Qt.RightButton:  # type: ignore
+                self.right_down = False
+                self.repaint()
+            case _:
+                pass
 
-    def mouseMoveEvent(self, event):
+    def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
         self.mouse_x = event.x()
         self.mouse_y = event.y()
         self.repaint()
 
-    def wheelEvent(self, event):
+    def wheelEvent(self, event: QtGui.QWheelEvent) -> None:
         self.wheel = event.angleDelta().y()
 
 
+class QPlainTextEditLogger(QtWidgets.QPlainTextEdit):
+    def __init__(self, parent: QtWidgets.QWidget | None = None):
+        super().__init__(parent)
+        self.setReadOnly(True)
+        self.log_handler = CustomLogger(self)
+
+
 class CustomLogger(logging.Handler):
-    def __init__(self, widget):
+    def __init__(self, widget: QPlainTextEditLogger):
         super().__init__()
         self.widget = widget
 
-    def emit(self, record):
+    def emit(self, record: logging.LogRecord) -> None:
         msg = self.format(record)
 
         if record.levelno == logging.DEBUG:
@@ -112,15 +123,5 @@ class CustomLogger(logging.Handler):
         else:
             msg = f"{msg}<br>"
 
-        self.widget.textCursor().movePosition(QtGui.QTextCursor.Start)
+        self.widget.textCursor().movePosition(QtGui.QTextCursor.Start)  # type: ignore
         self.widget.textCursor().insertHtml(msg)
-
-    def write(self, m):
-        pass
-
-
-class QPlainTextEditLogger(QtWidgets.QPlainTextEdit):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.setReadOnly(True)
-        self.log_handler = CustomLogger(self)

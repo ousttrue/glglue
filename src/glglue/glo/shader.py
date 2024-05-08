@@ -1,26 +1,37 @@
-from typing import NamedTuple, Optional, Union, Tuple, cast, List, Callable, TypeAlias
+from typing import (
+    NamedTuple,
+    Optional,
+    Union,
+    Tuple,
+    cast,
+    List,
+    Callable,
+    TypeAlias,
+    Protocol,
+)
 from OpenGL import GL
 import glm
 import logging
+from ..camera import Camera
 
 LOGGER = logging.getLogger(__name__)
 
 
-def GetGLErrorStr(err):
+def GetGLErrorStr(err: int):
     match (err):
-        case GL.GL_NO_ERROR:
+        case GL.GL_NO_ERROR:  # type: ignore
             return "No error"
-        case GL.GL_INVALID_ENUM:
+        case GL.GL_INVALID_ENUM:  # type: ignore
             return "Invalid enum"
-        case GL.GL_INVALID_VALUE:
+        case GL.GL_INVALID_VALUE:  # type: ignore
             return "Invalid value"
-        case GL.GL_INVALID_OPERATION:
+        case GL.GL_INVALID_OPERATION:  # type: ignore
             return "Invalid operation"
-        case GL.GL_STACK_OVERFLOW:
+        case GL.GL_STACK_OVERFLOW:  # type: ignore
             return "Stack overflow"
-        case GL.GL_STACK_UNDERFLOW:
+        case GL.GL_STACK_UNDERFLOW:  # type: ignore
             return "Stack underflow"
-        case GL.GL_OUT_OF_MEMORY:
+        case GL.GL_OUT_OF_MEMORY:  # type: ignore
             return "Out of memory"
         case _:
             return "Unknown error"
@@ -28,35 +39,35 @@ def GetGLErrorStr(err):
 
 def CheckGLError():
     while True:
-        err = GL.glGetError()
-        if GL.GL_NO_ERROR == err:
+        err: int = GL.glGetError()  # type: ignore
+        if GL.GL_NO_ERROR == err:  # type: ignore
             break
         LOGGER.error(f"GL Error: {GetGLErrorStr(err)}")
 
 
 class ShaderCompile:
-    def __init__(self, shader_type):
-        """
-        GL.GL_VERTEX_SHADER
-        GL.GL_FRAGMENT_SHADER
-        """
-        self.shader = GL.glCreateShader(shader_type)
+    def __init__(self, shader_type: GL.GL_VERTEX_SHADER | GL.GL_FRAGMENT_SHADER):  # type: ignore
+        self.shader: int = GL.glCreateShader(shader_type)  # type: ignore
 
     def compile(self, src: Union[str, bytes]) -> Tuple[bool, str]:
         GL.glShaderSource(self.shader, src, None)
-        GL.glCompileShader(self.shader)
-        result = GL.glGetShaderiv(self.shader, GL.GL_COMPILE_STATUS)
-        if result == GL.GL_TRUE:
+        GL.glCompileShader(self.shader)  # type: ignore
+        result = GL.glGetShaderiv(self.shader, GL.GL_COMPILE_STATUS)  # type: ignore
+        if result == GL.GL_TRUE:  # type: ignore
             return True, ""
         # error message
         info = GL.glGetShaderInfoLog(self.shader)
         return False, info.decode("ascii")
 
     def __del__(self):
-        GL.glDeleteShader(self.shader)
+        GL.glDeleteShader(self.shader)  # type: ignore
 
 
 UniformUpdater: TypeAlias = Callable[[], None]
+
+
+class Node(Protocol):
+    world_matrix: glm.mat4
 
 
 class Shader:
@@ -64,22 +75,22 @@ class Shader:
         self.program = cast(int, GL.glCreateProgram())
 
     def __del__(self):
-        GL.glDeleteProgram(self.program)
+        GL.glDeleteProgram(self.program)  # type: ignore
 
     def __enter__(self):
         self.use()
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback):  # type: ignore
         self.unuse()
         if exc_type:
             LOGGER.warning(f"{exc_type}: {exc_value}: {traceback}")
 
-    def link(self, vs, fs) -> Tuple[bool, str]:
-        GL.glAttachShader(self.program, vs)
-        GL.glAttachShader(self.program, fs)
-        GL.glLinkProgram(self.program)
-        error = GL.glGetProgramiv(self.program, GL.GL_LINK_STATUS)
-        if error == GL.GL_TRUE:
+    def link(self, vs: int, fs: int) -> Tuple[bool, str]:
+        GL.glAttachShader(self.program, vs)  # type: ignore
+        GL.glAttachShader(self.program, fs)  # type: ignore
+        GL.glLinkProgram(self.program)  # type: ignore
+        error = GL.glGetProgramiv(self.program, GL.GL_LINK_STATUS)  # type: ignore
+        if error == GL.GL_TRUE:  # type: ignore
             return True, ""
 
         # error message
@@ -90,11 +101,11 @@ class Shader:
     def load(
         vs_src: Union[str, bytes], fs_src: Union[str, bytes]
     ) -> Union["Shader", str]:
-        vs = ShaderCompile(GL.GL_VERTEX_SHADER)
+        vs = ShaderCompile(GL.GL_VERTEX_SHADER)  # type: ignore
         success, info = vs.compile(vs_src)
         if not success:
             return "vs: " + info
-        fs = ShaderCompile(GL.GL_FRAGMENT_SHADER)
+        fs = ShaderCompile(GL.GL_FRAGMENT_SHADER)  # type: ignore
         success, info = fs.compile(fs_src)
         if not success:
             return "fs: " + info
@@ -117,11 +128,10 @@ class Shader:
                 return shader
             case str() as info:
                 LOGGER.error(f"{pkg}#{name}: {info}")
-            case _:
-                raise RuntimeError()
 
-    def create_props(self, camera, node=None) -> List[UniformUpdater]:
-        from .. import glo
+    def create_props(
+        self, camera: Camera, node: Node | None = None
+    ) -> List[UniformUpdater]:
 
         props: List[Callable[[], None]] = []
 
@@ -130,13 +140,13 @@ class Shader:
             if node:
 
                 def update_model():
-                    model.set_mat4(glm.value_ptr(node.world_matrix))
+                    model.set_mat4(node.world_matrix)
 
             else:
                 identity = glm.mat4(1)
 
                 def update_model():
-                    model.set_mat4(glm.value_ptr(identity))
+                    model.set_mat4(identity)
 
             props.append(update_model)
 
@@ -144,7 +154,7 @@ class Shader:
         if view:
 
             def update_view():
-                view.set_mat4(glm.value_ptr(camera.view.matrix))
+                view.set_mat4(camera.view.matrix)
 
             props.append(update_view)
 
@@ -152,17 +162,17 @@ class Shader:
         if projection:
 
             def update_projection():
-                projection.set_mat4(glm.value_ptr(camera.projection.matrix))
+                projection.set_mat4(camera.projection.matrix)
 
             props.append(update_projection)
 
         return props
 
-    def use(self):
-        GL.glUseProgram(self.program)
+    def use(self) -> None:
+        GL.glUseProgram(self.program)  # type: ignore
 
-    def unuse(self):
-        GL.glUseProgram(0)
+    def unuse(self) -> None:
+        GL.glUseProgram(0)  # type: ignore
 
 
 class UniformLocation(NamedTuple):
@@ -170,29 +180,34 @@ class UniformLocation(NamedTuple):
     location: int
 
     @staticmethod
-    def create(program, name: str) -> "UniformLocation":
-        location = GL.glGetUniformLocation(program, name)
+    def create(program: int, name: str) -> "UniformLocation":
+        location: int = GL.glGetUniformLocation(program, name)
         if location == -1:
             LOGGER.warn(f"{name}: -1")
         return UniformLocation(name, location)
 
     def set_int(self, value: int):
-        GL.glUniform1i(self.location, value)
+        GL.glUniform1i(self.location, value)  # type: ignore
 
-    def set_float2(self, value):
+    def set_float2(self, value: tuple[float, float]):
         GL.glUniform2fv(self.location, 1, value)
 
-    def set_mat4(self, value, transpose: bool = False, count=1):
+    def set_mat4(
+        self,
+        value: glm.mat4,
+        transpose: bool = False,
+        count: int = 1,
+    ):
         GL.glUniformMatrix4fv(
-            self.location, count, GL.GL_TRUE if transpose else GL.GL_FALSE, value
+            self.location, count, GL.GL_TRUE if transpose else GL.GL_FALSE, glm.value_ptr(value)  # type: ignore
         )
 
 
 class UniformBlockIndex(NamedTuple):
     name: str
-    index: int
+    block_index: int
 
     @staticmethod
-    def create(program, name: str) -> "UniformBlockIndex":
-        index = GL.glGetUniformBlockIndex(program, name)
-        return UniformBlockIndex(name, index)
+    def create(program: int, name: str) -> "UniformBlockIndex":
+        block_index = cast(int, GL.glGetUniformBlockIndex(program, name))  # type: ignore
+        return UniformBlockIndex(name, block_index)

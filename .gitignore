@@ -6,4 +6,5 @@ build
 imgui.ini
 window.ini
 __pycache__
-/bin
+/bin/
+/dist/

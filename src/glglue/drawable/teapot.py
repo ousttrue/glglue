@@ -5,6 +5,7 @@ from glglue import glo
 from .vertex_buffer import Float3, Vertex
 from .drawable import Drawable
 
+
 WHITE = Float3(1, 1, 1)
 
 
@@ -43,7 +44,7 @@ class BinaryReader:
         return struct.unpack("f", data)[0]
 
 
-def load_teapot() -> ctypes.Array:
+def load_teapot() -> ctypes.Array[Vertex]:
     # https://en.wikipedia.org/wiki/Utah_teapot#/media/File:Utah_teapot_(solid).stl
     data = pkgutil.get_data("glglue", "assets/Utah_teapot_(solid).stl")
     assert data
@@ -53,7 +54,7 @@ def load_teapot() -> ctypes.Array:
 
     # UINT8[80]    – Header                 -     80 bytes
     # UINT32       – Number of triangles    -      4 bytes
-    header = r.read(80)
+    _header = r.read(80)
     triangle_count = r.read_uint32()
 
     triangles_type = StlTriangle * triangle_count
@@ -89,11 +90,11 @@ def load_teapot() -> ctypes.Array:
     return vertices
 
 
-def create(shader, props):
+def create(shader: glo.Shader, props: list[glo.UniformUpdater]):
     vertices = load_teapot()
 
     vbo = glo.Vbo()
-    vbo.set_vertices(vertices)
+    vbo.set_vertices(memoryview(vertices))
 
     vao = glo.Vao(vbo, glo.VertexLayout.create_list(shader.program))
 

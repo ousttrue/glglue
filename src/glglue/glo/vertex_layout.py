@@ -1,4 +1,4 @@
-from typing import NamedTuple, Iterable, List
+from typing import NamedTuple, cast, Any
 from OpenGL import GL
 import logging
 
@@ -10,13 +10,13 @@ class AttributeLocation(NamedTuple):
     location: int
 
     @staticmethod
-    def create(program, name: str) -> "AttributeLocation":
+    def create(program: int, name: str) -> "AttributeLocation":
         location = GL.glGetAttribLocation(program, name)
         assert location != -1
         return AttributeLocation(name, location)
 
 
-type_map = {
+type_map: dict[int, tuple[int, int]] = {
     GL.GL_FLOAT: (GL.GL_FLOAT, 1),
     GL.GL_FLOAT_VEC2: (GL.GL_FLOAT, 2),
     GL.GL_FLOAT_VEC3: (GL.GL_FLOAT, 3),
@@ -54,15 +54,15 @@ type_map = {
 }
 
 
-def byte_size(t, n):
+def byte_size(t: int, n: int):
     match t:
-        case GL.GL_FLOAT:
+        case GL.GL_FLOAT:  # type: ignore
             return 4 * n
         case _:
             raise NotImplemented()
 
 
-def to_str(src) -> str:
+def to_str(src: str | bytes | Any) -> str:
     match src:
         case str():
             return src
@@ -83,11 +83,11 @@ class VertexLayout(NamedTuple):
     byte_offset: int
 
     @staticmethod
-    def create_list(program) -> List["VertexLayout"]:
-        count = GL.glGetProgramiv(program, GL.GL_ACTIVE_ATTRIBUTES)
+    def create_list(program: int) -> list["VertexLayout"]:
+        count = cast(int, GL.glGetProgramiv(program, GL.GL_ACTIVE_ATTRIBUTES))  # type: ignore
         LOGGER.debug(f"Active Attributes: {count}")
 
-        layouts: List[VertexLayout] = []
+        layouts: list[VertexLayout] = []
         stride = 0
         for i in range(count):
             name, size, type_ = GL.glGetActiveAttrib(program, i)
@@ -103,7 +103,7 @@ class VertexLayout(NamedTuple):
         # not same with location order
         layouts.sort(key=lambda l: l.attribute.location)
 
-        result = []
+        result: list[VertexLayout] = []
         offset = 0
         for layout in layouts:
             result.append(

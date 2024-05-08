@@ -1,41 +1,35 @@
-from typing import List, Optional
 from OpenGL import GL
 from glglue.glo.shader import Shader, UniformUpdater
 from glglue.glo.vao import Vao
 
 
-def empty():
-    return []
-
-
 class Submesh:
     def __init__(
         self,
-        topology,
+        topology: int,
         *,
-        draw_count=0,
-        shader: Optional[Shader] = None,
-        props: List[UniformUpdater] = empty()
+        draw_count: int = 0,
+        shader: Shader | None = None,
+        props: list[UniformUpdater] | None = None,
     ) -> None:
         self.topology = topology
         self.draw_count = draw_count
-        assert (not shader) or isinstance(shader, Shader)
         self.shader = shader
-        self.properties = props
+        self.properties = props if props else []
 
 
 class Drawable:
     def __init__(self, vao: Vao) -> None:
         self.vao = vao
-        self.submeshes: List[Submesh] = []
+        self.submeshes: list[Submesh] = []
 
     def push_submesh(
         self,
         shader: Shader,
         draw_count: int,
-        properties: list,
+        properties: list[UniformUpdater],
         *,
-        topology=GL.GL_TRIANGLES
+        topology: int = GL.GL_TRIANGLES,  # type: ignore
     ):
         assert isinstance(shader, Shader)
         self.submeshes.append(
