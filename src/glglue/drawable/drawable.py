@@ -38,10 +38,12 @@ class Drawable:
 
     def draw(self):
         self.vao.bind()
+        offset = 0
         for submesh in self.submeshes:
             if submesh.shader:
                 with submesh.shader:
                     for prop in submesh.properties:
                         prop()
-                    self.vao.draw(submesh.draw_count)
+                    self.vao.draw(submesh.draw_count, offset=offset)
+            offset += submesh.draw_count
         self.vao.unbind()

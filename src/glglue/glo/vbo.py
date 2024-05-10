@@ -54,6 +54,29 @@ class Ibo:
     def unbind(self) -> None:
         GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0)  # type: ignore
 
+    def set_bytes(
+        self,
+        indices: bytes,
+        stride: int,
+        *,
+        is_dynamic: bool = False,
+    ):
+        match stride:
+            case 2:
+                self.format = GL.GL_UNSIGNED_SHORT  # type: ignore
+            case 4:
+                self.format = GL.GL_UNSIGNED_INT  # type: ignore
+            case _:
+                raise NotImplementedError()
+        self.bind()
+        GL.glBufferData(  # type: ignore
+            GL.GL_ELEMENT_ARRAY_BUFFER,  # type: ignore
+            len(indices),  # bytesize
+            indices,
+            GL.GL_DYNAMIC_DRAW if is_dynamic else GL.GL_STATIC_DRAW,  # type: ignore
+        )
+        self.unbind()
+
     def set_indices(
         self,
         indices: ctypes.Array[ctypes.c_ushort] | ctypes.Array[ctypes.c_uint],
@@ -62,19 +85,11 @@ class Ibo:
     ):
         match indices._type_:
             case ctypes.c_ushort:
-                self.format = GL.GL_UNSIGNED_SHORT  # type: ignore
+                self.set_bytes(bytes(indices), 2, is_dynamic=is_dynamic)
             case ctypes.c_uint:
-                self.format = GL.GL_UNSIGNED_INT  # type: ignore
+                self.set_bytes(bytes(indices), 4, is_dynamic=is_dynamic)
             case _:
                 raise NotImplementedError()
-        self.bind()
-        GL.glBufferData(  # type: ignore
-            GL.GL_ELEMENT_ARRAY_BUFFER,  # type: ignore
-            ctypes.sizeof(indices),  # bytesize
-            indices,
-            GL.GL_DYNAMIC_DRAW if is_dynamic else GL.GL_STATIC_DRAW,  # type: ignore
-        )
-        self.unbind()
 
     def update(
         self,

@@ -135,7 +135,7 @@ class Shader:
 
         props: List[Callable[[], None]] = []
 
-        model = UniformLocation.create(self.program, "uModel")
+        model = UniformLocation.create(self.program, "u_model")
         if model:
             if node:
 
@@ -150,7 +150,7 @@ class Shader:
 
             props.append(update_model)
 
-        view = UniformLocation.create(self.program, "uView")
+        view = UniformLocation.create(self.program, "u_view")
         if view:
 
             def update_view():
@@ -158,7 +158,7 @@ class Shader:
 
             props.append(update_view)
 
-        projection = UniformLocation.create(self.program, "uProjection")
+        projection = UniformLocation.create(self.program, "u_projection")
         if projection:
 
             def update_projection():

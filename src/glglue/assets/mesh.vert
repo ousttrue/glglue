@@ -1,19 +1,19 @@
 #version 330
-in vec3 aPos;
-in vec3 aNormal;
-in vec3 aColor;
-out vec3 vColor;
-uniform mediump mat4 uView;
-uniform mediump mat4 uProjection;
-uniform mediump mat4 uModel;
+in vec3 a_pos;
+in vec3 a_normal;
+in vec3 a_color;
+out vec3 v_color;
+uniform mediump mat4 u_view;
+uniform mediump mat4 u_projection;
+uniform mediump mat4 u_model;
 
 void main() {
   // gl_Position = vec4(aPos, 1) * uView * uProjection;
-  gl_Position = uProjection * uView * uModel * vec4(aPos, 1);
+  gl_Position = u_projection * u_view * u_model * vec4(a_pos, 1);
   
   // lambert
   vec3 L = normalize(vec3(-1, - 2, - 3));
-  vec3 N = normalize(aNormal);
+  vec3 N = normalize(a_normal);
   float v = max(dot(N, L), 0.2);
-  vColor = aColor * v;
+  v_color = a_color * v;
 }
