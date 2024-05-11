@@ -50,7 +50,7 @@ class Vao:
 
         self.bind()
         if self.ibo:
-            GL.glDrawElements(topology, count, self.ibo.format, ctypes.c_void_p(offset))  # type: ignore
+            GL.glDrawElements(topology, count, self.ibo.format, ctypes.c_void_p(offset * self.ibo.stride))  # type: ignore
         else:
             GL.glDrawArrays(topology, offset, count)  # type: ignore
         self.unbind()

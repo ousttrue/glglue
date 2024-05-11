@@ -43,6 +43,7 @@ class Ibo:
     def __init__(self):
         self.vbo: int = GL.glGenBuffers(1)
         self.format = 0
+        self.stride = 0
 
     def __del__(self) -> None:
         LOGGER.debug(f"delete vbo: {self.vbo}")
@@ -63,8 +64,10 @@ class Ibo:
     ):
         match stride:
             case 2:
+                self.stride = 2
                 self.format = GL.GL_UNSIGNED_SHORT  # type: ignore
             case 4:
+                self.stride = 4
                 self.format = GL.GL_UNSIGNED_INT  # type: ignore
             case _:
                 raise NotImplementedError()
