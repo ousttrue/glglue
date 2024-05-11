@@ -28,45 +28,51 @@ class SampleScene:
         self.cube_node = Node("cube")
         self.teapot_node = Node("teapot")
 
-    def lazy_initialize(self):
-        if self.initialized:
-            return
-        self.initialized = True
-
-        # shader
-        mesh_shader = glo.Shader.load_from_pkg("glglue", "assets/mesh")
-        assert mesh_shader
-        self.drawables.append(
-            cube.create(
-                mesh_shader,
-                mesh_shader.create_props(self.mouse_camera.camera, self.cube_node),
-            )
-        )
-        self.drawables.append(
-            teapot.create(
-                mesh_shader,
-                mesh_shader.create_props(self.mouse_camera.camera, self.teapot_node),
-            )
-        )
-
-        line_shader = glo.Shader.load_from_pkg("glglue", "assets/line")
-        assert line_shader
-        self.drawables.append(
-            axes.create(
-                line_shader,
-                line_shader.create_props(self.mouse_camera.camera),
-            )
-        )
-        self.drawables.append(
-            grid.create(
-                line_shader,
-                line_shader.create_props(self.mouse_camera.camera),
-            )
-        )
-
     def render(self, frame: glglue.frame_input.FrameInput):
-        self.lazy_initialize()
+        self.begin_render(frame)
+        self.draw()
+        self.end_render()
 
+    def draw(self):
+        if not self.initialized:
+            self.initialized = True
+
+            # shader
+            mesh_shader = glo.Shader.load_from_pkg("glglue", "assets/mesh")
+            self.drawables.append(
+                cube.create(
+                    mesh_shader,
+                    mesh_shader.create_props(self.mouse_camera.camera, self.cube_node),
+                )
+            )
+            self.drawables.append(
+                teapot.create(
+                    mesh_shader,
+                    mesh_shader.create_props(
+                        self.mouse_camera.camera, self.teapot_node
+                    ),
+                )
+            )
+
+            line_shader = glo.Shader.load_from_pkg("glglue", "assets/line")
+            self.drawables.append(
+                axes.create(
+                    line_shader,
+                    line_shader.create_props(self.mouse_camera.camera),
+                )
+            )
+            self.drawables.append(
+                grid.create(
+                    line_shader,
+                    line_shader.create_props(self.mouse_camera.camera),
+                )
+            )
+
+        # render
+        for drawable in self.drawables:
+            drawable.draw()
+
+    def begin_render(self, frame: glglue.frame_input.FrameInput):
         # update camera
         self.mouse_camera.process(frame)
 
@@ -91,9 +97,6 @@ class SampleScene:
         GL.glClearColor(r, g, b, 1.0)  # type: ignore
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
 
-        # render
-        for drawable in self.drawables:
-            drawable.draw()
-
+    def end_render(self):
         # flush
         GL.glFlush()

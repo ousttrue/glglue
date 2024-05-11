@@ -1,7 +1,8 @@
 from typing import NamedTuple
 import glm
 from glglue import glo
-from .mesh_builder import MeshBuilder
+import ctypes
+from .mesh_builder import MeshBuilder, Float3, calc_normal
 from .drawable import Drawable
 
 """
@@ -22,7 +23,7 @@ v
 3 2
 """
 S = 0.6
-VERTICES = [
+POSITIONS = [
     glm.vec3(-S, -S, -S),
     glm.vec3(S, -S, -S),
     glm.vec3(S, -S, S),
@@ -50,11 +51,27 @@ QUADS = [
 ]
 
 
+class Vertex(ctypes.Structure):
+    _fields_ = [
+        ("position", Float3),
+        ("normal", Float3),
+        ("color", Float3),
+    ]
+
+
 def create(shader: glo.Shader, props: list[glo.UniformUpdater]) -> Drawable:
-    builder = MeshBuilder()
+    builder = MeshBuilder(Vertex)
     for (i0, i1, i2, i3), rgb in QUADS:
+        p0 = POSITIONS[i0]
+        p1 = POSITIONS[i1]
+        p2 = POSITIONS[i2]
+        p3 = POSITIONS[i3]
+        n = Float3(*calc_normal(p0, p1, p2))
         builder.push_quad(
-            VERTICES[i0], VERTICES[i1], VERTICES[i2], VERTICES[i3], glm.vec3(*rgb)
+            Vertex(Float3(*p0), n, rgb),
+            Vertex(Float3(*p1), n, rgb),
+            Vertex(Float3(*p2), n, rgb),
+            Vertex(Float3(*p3), n, rgb),
         )
     vertices = builder.create_vertices()
 

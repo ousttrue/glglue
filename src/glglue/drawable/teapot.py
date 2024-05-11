@@ -2,7 +2,7 @@ import ctypes
 import struct
 import pkgutil
 from glglue import glo
-from .mesh_builder import Float3, Vertex
+from .mesh_builder import Float3
 from .drawable import Drawable
 
 
@@ -42,6 +42,14 @@ class BinaryReader:
     def read_float32(self) -> float:
         data = self.read(4)
         return struct.unpack("f", data)[0]
+
+
+class Vertex(ctypes.Structure):
+    _fields_ = [
+        ("position", Float3),
+        ("normal", Float3),
+        ("color", Float3),
+    ]
 
 
 def load_teapot() -> ctypes.Array[Vertex]:

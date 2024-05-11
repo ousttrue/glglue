@@ -76,5 +76,14 @@
             "cwd": "${workspaceRoot}",
             "justMyCode": false
         },
+        {
+            "name": "scene/pyside6_texture",
+            "type": "debugpy",
+            "request": "launch",
+            "stopOnEntry": false,
+            "program": "${workspaceFolder}/examples/scene/pyside6_texture.py",
+            "cwd": "${workspaceRoot}",
+            "justMyCode": false
+        },
     ]
 }

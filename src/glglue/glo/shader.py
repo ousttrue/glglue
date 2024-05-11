@@ -98,36 +98,30 @@ class Shader:
         return False, info.decode("ascii")
 
     @staticmethod
-    def load(
-        vs_src: Union[str, bytes], fs_src: Union[str, bytes]
-    ) -> Union["Shader", str]:
+    def load(vs_src: Union[str, bytes], fs_src: Union[str, bytes]) -> "Shader":
         vs = ShaderCompile(GL.GL_VERTEX_SHADER)  # type: ignore
         success, info = vs.compile(vs_src)
         if not success:
-            return "vs: " + info
+            raise RuntimeError("vs: " + info)
         fs = ShaderCompile(GL.GL_FRAGMENT_SHADER)  # type: ignore
         success, info = fs.compile(fs_src)
         if not success:
-            return "fs: " + info
+            raise RuntimeError("fs: " + info)
         shader = Shader()
         success, info = shader.link(vs.shader, fs.shader)
         if not success:
-            return "link: " + info
+            raise RuntimeError("link: " + info)
         return shader
 
     @staticmethod
-    def load_from_pkg(pkg: str, name: str) -> Optional["Shader"]:
+    def load_from_pkg(pkg: str, name: str) -> "Shader":
         import pkgutil
 
         vs = pkgutil.get_data(pkg, f"{name}.vert")
         assert vs
         fs = pkgutil.get_data(pkg, f"{name}.frag")
         assert fs
-        match Shader.load(vs, fs):
-            case Shader() as shader:
-                return shader
-            case str() as info:
-                LOGGER.error(f"{pkg}#{name}: {info}")
+        return Shader.load(vs, fs)
 
     def create_props(
         self, camera: Camera, node: Node | None = None
