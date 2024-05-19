@@ -93,6 +93,8 @@ class Perspective:
     def resize(self, w: int, h: int) -> bool:
         if self.width == w and self.height == h:
             return False
+        if h==0:
+            return False
         self.width = w
         self.height = h
         self.aspect = float(w) / h

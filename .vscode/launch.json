@@ -85,5 +85,17 @@
             "cwd": "${workspaceRoot}",
             "justMyCode": false
         },
+        {
+            "name": "gen_gl_stub",
+            "type": "debugpy",
+            "request": "launch",
+            "stopOnEntry": false,
+            "program": "${workspaceFolder}/gen_gl_stub.py",
+            "args": [
+                "typings"
+            ],
+            "cwd": "${workspaceRoot}",
+            "justMyCode": false
+        },
     ]
 }
