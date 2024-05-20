@@ -82,12 +82,16 @@ class Ibo:
 
     def set_indices(
         self,
-        indices: ctypes.Array[ctypes.c_ushort] | ctypes.Array[ctypes.c_uint],
+        indices: (
+            ctypes.Array[ctypes.c_uint16]
+            | ctypes.Array[ctypes.c_ushort]
+            | ctypes.Array[ctypes.c_uint]
+        ),
         *,
         is_dynamic: bool = False,
     ):
         match indices._type_:
-            case ctypes.c_ushort:
+            case ctypes.c_ushort | ctypes.c_uint16:
                 self.set_bytes(bytes(indices), 2, is_dynamic=is_dynamic)
             case ctypes.c_uint:
                 self.set_bytes(bytes(indices), 4, is_dynamic=is_dynamic)

@@ -4,7 +4,6 @@ import io
 import inspect
 import pathlib
 import logging
-import OpenGL.platform.baseplatform
 from OpenGL import GL
 
 
