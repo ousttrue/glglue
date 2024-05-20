@@ -38,7 +38,7 @@ class SampleScene:
             self.initialized = True
 
             # shader
-            mesh_shader = glo.Shader.load_from_pkg("glglue", "assets/mesh")
+            mesh_shader = glo.Shader.load_from_pkg("glglue", "assets/vertex_color")
             self.drawables.append(
                 cube.create(
                     mesh_shader,
