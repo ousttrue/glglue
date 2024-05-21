@@ -31,7 +31,7 @@ And OpenGL utilities.
 | glut     | ok     | windows11, PATH to freeglut64.vc.dll     |
 | glfw     | ok     | windows11, pip install glfw              |
 | gtk3     | ?      | require gtk3 self build                  |
-| gtk4     | ?      | require gtk4 self build                  |
+| gtk4     | ok     | require gtk4 self build                  |
 | sdl2     | ok     | windows11, pip install pysdl2 pysdl2-dll |
 | qt6      | ok     | windows11, pip install pyside6)          |
 | win32    | ok     | windows11                                |

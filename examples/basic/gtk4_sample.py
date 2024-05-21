@@ -1,5 +1,10 @@
-import gi
+import os
+import pathlib
 import traceback
+
+os.add_dll_directory(pathlib.Path(os.environ["USERPROFILE"]) / "gtk/bin")
+
+import gi
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
@@ -10,6 +15,7 @@ class Window(Gtk.ApplicationWindow):
         super().__init__(application=app)  # type: ignore
 
         from glglue.scene.sample import SampleScene
+
         self.scene = SampleScene()
 
         import glglue.gtk4

@@ -66,6 +66,10 @@
             "stopOnEntry": false,
             "program": "${workspaceFolder}/examples/basic/gtk4_sample.py",
             "cwd": "${workspaceRoot}",
+            "env": {
+                "PATH": "${env:PATH};${env:USERPROFILE}\\gtk\\bin",
+                "PYTHONPATH": "${env:USERPROFILE}\\gtk\\lib\\site-packages",
+            }
         },
         {
             "name": "gui/pyside6_gui",

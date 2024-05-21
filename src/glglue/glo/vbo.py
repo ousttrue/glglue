@@ -93,7 +93,7 @@ class Ibo:
         match indices._type_:
             case ctypes.c_ushort | ctypes.c_uint16:
                 self.set_bytes(bytes(indices), 2, is_dynamic=is_dynamic)
-            case ctypes.c_uint:
+            case ctypes.c_uint | ctypes.c_int:
                 self.set_bytes(bytes(indices), 4, is_dynamic=is_dynamic)
             case _:
                 raise NotImplementedError()
