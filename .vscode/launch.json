@@ -72,11 +72,26 @@
             }
         },
         {
+            "name": "----",
+        },
+        {
             "name": "gui/pyside6_gui",
             "type": "debugpy",
             "request": "launch",
             "stopOnEntry": false,
             "program": "${workspaceFolder}/examples/gui/pyside6_gui.py",
+            "cwd": "${workspaceRoot}",
+            "justMyCode": false
+        },
+        {
+            "name": "gui/pyside6_gizmo",
+            "type": "debugpy",
+            "request": "launch",
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}",
+            },
+            "module": "examples.gui.pyside6_gizmo",
             "cwd": "${workspaceRoot}",
             "justMyCode": false
         },
