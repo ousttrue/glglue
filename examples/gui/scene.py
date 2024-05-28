@@ -1,83 +1,111 @@
-from typing import Any
+from typing import Any, NamedTuple
+import ctypes
+import glglue.drawable
 import glglue.frame_input
 from OpenGL import GL  # type: ignore
-from glglue import glo
-from glglue.camera.mouse_camera import MouseCamera
-from glglue.drawable import Drawable, axes, grid
-import glm
+from glglue import glo, drawable, camera
 
 import logging
 
 LOGGER = logging.getLogger(__name__)
 
 
-# @dataclasses.dataclass
-# class Node:
-#     name: str
-#     world_matrix: glm.mat4 = glm.mat4(1.0)
+class GizmoContext(NamedTuple):
+    verticies: ctypes.Array[drawable.line_builder.Vertex]
+    submesh: drawable.Submesh
+    color: drawable.line_builder.Float3 = drawable.line_builder.Float3(1, 1, 1)
 
-#     def set_position(self, pos: glm.vec3) -> None:
-#         self.world_matrix = glm.translate(pos)
+    def set_color(self, color: drawable.line_builder.Float3) -> None:
+        self.color.x = color.x
+        self.color.y = color.y
+        self.color.z = color.z
 
-
-class GizmoContext:
-    def __init__(self):
-        self.color = glm.vec3(1, 1, 1)
-
-    def draw_line(self, s: glm.vec3, e: glm.vec3) -> None:
-        pass
+    def draw_line(
+        self, s: drawable.line_builder.Float3, e: drawable.line_builder.Float3
+    ) -> None:
+        self.verticies[self.submesh.draw_count].position = s
+        self.verticies[self.submesh.draw_count].color = self.color
+        self.submesh.draw_count += 1
+        self.verticies[self.submesh.draw_count].position = e
+        self.verticies[self.submesh.draw_count].color = self.color
+        self.submesh.draw_count += 1
 
 
 class Gizmos:
     def __init__(self):
-        self.context = GizmoContext()
+        self.drawable: drawable.Drawable | None = None
+        self.vertices = (drawable.line_builder.Vertex * 65535)()
 
     def __enter__(self) -> GizmoContext:
-        # print("enter")
-        return self.context
+        assert self.drawable
+        submesh = self.drawable.submeshes[0]
+        submesh.draw_count = 0
+        return GizmoContext(self.vertices, submesh)
 
     def __exit__(self, ex_type: type, ex_value: Exception, trace: Any):
-        # print("exit: ", ex_type, ex_value, trace)
-        pass
+        assert self.drawable
+        self.drawable.vao.vbo.update(memoryview(self.vertices))
+
+    def make_drawable(
+        self, shader: glo.Shader, props: list[glo.UniformUpdater], n: int = 5
+    ) -> drawable.Drawable:
+        vbo = glo.Vbo()
+        vbo.set_vertices(memoryview(self.vertices), is_dynamic=True)
+
+        vao = glo.Vao(
+            vbo, glo.VertexLayout.create_list(shader.program), topology=GL.GL_LINES
+        )
+
+        self.drawable = drawable.Drawable(vao)
+        self.drawable.push_submesh(shader, 0, props)
+        return self.drawable
 
 
 class SampleScene:
     def __init__(self) -> None:
         self.gizmos = Gizmos()
         self.initialized = False
-        self.mouse_camera = MouseCamera()
-        self.drawables: list[Drawable] = []
+        self.mouse_camera = camera.mouse_camera.MouseCamera()
+        self.drawables: list[drawable.Drawable] = []
 
     def render(self, frame: glglue.frame_input.FrameInput):
-        self.begin_render(frame)
-        self.draw()
-        self.end_render()
-
-    def draw(self):
         if not self.initialized:
             self.initialized = True
 
             line_shader = glo.Shader.load_from_pkg("glglue", "assets/line")
             self.drawables.append(
-                axes.create(
+                drawable.axes.create(
                     line_shader,
                     line_shader.create_props(self.mouse_camera.camera),
                 )
             )
             self.drawables.append(
-                grid.create(
+                drawable.grid.create(
                     line_shader,
                     line_shader.create_props(self.mouse_camera.camera),
                 )
             )
 
+            self.drawables.append(
+                self.gizmos.make_drawable(
+                    line_shader, line_shader.create_props(self.mouse_camera.camera)
+                )
+            )
+
+        self.begin_render(frame)
+
         with self.gizmos as gizmos:
-            gizmos.color = glm.vec3(1, 0, 0)
-            gizmos.draw_line(glm.vec3(0, 0, 0), glm.vec3(1, 1, 1))
+            gizmos.set_color(drawable.line_builder.Float3(1, 0, 0))
+            gizmos.draw_line(
+                drawable.line_builder.Float3(0, 0, 0),
+                drawable.line_builder.Float3(1, 1, 1),
+            )
 
         # render
-        for drawable in self.drawables:
-            drawable.draw()
+        for d in self.drawables:
+            d.draw()
+
+        self.end_render()
 
     def begin_render(self, frame: glglue.frame_input.FrameInput):
         # update camera

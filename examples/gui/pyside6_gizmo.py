@@ -2,7 +2,7 @@ from PySide6 import QtWidgets, QtCore
 import sys
 import logging
 import glglue.pyside6
-import glm
+
 
 LOGGER = logging.getLogger(__name__)
 
