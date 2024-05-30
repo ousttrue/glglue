@@ -1,50 +1,52 @@
-import time
+import logging
+import sys
 import tkinter
-from OpenGL import GL
+import glglue.tk_frame
+import glglue.scene.sample
 
 
-import glglue.frame_input
+LOGGER = logging.getLogger(__name__)
 
 
-class AppOgl(OpenGLFrame):
+class Frame(tkinter.Frame):
+    def __init__(self, master, *, width, height, **kw):  # type: ignore
+        super(Frame, self).__init__(master, **kw)  # type: ignore
 
-    def __init__(self, **kw):
-        super().__init__(**kw)
-        from glglue.scene.sample import SampleScene
-
-        self.scene = SampleScene()
-
-    def initgl(self):
-        """Initalize gl states when the frame is created"""
-        self.start = time.time()
-        self.nframes = 0
-
-    def redraw(self):
-        """Render a single frame"""
-        self.scene.render(
-            glglue.frame_input.FrameInput(
-                mouse_x=0,
-                mouse_y=,
-                width=self.render_width,
-                height=self.render_height,
-                mouse_left=self.left_down,
-                mouse_middle=self.middle_down,
-                mouse_right=self.right_down,
-                mouse_wheel=self.wheel,
-            )
+        # setup opengl widget
+        self.scene = glglue.scene.sample.SampleScene()
+        self.glwidget = glglue.tk_frame.TkGlFrame(
+            self, self.scene.render, width=width, height=height
         )
-        GL.glViewport(0, 0, self.width, self.height)  # type: ignore
-        GL.glClearColor(0.0, 1.0, 0.0, 0.0)  # type: ignore
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT)  # type: ignore
-        tm = time.time() - self.start
-        self.nframes += 1
-        print("fps", self.nframes / tm, end="\r")
+        self.glwidget.pack(fill=tkinter.BOTH, expand=True)
+        # event binding(require focus)
+        self.bind("<Key>", self.onKeyDown)  # type: ignore
+        self.bind(
+            "<MouseWheel>",
+            lambda e: self.glwidget.status.set_wheel(-e.delta),
+        )
+
+    def onKeyDown(self, event) -> None:  # type: ignore
+        key = event.keycode  # type: ignore
+        if key == 27:
+            # Escape
+            sys.exit()
+        if key == 81:
+            # q
+            sys.exit()
+        else:
+            LOGGER.debug(f"keycode: {key}")
+
+
+def main():
+    logging.basicConfig(
+        format="[%(levelname)s] %(name)s.%(funcName)s: %(message)s", level=logging.DEBUG
+    )
+
+    root = tkinter.Tk()
+    app = Frame(root, width=320, height=200)
+    app.pack(fill=tkinter.BOTH, expand=tkinter.YES)
+    app.mainloop()
 
 
 if __name__ == "__main__":
-    root = tkinter.Tk()
-    app = AppOgl(root, width=320, height=200)
-    app.pack(fill=tkinter.BOTH, expand=tkinter.YES)
-    app.animate = 1
-    app.after(100, app.printContext)
-    app.mainloop()
+    main()

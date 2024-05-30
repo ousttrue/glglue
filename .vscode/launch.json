@@ -76,7 +76,7 @@
             "type": "debugpy",
             "request": "launch",
             "stopOnEntry": false,
-            "program": "${workspaceFolder}/src/glglue/tk_frame.py",
+            "program": "${workspaceFolder}/examples/basic/pyopengltk_sample.py",
             "cwd": "${workspaceRoot}",
             "justMyCode": false
         },

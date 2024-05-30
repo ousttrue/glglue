@@ -33,6 +33,7 @@ class WindowStatus:
         self.on_updated()
 
     def mouse_move(self, x: int, y: int) -> None:
+        # only mouse pressed
         # LOGGER.debug(f"{x},{y}")
         self.cursor_x = x
         self.cursor_y = y
@@ -80,7 +81,7 @@ class WindowStatus:
         return frame
 
 
-class Widget(OpenGLFrame):
+class TkGlFrame(OpenGLFrame):
     def __init__(
         self,
         master,  # type: ignore
@@ -88,7 +89,7 @@ class Widget(OpenGLFrame):
         *args,  # type: ignore
         **kw,  # type: ignore
     ):
-        super(Widget, self).__init__(master, *args, **kw)  # type: ignore
+        super(TkGlFrame, self).__init__(master, *args, **kw)  # type: ignore
         self.on_render = on_render
         self.status = WindowStatus(self.on_udpated)
         # self.bind("<Map>", self.onDraw)
@@ -158,7 +159,9 @@ def main():
 
             # setup opengl widget
             self.scene = glglue.scene.sample.SampleScene()
-            self.glwidget = Widget(self, self.scene.render, width=width, height=height)
+            self.glwidget = TkGlFrame(
+                self, self.scene.render, width=width, height=height
+            )
             self.glwidget.pack(fill=tkinter.BOTH, expand=True)
             # event binding(require focus)
             self.bind("<Key>", self.onKeyDown)  # type: ignore
