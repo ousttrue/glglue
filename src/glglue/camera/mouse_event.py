@@ -8,14 +8,11 @@ DragCallback: TypeAlias = Callable[[FrameInput, int, int], None]
 
 
 class DragInterface(Protocol):
-    def begin(self, mouse_input: FrameInput):
-        ...
+    def begin(self, mouse_input: FrameInput): ...
 
-    def drag(self, mouse_input: FrameInput, dx: int, dy: int):
-        ...
+    def drag(self, mouse_input: FrameInput, dx: int, dy: int): ...
 
-    def end(self, mouse_input: FrameInput):
-        ...
+    def end(self, mouse_input: FrameInput): ...
 
 
 class MouseEvent:
@@ -78,15 +75,19 @@ class MouseEvent:
                     callback(current)
         # drag
         if current.is_active:
-            if current.mouse_left:
+            if (self.last_input and self.last_input.mouse_left) and current.mouse_left:
                 # self.left_active = True
                 for callback in self.left_drag:
                     callback(current, dx, dy)
-            if current.mouse_right:
+            if (
+                self.last_input and self.last_input.mouse_right
+            ) and current.mouse_right:
                 # self.right_active = True
                 for callback in self.right_drag:
                     callback(current, dx, dy)
-            if current.mouse_middle:
+            if (
+                self.last_input and self.last_input.mouse_middle
+            ) and current.mouse_middle:
                 # self.middle_active = True
                 for callback in self.middle_drag:
                     callback(current, dx, dy)
