@@ -36,3 +36,11 @@ And OpenGL utilities.
 | sdl2       | ok     | windows11, pip install pysdl2 pysdl2-dll |
 | qt6        | ok     | windows11, pip install pyside6           |
 | pyopengltk | ok     | windows11, pip install pyopengltk        |
+
+## upload
+
+```sh
+rm -rf dist
+py -m build --sdist
+twine upload dist/*
+```

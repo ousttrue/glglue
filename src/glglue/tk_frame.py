@@ -89,6 +89,8 @@ class TkGlFrame(OpenGLFrame):
         *args,  # type: ignore
         **kw,  # type: ignore
     ):
+        self.width = 0
+        self.height = 0
         super(TkGlFrame, self).__init__(master, *args, **kw)  # type: ignore
         self.on_render = on_render
         self.status = WindowStatus(self.on_udpated)
@@ -145,7 +147,8 @@ class TkGlFrame(OpenGLFrame):
 
     def redraw(self):
         """Render a single frame"""
-        self.on_render(self.status.make_frame(self.width, self.height))
+        if self.width and self.height:
+            self.on_render(self.status.make_frame(self.width, self.height))
 
 
 def main():
